@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Ejecutar con F5 (Abrir en Navegador)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost/sistema_sif/",
+            "webRoot": "${workspaceRoot}"
+        },
+        {
+            "name": "Escuchar Xdebug (PHP)",
+            "type": "php",
+            "request": "launch",
+            "port": 9003
+        }
+    ]
+}
