@@ -258,7 +258,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>Ventas</span>
                 </a>
-                <a class="nav-link-custom" href="bodega_lotes.php">
+                <a class="nav-link-custom" href="bodega/bodega_lotes.php">
                     <span class="material-symbols-outlined">warehouse</span>
                     <span>Bodega y Lotes</span>
                 </a>

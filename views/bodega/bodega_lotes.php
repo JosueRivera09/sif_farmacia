@@ -3,7 +3,7 @@ session_start();
 
 // Verificar si hay sesión iniciada
 if (!isset($_SESSION['id_usuario'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 
@@ -11,88 +11,22 @@ if (!isset($_SESSION['id_usuario'])) {
 $nombre_usuario = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSION['nombre_usuario']) : 'Admin';
 $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'Administrador';
 
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
 
-// Obtener Stock Total
-$queryStock = "SELECT SUM(cantidad_recibida) as total_stock FROM lotes";
-$resStock = mysqli_query($conexion, $queryStock);
-$rowStock = mysqli_fetch_assoc($resStock);
-$total_stock = $rowStock['total_stock'] ? number_format($rowStock['total_stock']) : '0';
+$data = obtenerDatosBodega($conexion);
 
-// Obtener Lotes por Vencer (menos de 30 días o ya vencidos)
-$queryVencer = "SELECT COUNT(*) as total_vencer FROM lotes WHERE fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
-$resVencer = mysqli_query($conexion, $queryVencer);
-$rowVencer = mysqli_fetch_assoc($resVencer);
-$lotes_por_vencer = $rowVencer['total_vencer'] ? $rowVencer['total_vencer'] : '0';
-
-// 1. Definir paginación
-$lotes_por_pagina = 5;
-$pagina_actual = isset($_GET['page']) ? intval($_GET['page']) : 1;
-if ($pagina_actual < 1) {
-    $pagina_actual = 1;
-}
-
-// 2. Obtener cantidad total de lotes
-$queryTotalLotes = "SELECT COUNT(*) as total_filas FROM lotes";
-$resTotalLotes = mysqli_query($conexion, $queryTotalLotes);
-$rowTotalLotes = mysqli_fetch_assoc($resTotalLotes);
-$total_lotes = isset($rowTotalLotes['total_filas']) ? intval($rowTotalLotes['total_filas']) : 0;
-
-// Calcular total de páginas
-$total_paginas = ceil($total_lotes / $lotes_por_pagina);
-if ($total_paginas < 1) {
-    $total_paginas = 1;
-}
-if ($pagina_actual > $total_paginas) {
-    $pagina_actual = $total_paginas;
-}
-
-$offset = ($pagina_actual - 1) * $lotes_por_pagina;
-
-// 3. Obtener listado de Lotes con límite para paginación
-$queryLotes = "SELECT l.numero_lote, p.nombre_commercial, c.nombre_categoria, l.cantidad_recibida, l.fecha_vencimiento, p.unidad_medida
-               FROM lotes l
-               JOIN productos p ON l.id_producto = p.id_producto
-               JOIN categorias c ON p.id_categoria = c.id_categoria
-               ORDER BY l.fecha_vencimiento ASC
-               LIMIT $lotes_por_pagina OFFSET $offset";
-$resLotes = mysqli_query($conexion, $queryLotes);
-$lotes_list = [];
-if ($resLotes) {
-    while ($row = mysqli_fetch_assoc($resLotes)) {
-        $lotes_list[] = $row;
-    }
-}
-
-// Obtener listado de productos para el modal de nuevo ingreso
-$queryProdList = "SELECT id_producto, nombre_commercial, codigo_barras FROM productos ORDER BY nombre_commercial ASC";
-$resProdList = mysqli_query($conexion, $queryProdList);
-$products_list = [];
-if ($resProdList) {
-    while ($row = mysqli_fetch_assoc($resProdList)) {
-        $products_list[] = $row;
-    }
-}
-
-// Obtener listado de laboratorios para el modal
-$queryLabList = "SELECT id_laboratorio, nombre_laboratorio FROM laboratorios ORDER BY nombre_laboratorio ASC";
-$resLabList = mysqli_query($conexion, $queryLabList);
-$laboratories_list = [];
-if ($resLabList) {
-    while ($row = mysqli_fetch_assoc($resLabList)) {
-        $laboratories_list[] = $row;
-    }
-}
-
-// Obtener listado de categorías para el modal
-$queryCatList = "SELECT id_categoria, nombre_categoria FROM categorias ORDER BY nombre_categoria ASC";
-$resCatList = mysqli_query($conexion, $queryCatList);
-$categories_list = [];
-if ($resCatList) {
-    while ($row = mysqli_fetch_assoc($resCatList)) {
-        $categories_list[] = $row;
-    }
-}
+$total_stock = $data['total_stock'];
+$lotes_por_vencer = $data['lotes_por_vencer'];
+$pagina_actual = $data['pagina_actual'];
+$total_paginas = $data['total_paginas'];
+$offset = $data['offset'];
+$lotes_por_pagina = $data['lotes_por_pagina'];
+$total_lotes = $data['total_lotes'];
+$lotes_list = $data['lotes_list'];
+$products_list = $data['products_list'];
+$laboratories_list = $data['laboratories_list'];
+$categories_list = $data['categories_list'];
 ?>
 <!DOCTYPE html>
 <html lang="es" class="h-100">
@@ -110,506 +44,8 @@ if ($resCatList) {
     <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 
-    <style>
-        body {
-            background-color: #0f172a; /* Fondo principal de la indicación anterior */
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        /* Contenedor Principal Flex */
-        .app-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* Barra Lateral (Sidebar) */
-        .sidebar {
-            width: 280px;
-            background-color: #1e293b; /* Sidebar bg de la indicación anterior */
-            border-right: 1px solid #334155; /* border-subtle */
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            padding: 24px 16px;
-        }
-
-        .sidebar-header {
-            margin-bottom: 32px;
-            padding: 0 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-box {
-            background-color: #10b981; /* accent-green */
-            padding: 6px 12px;
-            border-radius: 8px;
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ffffff;
-            margin: 0;
-            letter-spacing: -0.025em;
-        }
-
-        .sidebar-subtitle {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            opacity: 0.7;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .nav-link-custom {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            color: #94a3b8; /* text-muted */
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link-custom:hover {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-
-        .nav-link-custom.active {
-            background-color: rgba(15, 23, 42, 0.6);
-            color: #10b981; /* accent-green */
-            border-left: 4px solid #10b981;
-            border-radius: 0 8px 8px 0;
-            padding-left: 12px;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid #334155;
-            padding-top: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .text-error-custom {
-            color: #ef4444 !important; /* accent-red */
-        }
-        .text-error-custom:hover {
-            background-color: rgba(239, 68, 68, 0.1) !important;
-        }
-
-        /* Área de Contenido */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            background-color: #0f172a;
-        }
-
-        /* Cabecera (Header) */
-        .top-header {
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            background-color: #0f172a;
-            border-bottom: 1px solid #334155;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #f8fafc;
-            margin: 0;
-        }
-
-        .header-icons {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            color: #94a3b8;
-        }
-
-        .header-icon-btn {
-            cursor: pointer;
-            color: #94a3b8;
-            transition: color 0.2s ease;
-        }
-        .header-icon-btn:hover {
-            color: #10b981;
-        }
-
-        .profile-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-left: 24px;
-            border-left: 1px solid #334155;
-        }
-
-        .avatar-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(16, 185, 129, 0.2);
-            overflow: hidden;
-            background-color: #1e293b;
-        }
-
-        /* Contenido Central Scrollable */
-        .content-body {
-            padding: 24px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        /* Tarjetas de Métricas */
-        .metric-card {
-            background-color: #1e293b; /* Card bg */
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-
-        .metric-card.card-primary::before { background-color: #10b981; }
-        .metric-card.card-tertiary::before { background-color: #f59e0b; }
-        .metric-card.card-secondary::before { background-color: #3b82f6; }
-
-        .metric-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            margin: 0;
-        }
-
-        .metric-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-top: 4px;
-            margin-bottom: 0;
-        }
-
-        .metric-value.text-tertiary-custom {
-            color: #f59e0b !important;
-        }
-
-        .metric-subtitle {
-            font-size: 12px;
-            margin-top: 8px;
-            margin-bottom: 0;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .metric-icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .bg-primary-box { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .bg-tertiary-box { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-        .bg-secondary-box { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-
-        /* Filtros */
-        .filter-panel {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 24px;
-            width: 100%;
-        }
-
-        .filter-title-section {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
-        .filter-label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .filter-input {
-            width: 100%;
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            color: #f8fafc;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-        .filter-input:focus {
-            border-color: #10b981;
-            outline: none;
-            box-shadow: none;
-        }
-
-        .btn-apply {
-            background-color: #10b981;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            width: 100%;
-            transition: opacity 0.2s ease;
-        }
-        .btn-apply:hover {
-            opacity: 0.9;
-        }
-
-        .btn-clear {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            width: 100%;
-            text-align: center;
-            transition: color 0.2s;
-        }
-        .btn-clear:hover {
-            color: #f8fafc;
-        }
-
-        /* Tabla y Contenedores */
-        .data-section {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .table-controls {
-            padding: 24px;
-            border-bottom: 1px solid #334155;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .search-container {
-            position: relative;
-            width: 100%;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 20px;
-        }
-
-        .search-input {
-            width: 100%;
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            color: #f8fafc;
-            border-radius: 8px;
-            padding: 8px 12px 8px 40px;
-            font-size: 14px;
-        }
-
-        .btn-primary-custom {
-            background-color: #10b981;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-secondary-custom {
-            background-color: #334155;
-            color: #f8fafc;
-            border: 1px solid #475569;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 8px 16px;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-secondary-custom:hover {
-            background-color: #475569;
-        }
-
-        .table-custom-header {
-            background-color: rgba(15, 23, 42, 0.4);
-            border-bottom: 1px solid #334155;
-        }
-
-        .table-custom-header th {
-            font-size: 12px;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            padding: 16px 24px;
-        }
-
-        .table tbody tr {
-            border-bottom: 1px solid #334155;
-            transition: background-color 0.2s ease;
-        }
-        .table tbody tr:hover {
-            background-color: rgba(15, 23, 42, 0.3);
-        }
-
-        .table td {
-            padding: 16px 24px;
-            vertical-align: middle;
-        }
-
-        .text-primary-custom { color: #10b981; }
-        .font-mono-custom { font-family: 'JetBrains Mono', monospace; font-size: 14px; }
-
-        /* Estados */
-        .badge-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50rem;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-disponible { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .badge-proximo { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-        .badge-vencido { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; }
-
-        /* Paginación */
-        .pagination-container {
-            padding: 16px 24px;
-            background-color: rgba(15, 23, 42, 0.4);
-            border-top: 1px solid #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn-page {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            border: 1px solid #334155;
-            background: none;
-            color: #f8fafc;
-            font-size: 12px;
-            transition: background-color 0.2s;
-        }
-        .btn-page:hover:not(:disabled) {
-            background-color: #334155;
-        }
-        .btn-page.active {
-            background-color: #10b981;
-            color: #ffffff;
-            font-weight: 700;
-            border-color: #10b981;
-        }
-
-        /* Footer */
-        .footer-meta {
-            margin-top: 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #94a3b8;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            opacity: 0.5;
-        }
-
-        /* Scrollbar Personalizado */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 10px;
-        }
-    </style>
+    <!-- Hojas de estilo personalizadas -->
+    <link href="../../assets/css/bodega_lotes.css" rel="stylesheet"/>
 </head>
 <body class="h-100">
 
@@ -618,16 +54,17 @@ if ($resCatList) {
         <!-- BEGIN: Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="logo-box">S</div>
+                <div >
+                    <img src="../../assets/img/logo.png" alt="Logo SISTEMA SIF" style="width: 50px; height: 50px; object-fit: contain;">
+                </div>
                 <div>
                     <h1 class="sidebar-brand">SISTEMA SIF</h1>
-                    <p class="sidebar-subtitle mb-0">Warehouse Management</p>
                 </div>
             </div>
             
             <nav class="sidebar-menu custom-scrollbar">
                 <?php if ($_SESSION['rol'] === 'Administrador'): ?>
-                <a class="nav-link-custom" href="admin_dashboard.php">
+                <a class="nav-link-custom" href="../admin_dashboard.php">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>Inicio</span>
                 </a>
@@ -636,7 +73,7 @@ if ($resCatList) {
                     <span>Gestión Usuarios</span>
                 </a>
                 <?php else: ?>
-                <a class="nav-link-custom" href="vendedor_dashboard.php">
+                <a class="nav-link-custom" href="../vendedor_dashboard.php">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>Inicio</span>
                 </a>
@@ -667,7 +104,7 @@ if ($resCatList) {
                     <span class="material-symbols-outlined">settings</span>
                     <span>Ajustes</span>
                 </a>
-                <a class="nav-link-custom text-error-custom" href="../controllers/logout.php">
+                <a class="nav-link-custom text-error-custom" href="../../controllers/logout.php">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Cerrar Sesión</span>
                 </a>
@@ -685,7 +122,7 @@ if ($resCatList) {
                 <div class="d-flex align-items-center gap-4">
                     <div class="header-icons d-flex gap-3">
                         <span class="material-symbols-outlined header-icon-btn">notifications</span>
-                        <span class="material-symbols-outlined header-icon-btn">settings</span>
+                       
                     </div>
                     
                     <div class="profile-container d-flex align-items-center gap-3 border-start border-secondary-subtle ps-4">
@@ -788,10 +225,13 @@ if ($resCatList) {
                                      <label class="filter-label">Categoría</label>
                                      <select class="filter-input" id="filterCategoria">
                                          <option value="">Todas las categorías</option>
-                                         <option value="Analgésicos">Analgésicos</option>
-                                         <option value="Antibióticos">Antibióticos</option>
-                                         <option value="Vitaminas y Suplementos">Vitaminas y Suplementos</option>
-                                         <option value="Antiinflamatorios">Antiinflamatorios</option>
+                                         <?php if (!empty($categories_list)): ?>
+                                             <?php foreach ($categories_list as $cat): ?>
+                                                 <option value="<?php echo htmlspecialchars($cat['nombre_categoria']); ?>">
+                                                     <?php echo htmlspecialchars($cat['nombre_categoria']); ?>
+                                                 </option>
+                                             <?php endforeach; ?>
+                                         <?php endif; ?>
                                      </select>
                                  </div>
                                  <div class="mb-4">
@@ -1128,7 +568,7 @@ if ($resCatList) {
                     <h5 class="modal-title" id="nuevoLoteModalLabel"><span class="material-symbols-outlined me-2 text-primary-custom">add_box</span>Nuevo Ingreso de Lote</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="../controllers/lote_process.php" method="POST">
+                <form action="../../controllers/bodega/lote_process.php" method="POST">
                     <div class="modal-body">
                         <!-- Tipo de Registro -->
                         <div class="mb-4">

@@ -372,7 +372,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     <span class="material-symbols-outlined">inventory_2</span>
                     <span>Catálogo Productos</span>
                 </a>
-                <a class="nav-link-custom" href="bodega_lotes.php">
+                <a class="nav-link-custom" href="bodega/bodega_lotes.php">
                     <span class="material-symbols-outlined">warehouse</span>
                     <span>Bodega y Lotes</span>
                 </a>

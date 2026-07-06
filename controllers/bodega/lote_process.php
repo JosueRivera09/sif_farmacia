@@ -1,10 +1,10 @@
 <?php
 session_start();
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../../config/conexion.php';
 
 // Verificar si hay sesión iniciada
 if (!isset($_SESSION['id_usuario'])) {
-    header("Location: ../views/login.php");
+    header("Location: ../../views/login.php");
     exit;
 }
 
@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fecha_vencimiento = isset($_POST['fecha_vencimiento']) ? trim($_POST['fecha_vencimiento']) : '';
 
     if (empty($numero_lote) || $cantidad_recibida <= 0 || empty($fecha_vencimiento)) {
-        header("Location: ../views/bodega_lotes.php?error=campos_vacios");
+        header("Location: ../../views/bodega/bodega_lotes.php?error=campos_vacios");
         exit;
     }
 
@@ -134,16 +134,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Confirmar transacción
         mysqli_commit($conexion);
 
-        header("Location: ../views/bodega_lotes.php?success=1");
+        header("Location: ../../views/bodega/bodega_lotes.php?success=1");
         exit;
 
     } catch (Exception $e) {
         mysqli_rollback($conexion);
-        header("Location: ../views/bodega_lotes.php?error=fallo_registro");
+        header("Location: ../../views/bodega/bodega_lotes.php?error=fallo_registro");
         exit;
     }
 } else {
-    header("Location: ../views/bodega_lotes.php");
+    header("Location: ../../views/bodega/bodega_lotes.php");
     exit;
 }
 ?>
