@@ -5,7 +5,7 @@ if (isset($_SESSION['id_usuario'])) {
     if ($_SESSION['rol'] === 'Administrador') {
         header("Location: admin_dashboard.php");
     } else {
-        header("Location: vendedor_dashboard.php");
+        header("Location: inicio_vendedor.php");
     }
     exit;
 }

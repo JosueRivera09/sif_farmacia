@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";
-$db = "sistema_sif";
+$db = "sif_farmacia";
 
 $conexion = mysqli_connect($host, $user, $password, $db);
 
