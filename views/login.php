@@ -33,12 +33,12 @@ if (isset($_SESSION['id_usuario'])) {
            propiedades dentro de esta regla body.
            ========================================== */
         body {
-            background-color: #ffffff; /* FONDO BLANCO CONFIGURABLE */
-            /* Ejemplo de fondo con imagen o gradiente:
-               background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-               background-size: cover;
-               background-attachment: fixed;
-            */
+          background-image: url('../assets/img/i.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
             display: flex;
