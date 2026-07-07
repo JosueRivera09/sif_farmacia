@@ -230,10 +230,26 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                         <span class="material-symbols-outlined" style="font-size: 18px;">add_circle</span>
                                         NUEVO INGRESO
                                     </button>
-                                    <button class="btn-secondary-custom flex-grow-1 flex-md-grow-0 justify-content-center">
-                                        <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
-                                        EXPORTAR
-                                    </button>
+                                    <div class="dropdown d-flex flex-grow-1 flex-md-grow-0">
+                                        <button class="btn-secondary-custom dropdown-toggle w-100 justify-content-center" type="button" id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                                            EXPORTAR
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="dropdownExportar" style="background-color: #1e293b; border: 1px solid #334155;">
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="../../controllers/bodega/exportar.php?format=excel">
+                                                    <i class="fa-solid fa-file-excel text-success" style="font-size: 16px;"></i>
+                                                    <span style="font-size: 13px; font-weight: 500;">Exportar a Excel</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="../../controllers/bodega/exportar.php?format=pdf" target="_blank">
+                                                    <i class="fa-solid fa-file-pdf text-danger" style="font-size: 16px;"></i>
+                                                    <span style="font-size: 13px; font-weight: 500;">Exportar a PDF</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
 

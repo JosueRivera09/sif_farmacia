@@ -1,0 +1,25 @@
+# Dependencias de PHP (Composer)
+/vendor/
+composer.lock
+
+# Dependencias de Bootstrap / Frontend 
+node_modules/
+npm-debug.log
+yarn-error.log
+/dist/
+
+# Entorno y credenciales
+.env
+.env.local
+config.local.php
+
+# Archivos del sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
