@@ -26,10 +26,11 @@ function contarLotes($conexion) {
 
 function obtenerLotesPaginados($conexion, $limit, $offset) {
     $lotes = [];
-    $query = "SELECT l.numero_lote, p.nombre_commercial, c.nombre_categoria, l.cantidad_recibida, l.fecha_vencimiento, p.unidad_medida
+    $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, c.nombre_categoria, l.cantidad_recibida, l.fecha_vencimiento, l.fecha_creacion, p.unidad_medida, la.nombre_laboratorio
               FROM lotes l
               JOIN productos p ON l.id_producto = p.id_producto
               JOIN categorias c ON p.id_categoria = c.id_categoria
+              LEFT JOIN laboratorios la ON p.id_laboratorio = la.id_laboratorio
               ORDER BY l.fecha_vencimiento ASC
               LIMIT $limit OFFSET $offset";
 
@@ -70,3 +71,12 @@ function obtenerLaboratoriosParaIngreso($conexion) {
 
     return $laboratorios;
 }
+
+function contarBodegasActivas($conexion) {
+    $query = "SELECT COUNT(DISTINCT bodega) as total_bodegas FROM lotes WHERE cantidad_recibida > 0 AND bodega IS NOT NULL AND bodega != ''";
+    $resultado = mysqli_query($conexion, $query);
+    $fila = mysqli_fetch_assoc($resultado);
+
+    return isset($fila['total_bodegas']) ? intval($fila['total_bodegas']) : 0;
+}
+

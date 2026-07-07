@@ -13,8 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $numero_lote = isset($_POST['numero_lote']) ? trim($_POST['numero_lote']) : '';
     $cantidad_recibida = isset($_POST['cantidad_recibida']) ? intval($_POST['cantidad_recibida']) : 0;
     $fecha_vencimiento = isset($_POST['fecha_vencimiento']) ? trim($_POST['fecha_vencimiento']) : '';
+    $bodega = isset($_POST['bodega']) ? trim($_POST['bodega']) : 'Bodega Principal - Managua';
 
-    if (empty($numero_lote) || $cantidad_recibida <= 0 || empty($fecha_vencimiento)) {
+    if (empty($numero_lote) || $cantidad_recibida <= 0 || empty($fecha_vencimiento) || empty($bodega)) {
         header("Location: ../../views/bodega/bodega_lotes.php?error=campos_vacios");
         exit;
     }
@@ -122,10 +123,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Escapar datos del lote
         $lote_escapado = mysqli_real_escape_string($conexion, $numero_lote);
         $venc_escapado = mysqli_real_escape_string($conexion, $fecha_vencimiento);
+        $bodega_escapada = mysqli_real_escape_string($conexion, $bodega);
 
         // Insertar lote (esto dispara el trigger de actualización de stock en 'productos')
-        $queryInsertLote = "INSERT INTO lotes (id_producto, numero_lote, cantidad_recibida, fecha_vencimiento) 
-                            VALUES ($id_producto, '$lote_escapado', $cantidad_recibida, '$venc_escapado')";
+        $queryInsertLote = "INSERT INTO lotes (id_producto, numero_lote, cantidad_recibida, fecha_vencimiento, bodega) 
+                            VALUES ($id_producto, '$lote_escapado', $cantidad_recibida, '$venc_escapado', '$bodega_escapada')";
         
         if (!mysqli_query($conexion, $queryInsertLote)) {
             throw new Exception("Error al registrar lote: " . mysqli_error($conexion));
