@@ -178,17 +178,7 @@ if (isset($_SESSION['id_usuario'])) {
         
         <!-- Sección de Logo -->
         <div class="logo-section">
-            <!-- 
-               ====================================================
-               IMAGEN O LOGO DEL SISTEMA
-               ----------------------------------------------------
-               Actualmente renderiza un SVG inline que representa el
-               maletín de primeros auxilios verde de la maqueta.
-               Si deseas cambiar el logo por una imagen física, reemplaza
-               el código <svg> por:
-               <img src="../assets/img/tu_logo.png" alt="Logo SIF" width="80">
-               ====================================================
-            -->
+        
             <div class="d-flex justify-content-center align-items-center mb-2">
                 <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="2" y="6" width="20" height="15" rx="4" fill="#008B74" />
