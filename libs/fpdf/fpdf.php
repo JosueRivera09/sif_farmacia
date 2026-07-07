@@ -672,6 +672,7 @@ function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false)
 	if($nb>0 && $s[$nb-1]=="\n")
 		$nb--;
 	$b = 0;
+	$b2 = '';
 	if($border)
 	{
 		if($border==1)
