@@ -1,587 +1,337 @@
-<?php
-session_start();
-
-// Verificar si hay sesión iniciada y si el rol es Administrador
-if (!isset($_SESSION['id_usuario']) || $_SESSION['rol'] !== 'Administrador') {
-    header("Location: login.php");
-    exit;
-}
-
-// Obtener nombre del usuario de la sesión
-$nombre_usuario = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSION['nombre_usuario']) : 'Admin';
-$rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'Administrador';
-?>
 <!DOCTYPE html>
-<html lang="es" class="h-100">
+<html lang="es">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SISTEMA SIF - Panel de Administración</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <!-- Google Fonts - Inter & JetBrains Mono -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
-    <!-- Material Symbols Outlined -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <!-- Font Awesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema SIF - Panel de Administración</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* PALETA DE COLORES ADAPTADA DEL LOGIN DEL SIF */
+        :root {
+            --bg-main: #0f1c26;         /* Fondo ultra oscuro general */
+            --bg-card: #172a3a;         /* Color azul/verde oscuro de los contenedores */
+            --bg-hover: #20374c;        /* Hover para las filas y enlaces */
+            --teal-primary: #0db38e;    /* Turquesa brillante */
+            --text-white: #ffffff;
+            --text-muted: #8fa3b5;      /* Color grisáceo secundario */
+            --alert-red: #ef4444;       /* Rojo alertas críticas */
+        }
+
         body {
-            background-color: #0f172a; /* Fondo principal pizarra oscuro */
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-white);
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
         }
 
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        /* Contenedor Principal Flex */
-        .app-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* Barra Lateral (Sidebar) */
+        /* BARRA LATERAL STICKY */
         .sidebar {
-            width: 280px;
-            background-color: #1e293b; /* Sidebar bg pizarra medio */
-            border-right: 1px solid #334155; /* border-subtle */
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            padding: 24px 16px;
-        }
-
-        .sidebar-header {
-            margin-bottom: 32px;
-            padding: 0 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-box {
-            background-color: #10b981; /* accent-green */
-            padding: 6px 12px;
-            border-radius: 8px;
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 1.25rem;
+            background-color: var(--bg-card);
+            min-height: 100vh;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .sidebar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ffffff;
-            margin: 0;
-            letter-spacing: -0.025em;
-        }
-
-        .sidebar-subtitle {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            opacity: 0.7;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .nav-link-custom {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            color: #94a3b8; /* text-muted */
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link-custom:hover {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-
-        .nav-link-custom.active {
-            background-color: rgba(15, 23, 42, 0.6);
-            color: #10b981; /* accent-green */
-            border-left: 4px solid #10b981;
-            border-radius: 0 8px 8px 0;
-            padding-left: 12px;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid #334155;
-            padding-top: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .text-error-custom {
-            color: #ef4444 !important; /* error */
-        }
-        .text-error-custom:hover {
-            background-color: rgba(239, 68, 68, 0.1) !important;
-        }
-
-        /* Área de Contenido */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            background-color: #0f172a;
-        }
-
-        /* Cabecera (Header) */
-        .top-header {
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            background-color: #0f172a;
-            border-bottom: 1px solid #334155;
-        }
-
-        .header-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #cbd5e1;
-            letter-spacing: 0.05em;
-            margin: 0;
-        }
-
-        .header-icons {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            color: #94a3b8;
-        }
-
-        .header-icon-btn {
-            cursor: pointer;
-            color: #94a3b8;
-            transition: color 0.2s ease;
-        }
-        .header-icon-btn:hover {
-            color: #10b981;
-        }
-
-        .profile-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-left: 24px;
-            border-left: 1px solid #334155;
-        }
-
-        .avatar-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(16, 185, 129, 0.2);
-            overflow: hidden;
-            background-color: #1e293b;
-        }
-
-        /* Contenido Central Scrollable */
-        .content-body {
-            padding: 24px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        /* Tarjetas de Métricas */
-        .metric-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
             padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
+        .sidebar-brand i {
+            color: var(--teal-primary);
         }
 
-        .metric-card.card-primary::before { background-color: #10b981; }
-        .metric-card.card-tertiary::before { background-color: #f59e0b; }
-        .metric-card.card-secondary::before { background-color: #3b82f6; }
-
-        .metric-title {
-            font-size: 12px;
-            font-weight: 700;
+        .menu-label {
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            margin: 0;
+            color: var(--text-muted);
+            padding: 10px 15px 5px 15px;
+            display: block;
+            letter-spacing: 0.5px;
         }
 
-        .metric-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-top: 4px;
-            margin-bottom: 0;
+        .nav-link {
+            color: var(--text-muted);
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 2px 10px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none; 
+            display: block;
         }
 
-        .metric-value.text-tertiary-custom {
-            color: #f59e0b !important;
+        .nav-link:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-white);
         }
 
-        .metric-icon-box {
-            width: 48px;
-            height: 48px;
+        .nav-link.active {
+            background-color: rgba(13, 179, 142, 0.15) !important;
+            color: var(--teal-primary) !important;
+            font-weight: 600;
+            border-left: 4px solid var(--teal-primary);
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        /* COMPONENTES DE INTERFAZ DEL PANEL */
+        .custom-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 30px;
+        }
+
+        .custom-card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.02);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .bg-primary-box { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .bg-tertiary-box { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-        .bg-secondary-box { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .card-verdecita { background-color: #0e2e28 !important; border: 1px solid rgba(13, 179, 142, 0.15) !important; }
+        .card-azulita { background-color: #0f243a !important; border: 1px solid rgba(59, 130, 246, 0.15) !important; }
+        .card-rojita { background-color: #2d161a !important; border: 1px solid rgba(239, 68, 68, 0.15) !important; }
+        .card-moradita { background-color: #211635 !important; border: 1px solid rgba(139, 92, 246, 0.15) !important; }
 
-        /* Secciones de Tablas y Alertas */
-        .content-section {
-            background-color: #1e293b;
-            border-radius: 12px;
-            border: 1px solid #334155;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+        .card-title-custom { color: #ffffff !important; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.3px; }
+        .text-wait-custom { color: #cbd5e1 !important; font-weight: 500; }
+        .text-sub-wait { color: #94a3b8 !important; font-size: 0.8rem; }
 
-        .section-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid #334155;
-        }
+        .height-historial { min-height: 340px; }
+        .height-alertas { min-height: 525px; }
 
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #c2c6d6;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin: 0;
-        }
+        .card-icon-box { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .icon-recaudado { background-color: rgba(13, 179, 142, 0.2); color: #0db38e; }
+        .icon-tickets { background-color: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .icon-alertas { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .icon-bodega { background-color: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
 
-        .table-custom-header {
-            background-color: rgba(15, 23, 42, 0.4);
-            border-bottom: 1px solid #334155;
-        }
-
-        .table-custom-header th {
-            font-size: 12px;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            padding: 16px 24px;
-        }
-
-        .empty-placeholder {
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 32px;
-            color: #64748b;
-        }
-
-        /* Footer */
-        .footer-meta {
-            margin-top: 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #94a3b8;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            opacity: 0.5;
-        }
-
-        /* Scrollbar Personalizado */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 10px;
-        }
+        .table { color: #e2e8f0; margin-bottom: 0; }
+        .table th { color: var(--text-muted); font-weight: 600; border-bottom: 2px solid var(--bg-main); background-color: transparent; }
+        .table td { border-bottom: 1px solid rgba(255, 255, 255, 0.03); background-color: transparent; vertical-align: middle; }
+        .table tr:hover td { background-color: var(--bg-hover); }
     </style>
 </head>
-<body class="h-100">
+<body>
 
-    <div class="app-container">
+<div class="container-fluid">
+    <div class="row">
         
-        <!-- BEGIN: Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-box">S</div>
-                <div>
-                    <h1 class="sidebar-brand">SISTEMA SIF</h1>
-                    <p class="sidebar-subtitle mb-0">Warehouse Management</p>
+        <div class="col-md-3 col-lg-2 px-0 sidebar d-flex flex-column justify-content-between">
+            <div>
+                <div class="sidebar-brand d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-square-h fs-4"></i>
+                    <span class="fw-bold h5 mb-0">SISTEMA SIF</span>
+                </div>
+                
+                <div class="nav flex-column nav-pills mt-3">
+                    <span class="menu-label">Menú Principal</span>
+                    <a class="nav-link active" id="btn-inicio"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
+                    <a class="nav-link" id="btn-usuarios"><i class="fa-solid fa-users me-2"></i> Gestión Usuarios</a>
+                    <a class="nav-link" id="btn-productos"><i class="fa-solid fa-box-archive me-2"></i> Catálogo Productos</a>
+                    <a class="nav-link" id="btn-bodega"><i class="fa-solid fa-warehouse me-2"></i> Bodega y Lotes</a>
+                    <a class="nav-link" id="btn-compras"><i class="fa-solid fa-file-contract me-2"></i> Auditoría de Ingresos</a>
+                    <a class="nav-link" id="btn-reportes"><i class="fa-solid fa-file-invoice-dollar me-2"></i> Reportes Diarios</a>
                 </div>
             </div>
-            
-            <nav class="sidebar-menu custom-scrollbar">
-                <a class="nav-link-custom active" href="admin_dashboard.php">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span>Inicio</span>
-                </a>
-                <a class="nav-link-custom" href="#">
-                    <span class="material-symbols-outlined">group</span>
-                    <span>Gestión Usuarios</span>
-                </a>
-                <a class="nav-link-custom" href="#">
-                    <span class="material-symbols-outlined">inventory_2</span>
-                    <span>Catálogo Productos</span>
-                </a>
-                <a class="nav-link-custom" href="bodega/bodega_lotes.php">
-                    <span class="material-symbols-outlined">warehouse</span>
-                    <span>Bodega y Lotes</span>
-                </a>
-                <a class="nav-link-custom" href="#">
-                    <span class="material-symbols-outlined">shopping_cart</span>
-                    <span>Módulo Compras</span>
-                </a>
-                <a class="nav-link-custom" href="#">
-                    <span class="material-symbols-outlined">analytics</span>
-                    <span>Reportes</span>
-                </a>
-            </nav>
-            
-            <!-- Botón de ajustes y cerrar sesión integrado de forma consistente -->
-            <div class="sidebar-footer">
-                <a class="nav-link-custom" href="#">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span>Ajustes</span>
-                </a>
-                <a class="nav-link-custom text-error-custom" href="../controllers/logout.php">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span>Cerrar Sesión</span>
-                </a>
-            </div>
-        </aside>
-        <!-- END: Sidebar -->
-
-        <!-- Main Content Area -->
-        <div class="main-content">
-            
-            <!-- BEGIN: TopHeader -->
-            <header class="top-header">
-                <h2 class="header-title">SISTEMA SIF - PANEL DE ADMINISTRACIÓN</h2>
-                
-                <div class="d-flex align-items-center gap-4">
-                    <div class="header-icons d-flex gap-3">
-                        <span class="material-symbols-outlined header-icon-btn">notifications</span>
-                        <span class="material-symbols-outlined header-icon-btn">settings</span>
-                    </div>
-                    
-                    <div class="profile-container d-flex align-items-center gap-3 border-start border-secondary-subtle ps-4">
-                        <div class="text-end d-none d-sm-block">
-                            <p class="mb-0 font-bold text-light" style="font-size: 14px; font-weight: 700;"><?php echo $nombre_usuario; ?> (Admin)</p>
-                            <p class="mb-0 text-muted uppercase tracking-wider" style="font-size: 10px;"><?php echo $rol_usuario; ?></p>
-                        </div>
-                        <div class="avatar-box">
-                            <img class="w-100 h-100 object-fit-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuF-iQpxxKVH4dx-vZoHx-5U8lhGCDmzgsTwm3oZr6Na276hBSHqhkmbpEqZdgV1meyGb_jKZQlTsIPbhhSStuy4CY5cBn0ZURf2TnyzatF-TXxpYbHwBbdzJcuE6R88T4pu1bFmdA3zi1r9QcbaFPNPK0_kpPBuRf8inZ-puuthBNSfQxLQz3UBbryi9bwzMNtmR9ZjD-4oVqVDN5ThrbQ9duX9qx6FlXxQYiE1TKg6nhb8n9m3-BaIZAjJr5qu1JFI6LRMLAcAVw" alt="Perfil"/>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <!-- END: TopHeader -->
-
-            <main class="content-body custom-scrollbar">
-                
-                <!-- Summary Cards -->
-                <div class="row g-4 mb-4">
-                    <!-- Recaudación Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="metric-card card-primary">
-                            <div>
-                                <p class="metric-title">Recaudación</p>
-                                <p class="metric-value">C$ 0.00</p>
-                            </div>
-                            <div class="metric-icon-box bg-primary-box">
-                                <i class="fa-solid fa-money-bill-wave fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Facturas Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="metric-card card-secondary">
-                            <div>
-                                <p class="metric-title">Facturas Pagadas de Hoy</p>
-                                <p class="metric-value">0 Tickets</p>
-                            </div>
-                            <div class="metric-icon-box bg-secondary-box">
-                                <i class="fa-solid fa-receipt fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Alertas Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="metric-card card-tertiary">
-                            <div>
-                                <p class="metric-title">Alertas de Stock Crítico</p>
-                                <p class="metric-value text-tertiary-custom">0</p>
-                            </div>
-                            <div class="metric-icon-box bg-tertiary-box">
-                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Ingresos Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="metric-card card-primary">
-                            <div>
-                                <p class="metric-title">Ingresos de Bodega de Hoy</p>
-                                <p class="metric-value">0 Lotes</p>
-                            </div>
-                            <div class="metric-icon-box bg-primary-box">
-                                <i class="fa-solid fa-box fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- END: SummaryCards -->
-
-                <div class="row g-4">
-                    <!-- Left Main Area -->
-                    <div class="col-12 col-lg-8">
-                        
-                        <!-- BEGIN: SalesHistory -->
-                        <section class="content-section mb-4">
-                            <div class="section-header">
-                                <h3 class="section-title">Historial de Ventas del Sistema</h3>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-dark table-borderless align-middle mb-0">
-                                    <thead>
-                                        <tr class="table-custom-header">
-                                            <th scope="col">Hora</th>
-                                            <th scope="col">Ticket</th>
-                                            <th scope="col">Cliente</th>
-                                            <th scope="col">Monto</th>
-                                            <th scope="col">Detalles / Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Placeholder para ventas vacías -->
-                                        <tr>
-                                            <td colspan="5" class="p-0">
-                                                <div class="empty-placeholder">
-                                                    <p class="mb-0 text-muted">No hay ventas registradas el día de hoy.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                        <!-- END: SalesHistory -->
-
-                        <!-- BEGIN: ActiveUsers -->
-                        <section class="content-section">
-                            <div class="section-header">
-                                <h3 class="section-title">Usuarios Activos en Sistema</h3>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-dark table-borderless align-middle mb-0">
-                                    <thead>
-                                        <tr class="table-custom-header">
-                                            <th scope="col">Nombre</th>
-                                            <th scope="col">Rol</th>
-                                            <th scope="col">Última Actividad</th>
-                                            <th scope="col">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Placeholder para usuarios vacíos -->
-                                        <tr>
-                                            <td colspan="4" class="p-0">
-                                                <div class="empty-placeholder" style="min-height: 120px;">
-                                                    <p class="mb-0 text-muted italic">Esperando conexión de sesiones...</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                        <!-- END: ActiveUsers -->
-
-                    </div>
-
-                    <!-- Right Alert Area -->
-                    <div class="col-12 col-lg-4">
-                        <!-- BEGIN: LowStockAlerts -->
-                        <section class="content-section h-100 d-flex flex-column">
-                            <div class="section-header">
-                                <h3 class="section-title text-danger">Alertas de Stock Bajo (Urgente)</h3>
-                            </div>
-                            <div class="empty-placeholder flex-grow-1 text-center py-5">
-                                <div class="mb-3">
-                                    <i class="fa-solid fa-boxes-stacked" style="font-size: 3rem; color: rgba(100, 116, 139, 0.3);"></i>
-                                </div>
-                                <h4 class="text-light fs-6">Sin alertas de inventario</h4>
-                                <p class="text-muted small mt-2">Todo el stock se encuentra estable</p>
-                            </div>
-                        </section>
-                        <!-- END: LowStockAlerts -->
-                    </div>
-                </div>
-
-                <!-- Footer Meta -->
-                <div class="footer-meta">
-                    <p class="mb-0">© 2023 SISTEMA SIF - GESTIÓN DE ALMACENES E INVENTARIOS</p>
-                    <div class="d-flex gap-4">
-                        <span>ESTADO DEL SERVIDOR: ÓPTIMO</span>
-                        <span>VERSIÓN: 2.4.0-CORE</span>
-                    </div>
-                </div>
-
-            </main>
         </div>
 
-    </div>
+        <div class="col-md-9 col-lg-10 px-0 d-flex flex-column">
+            
+            <div class="custom-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold text-uppercase tracking-wide" style="font-size: 0.95rem;">
+                    SISTEMA SIF - PANEL DE ADMINISTRACIÓN
+                </span>
+                <div class="dropdown">
+                    <div class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid fa-user-shield text-success"></i>
+                        <span class="fw-medium small">Joel (Admin)</span>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.7rem;"></i>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Bootstrap 5 Bundle with Popper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <div class="p-4" id="main-content-area">
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="custom-card card-verdecita d-flex justify-content-between align-items-center h-100">
+                            <div>
+                                <p class="text-uppercase small card-title-custom mb-1">Recaudación</p>
+                                <h4 class="fw-bold mb-0 text-white">C$ 0.00</h4>
+                            </div>
+                            <div class="card-icon-box icon-recaudado"><i class="fa-solid fa-money-bill-wave"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-xl-3">
+                        <div class="custom-card card-azulita d-flex justify-content-between align-items-center h-100">
+                            <div>
+                                <p class="text-uppercase small card-title-custom mb-1">Facturas Pagadas de Hoy</p>
+                                <h4 class="fw-bold mb-0 text-white">0 Tickets</h4>
+                            </div>
+                            <div class="card-icon-box icon-tickets"><i class="fa-solid fa-receipt"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-xl-3">
+                        <div class="custom-card card-rojita d-flex justify-content-between align-items-center h-100">
+                            <div>
+                                <p class="text-uppercase small card-title-custom mb-1">Alertas de Stock Crítico</p>
+                                <h4 class="fw-bold mb-0 text-danger">0</h4>
+                            </div>
+                            <div class="card-icon-box icon-alertas"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-xl-3">
+                        <div class="custom-card card-moradita d-flex justify-content-between align-items-center h-100">
+                            <div>
+                                <p class="text-uppercase small card-title-custom mb-1">Ingresos de Bodega de Hoy</p>
+                                <h4 class="fw-bold mb-0 text-white">0 Lotes</h4>
+                            </div>
+                            <div class="card-icon-box icon-bodega"><i class="fa-solid fa-box"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-8 d-flex flex-column gap-4">
+                        <div class="custom-card height-historial">
+                            <div class="border-bottom border-secondary pb-2 mb-3">
+                                <h6 class="text-uppercase fw-semibold mb-0" style="font-size: 0.85rem;">
+                                    Historial de Ventas del Sistema <span class="text-muted fw-normal text-none">(Tiempo Real)</span>
+                                </h6>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-dark table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th>Hora</th>
+                                            <th>Ticket</th>
+                                            <th>Cliente</th>
+                                            <th>Monto</th>
+                                            <th>Detalles / Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-wait-custom py-4">No hay ventas registradas el día de hoy.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="custom-card">
+                            <div class="border-bottom border-secondary pb-2 mb-3">
+                                <h6 class="text-uppercase fw-semibold mb-0" style="font-size: 0.85rem;">Usuarios Activos en Sistema</h6>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-dark table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Rol</th>
+                                            <th>Última Actividad</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="4" class="text-center text-wait-custom py-2">Esperando conexión de sesiones...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="custom-card height-alertas">
+                            <div class="border-bottom border-danger pb-2 mb-3">
+                                <h6 class="text-danger text-uppercase fw-semibold mb-0" style="font-size: 0.85rem;">
+                                    Alertas de Stock Bajo <span class="fw-normal small text-white-50">(Urgente)</span>
+                                </h6>
+                            </div>
+                            
+                            <div class="d-flex flex-column justify-content-center align-items-center h-75 text-center">
+                                <i class="fa-solid fa-boxes-stacked fs-2 mb-2 d-block text-secondary"></i>
+                                <span class="text-wait-custom">Sin alertas de inventario</span>
+                                <span class="text-sub-wait mt-1">Todo el stock se encuentra estable</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+
+            </div> 
+        </div> 
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const contentArea = document.getElementById('main-content-area');
+    const btnInicio = document.getElementById('btn-inicio');
+    const btnUsuarios = document.getElementById('btn-usuarios');
+    const btnProductos = document.getElementById('btn-productos');
+    const btnBodega = document.getElementById('btn-bodega');
+    const btnCompras = document.getElementById('btn-compras');
+
+    const vistaInicioHTML = contentArea.innerHTML;
+
+    function manejarCarga(url, btnClicado, nombreModulo) {
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        btnClicado.classList.add('active');
+        
+        contentArea.innerHTML = `
+            <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 py-5">
+                <div class="spinner-border text-success mb-3" role="status"></div>
+                <span class="text-wait-custom">Cargando ${nombreModulo}...</span>
+            </div>
+        `;
+
+        fetch(url)
+            .then(response => {
+                if(!response.ok) throw new Error('Error al cargar archivo');
+                return response.text();
+            })
+            .then(data => { contentArea.innerHTML = data; })
+            .catch(error => {
+                contentArea.innerHTML = `<div class="alert alert-danger m-3">Error: ${error.message}</div>`;
+            });
+    }
+
+    btnInicio.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        btnInicio.classList.add('active');
+        contentArea.innerHTML = vistaInicioHTML;
+    });
+
+    btnUsuarios.addEventListener('click', (e) => {
+        e.preventDefault();
+        manejarCarga('botones_menu/Gestion_usuarios.php', btnUsuarios, 'Gestión de Usuarios');
+    });
+
+    btnProductos.addEventListener('click', (e) => {
+        e.preventDefault();
+        manejarCarga('botones_menu/Gestion_productos.php', btnProductos, 'Catálogo de Productos');
+    });
+
+    btnBodega.addEventListener('click', (e) => {
+        e.preventDefault();
+        manejarCarga('botones_menu/Gestion_BodLotes.php', btnBodega, 'Monitoreo de Existencias');
+    });
+
+    btnCompras.addEventListener('click', (e) => {
+        e.preventDefault();
+        manejarCarga('botones_menu/Auditoria_ingresos.php', btnCompras, 'Auditoría de Ingresos');
+    });
+
+</script>
 </body>
 </html>
