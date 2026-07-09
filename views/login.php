@@ -190,14 +190,7 @@ if (isset($_SESSION['id_usuario'])) {
                ====================================================
             -->
             <div class="d-flex justify-content-center align-items-center mb-2">
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="6" width="20" height="15" rx="4" fill="#008B74" />
-                    <!-- Asa del maletín -->
-                    <path d="M9 6V4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V6" stroke="#008B74" stroke-width="2" stroke-linecap="round"/>
-                    <!-- Cruz médica blanca -->
-                    <path d="M12 9V18" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M7.5 13.5H16.5" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
-                </svg>
+                <img src="../assets/img/logo.png" alt="Logo SIF" style="width: 80px; height: 80px; object-fit: contain;">
                 <span class="logo-title ms-2">SIF</span>
             </div>
             <div class="logo-subtitle">Sistema de Inventario de Farmacia</div>
