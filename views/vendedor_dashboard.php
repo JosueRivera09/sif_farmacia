@@ -246,7 +246,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
         <!-- BEGIN: Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="logo-box">S</div>
+                <div>
+                    <img src="../assets/img/logo.png" alt="Logo SISTEMA SIF" style="width: 50px; height: 50px; object-fit: contain;">
+                </div>
                 <div>
                     <h1 class="sidebar-brand">SISTEMA SIF</h1>
                     <p class="sidebar-subtitle mb-0">Sales Panel</p>

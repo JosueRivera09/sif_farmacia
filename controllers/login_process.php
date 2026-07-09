@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Redirigir según el rol del usuario
             if ($user_data['rol'] === 'Administrador') {
-                header("Location: ../views/admin_dashboard.php");
+                header("Location: ../views/Interfaz_admin/admin_dashboard.php");
             } elseif ($user_data['rol'] === 'Vendedor') {
                 header("Location: ../views/vendedor_dashboard.php");
             } else {

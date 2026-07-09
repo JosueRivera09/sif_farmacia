@@ -3,7 +3,7 @@ session_start();
 // Si el usuario ya está logueado, redirigir según su rol
 if (isset($_SESSION['id_usuario'])) {
     if ($_SESSION['rol'] === 'Administrador') {
-        header("Location: admin_dashboard.php");
+        header("Location: Interfaz_admin/admin_dashboard.php");
     } else {
         header("Location: vendedor_dashboard.php");
     }

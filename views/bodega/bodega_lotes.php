@@ -34,37 +34,48 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                 </div>
                 <div>
                     <h1 class="sidebar-brand">SISTEMA SIF</h1>
+                    <p class="sidebar-subtitle mb-0">Panel Bodega</p>
                 </div>
             </div>
 
             <nav class="sidebar-menu custom-scrollbar">
                 <?php if ($_SESSION['rol'] === 'Administrador'): ?>
-                    <a class="nav-link-custom" href="../admin_dashboard.php">
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Inicio</span>
                     </a>
-                    <a class="nav-link-custom" href="#">
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
                         <span class="material-symbols-outlined">group</span>
                         <span>Gestión Usuarios</span>
+                    </a>
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                        <span>Catálogo Productos</span>
+                    </a>
+                    <a class="nav-link-custom active" href="bodega_lotes.php">
+                        <span class="material-symbols-outlined">warehouse</span>
+                        <span>Bodega y Lotes</span>
+                    </a>
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                        <span>Auditoría de Ingresos</span>
+                    </a>
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
+                        <span class="material-symbols-outlined">analytics</span>
+                        <span>Reportes Diarios</span>
                     </a>
                 <?php else: ?>
                     <a class="nav-link-custom" href="../vendedor_dashboard.php">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Inicio</span>
                     </a>
-                <?php endif; ?>
-                <a class="nav-link-custom" href="#">
-                    <span class="material-symbols-outlined">inventory_2</span>
-                    <span>Catálogo Productos</span>
-                </a>
-                <a class="nav-link-custom active" href="bodega_lotes.php">
-                    <span class="material-symbols-outlined">warehouse</span>
-                    <span>Bodega y Lotes</span>
-                </a>
-                <?php if ($_SESSION['rol'] === 'Administrador'): ?>
+                    <a class="nav-link-custom active" href="bodega_lotes.php">
+                        <span class="material-symbols-outlined">warehouse</span>
+                        <span>Bodega y Lotes</span>
+                    </a>
                     <a class="nav-link-custom" href="#">
                         <span class="material-symbols-outlined">analytics</span>
-                        <span>Reportes</span>
+                        <span>Mis Reportes</span>
                     </a>
                 <?php endif; ?>
             </nav>
