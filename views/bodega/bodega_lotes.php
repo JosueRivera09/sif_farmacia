@@ -42,7 +42,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                 <?php if ($_SESSION['rol'] === 'Administrador'): ?>
                     <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
                         <span class="material-symbols-outlined">dashboard</span>
-                        <span>Inicio</span>
+                        <span>Dashboard</span>
                     </a>
                     <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
                         <span class="material-symbols-outlined">group</span>
