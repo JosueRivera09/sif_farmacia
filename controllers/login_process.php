@@ -20,8 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result && mysqli_num_rows($result) > 0) {
         $user_data = mysqli_fetch_assoc($result);
 
-        // Verificar la clave en texto plano
-        if ($clave === $user_data['clave_acceso']) {
+        // Verificar la clave con hash bcrypt (o texto plano como fallback)
+        if (password_verify($clave, $user_data['clave_acceso']) || $clave === $user_data['clave_acceso']) {
             // Regenerar ID de sesión para prevenir sesión fixation
             session_regenerate_id(true);
 
