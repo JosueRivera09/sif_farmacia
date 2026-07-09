@@ -19,12 +19,12 @@ if ($result) {
 $usuarios = [
     [
         'nombre_usuario' => 'admin',
-        'clave_acceso' => password_hash('admin123', PASSWORD_DEFAULT),
+        'clave_acceso' => 'admin123',
         'rol' => 'Administrador'
     ],
     [
         'nombre_usuario' => 'vendedor',
-        'clave_acceso' => password_hash('vendedor123', PASSWORD_DEFAULT),
+        'clave_acceso' => 'vendedor123',
         'rol' => 'Vendedor'
     ]
 ];
