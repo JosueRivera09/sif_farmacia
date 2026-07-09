@@ -6,7 +6,7 @@
 $is_cli = (php_sapi_name() === 'cli');
 
 // Mostrar diseño HTML si se ejecuta en navegador
-if (!$is_cli): ?>
+if (!$is_cli) { ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -66,14 +66,14 @@ if (!$is_cli): ?>
         <h2 class="fw-bold mb-3 text-dark">Instalador Base de Datos - SIF</h2>
         <p class="text-muted">Este script configurará la base de datos, tablas, disparadores (triggers) y usuarios de prueba por defecto para que el sistema funcione de inmediato.</p>
 
-        <?php if (!isset($_GET['ejecutar'])): ?>
+        <?php if (!isset($_GET['ejecutar'])) { ?>
             <div class="alert alert-info" role="alert">
                 Asegúrate de tener <strong>XAMPP</strong> iniciado (Apache y MySQL).
             </div>
             <a href="?ejecutar=1" class="btn btn-install btn-lg shadow-sm">Instalar y Configurar Ahora</a>
-        <?php else: ?>
+        <?php } else { ?>
             <div class="log-box">
-<?php endif; endif;
+<?php } }
 
 if (isset($_GET['ejecutar']) || $is_cli) {
     // 1. Cargar Configuración de conexión básica
@@ -220,12 +220,12 @@ if (isset($_GET['ejecutar']) || $is_cli) {
     mysqli_close($conexion);
 }
 
-if (!$is_cli): ?>
+if (!$is_cli) { ?>
             <a href="index.php" class="btn btn-success btn-lg mt-4 shadow-sm w-100">Ir al Sistema (Login)</a>
     </div>
 </div>
 </body>
 </html>
-        <?php endif; ?>
+        <?php } ?>
 
 
