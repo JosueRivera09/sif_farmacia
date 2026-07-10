@@ -14,7 +14,6 @@
    propiedades dentro de esta regla body.
    ========================================== */
 body {
-    background-color: #e0f2f1; /* Color de respaldo similar a la imagen */
     background-image: url('../../img/login-bg.jpg');
     background-size: cover;
     background-position: center;
@@ -82,7 +81,8 @@ body {
 
 /* Tarjeta de Login (Estilo maqueta: azul muy oscuro) */
 .login-card {
-    background-color: #061e33; /* Azul oscuro de la maqueta */
+    background-color: #061e33;
+    /* Azul oscuro de la maqueta */
     border-radius: 16px;
     padding: 40px 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -142,7 +142,8 @@ body {
 
 /* Botón Iniciar Sesión (Estilo verde/turquesa de la maqueta) */
 .btn-login {
-    background-color: #008B74; /* Color verde/turquesa */
+    background-color: #008B74;
+    /* Color verde/turquesa */
     border: none;
     color: white;
     padding: 12px;
