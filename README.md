@@ -6,18 +6,11 @@ Sistema de Gestión para Farmacia desarrollado en PHP, MySQL, Apache (XAMPP).
 - **XAMPP** (con Apache y MySQL activados).
 - PHP 8.0 o superior.
 
-## Instalación Rápida (1 Solo Paso)
-Para configurar la base de datos, tablas, disparadores y datos de prueba automáticamente:
+## Instalación de la Base de Datos
+Para configurar la base de datos y las tablas correspondientes:
 
-1. Clona el repositorio dentro de tu carpeta `C:\xampp\htdocs\sistema_sif`.
-2. Abre tu navegador y accede a:
-   [http://localhost/sistema_sif/instalar.php](http://localhost/sistema_sif/instalar.php)
-3. Haz clic en **"Instalar y Configurar Ahora"**.
-
-*También puedes realizarlo desde la consola/terminal ejecutando:*
-```bash
-php instalar.php
-```
+1. Importar el archivo [schema.sql](file:///C:/xampp/htdocs/sistema_sif/database/schema.sql) en el servidor MySQL desde phpMyAdmin
+2. Configura los parámetros de conexión correspondientes en el directorio `config/`.
 
 ### Usuarios de Prueba Creados:
 - **Administrador**:

@@ -1,0 +1,442 @@
+/* 
+   HOJA DE ESTILOS: DASHBOARD DE VENDEDOR
+   Destino: views/Interfaz_vendedor/vendedor_dashboard.php
+   Descripción: Define el diseño del panel de vendedor, incluyendo la navegación lateral,
+                las métricas de ventas y el catálogo dinámico de productos.
+    */
+
+body {
+    background-color: #ffffff;
+    color: #1e293b;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+}
+
+/* Bootstrap Primary Color Override (Emerald Green #10b981) */
+.btn-primary {
+    --bs-btn-bg: #10b981;
+    --bs-btn-border-color: #10b981;
+    --bs-btn-hover-bg: #0d9668;
+    --bs-btn-hover-border-color: #0d9668;
+    --bs-btn-active-bg: #0b7e57;
+    --bs-btn-active-border-color: #0b7e57;
+    --bs-btn-disabled-bg: #10b981;
+    --bs-btn-disabled-border-color: #10b981;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #10b981;
+    --bs-btn-border-color: #10b981;
+    --bs-btn-hover-bg: #10b981;
+    --bs-btn-hover-border-color: #10b981;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: #10b981;
+    --bs-btn-active-border-color: #10b981;
+    --bs-btn-active-color: #fff;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Contenedor Principal Flex */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Barra Lateral (Sidebar) */
+.sidebar {
+    width: 280px;
+    background-color: #1e293b;
+    border-right: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 24px 16px;
+}
+
+.sidebar-header {
+    margin-bottom: 32px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-box {
+    background-color: #10b981;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.sidebar-brand {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.sidebar-subtitle {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.nav-link-custom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav-link-custom:hover {
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+.nav-link-custom.active {
+    background-color: rgba(15, 23, 42, 0.6);
+    color: #10b981;
+    border-left: 4px solid #10b981;
+    border-radius: 0 8px 8px 0;
+    padding-left: 12px;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid #334155;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.text-error-custom {
+    color: #ef4444 !important;
+}
+
+.text-error-custom:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Área de Contenido */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: #ffffff;
+}
+
+/* Cabecera (Header) */
+.top-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #94a3b8;
+}
+
+.header-icon-btn {
+    cursor: pointer;
+    color: #94a3b8;
+    transition: color 0.2s ease;
+}
+
+.header-icon-btn:hover {
+    color: #10b981;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 24px;
+    border-left: 1px solid #e2e8f0;
+}
+
+.avatar-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(16, 185, 129, 0.2);
+    overflow: hidden;
+    background-color: #f1f5f9;
+}
+
+/* Contenido Central Scrollable */
+.content-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* Tarjeta */
+.content-section {
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 32px;
+    text-align: center;
+}
+
+/* Footer */
+.footer-meta {
+    margin-top: auto;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.5;
+    border-top: 1px solid #334155;
+}
+
+/* --- ESTILOS ADICIONALES PARA MÓDULOS DE VENDEDOR --- */
+
+.custom-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card-title-custom {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #0f172a;
+}
+
+/* Tarjetas de Métricas */
+.metric-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.metric-card.card-primary::before {
+    background-color: #10b981;
+}
+
+.metric-card.card-secondary::before {
+    background-color: #3b82f6;
+}
+
+.metric-card.card-danger::before {
+    background-color: #ef4444;
+}
+
+.metric-card.card-purple::before {
+    background-color: #8b5cf6;
+}
+
+.metric-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+.metric-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.bg-primary-box {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.bg-secondary-box {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.bg-danger-box {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.bg-purple-box {
+    background-color: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+/* Botones SIF */
+.btn-sif {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-sif-primary {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.btn-sif-primary:hover {
+    background-color: #0d9668;
+}
+
+.btn-sif-secondary {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-sif-secondary:hover {
+    background-color: #e2e8f0;
+}
+
+/* Tablas */
+.table-custom {
+    margin-bottom: 0;
+    color: #1e293b;
+}
+
+.table-custom th {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e2e8f0;
+    background-color: transparent;
+    padding: 12px 16px;
+}
+
+.table-custom td {
+    border-bottom: 1px solid #e2e8f0;
+    background-color: transparent;
+    vertical-align: middle;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+.table-custom tbody tr:hover td {
+    background-color: #f1f5f9;
+}
+
+/* Campos de Formulario */
+.form-control-sif {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    color: #0f172a !important;
+    padding: 10px 14px !important;
+}
+
+.form-control-sif:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+}
+
+.bg-slate {
+    background-color: #ffffff !important;
+}
+
+.text-wait-custom {
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Light mode overrides for content text */
+.main-content .text-light,
+.content-body .text-light,
+.main-content .text-white,
+.content-body .text-white,
+.main-content h6.text-light,
+.main-content span.text-light {
+    color: #0f172a !important;
+}
+
+.main-content .text-muted,
+.content-body .text-muted {
+    color: #64748b !important;
+}
