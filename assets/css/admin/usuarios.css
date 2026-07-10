@@ -1,0 +1,248 @@
+/* ==========================================================================
+   HOJA DE ESTILOS: GESTIÓN DE USUARIOS
+   Destino: views/Interfaz_admin/botones_menu/Gestion_usuarios.php
+   Descripción: Controla el estilo de las tarjetas de usuarios, tablas de listado,
+                badges de roles específicos y modales de creación/edición de cuentas.
+   ========================================================================== */
+
+.usuarios-container {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tarjeta principal */
+.card-usuarios {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    color: #1e293b;
+}
+
+/* Títulos y textos */
+.titulo-modulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.025em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.subtitulo-modulo {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+
+/* Botones de acción */
+.btn-sif {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-sif-primary {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.btn-sif-primary:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-sif-secondary {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-sif-secondary:hover {
+    background-color: #e2e8f0;
+    transform: translateY(-1px);
+}
+
+.btn-accion-tabla {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: transparent;
+}
+
+.btn-accion-editar {
+    color: #38bdf8;
+    background-color: rgba(56, 189, 248, 0.1);
+}
+
+.btn-accion-editar:hover {
+    background-color: #38bdf8;
+    color: #0f172a;
+    transform: scale(1.05);
+}
+
+.btn-accion-eliminar {
+    color: #f87171;
+    background-color: rgba(248, 113, 113, 0.1);
+}
+
+.btn-accion-eliminar:hover {
+    background-color: #f87171;
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+/* Tabla personalizada */
+.tabla-sif {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 15px;
+}
+
+.tabla-sif th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.tabla-sif td {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.tabla-sif tr:hover td {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Badges de Roles */
+.badge-rol {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-rol-admin {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-rol-cajero {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-rol-vendedor {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Modales personalizados */
+.modal-sif-content {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    color: #1e293b;
+}
+
+.modal-sif-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 24px;
+}
+
+.modal-sif-footer {
+    border-top: 1px solid #e2e8f0;
+    padding: 16px 24px;
+}
+
+.modal-sif-close {
+    color: #64748b;
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.modal-sif-close:hover {
+    color: #0f172a;
+}
+
+/* Formularios */
+.form-label-sif {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+
+.form-control-sif {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.form-control-sif:focus {
+    background-color: #ffffff;
+    border-color: #10b981;
+    color: #0f172a;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    outline: none;
+}
+
+.form-select-sif {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-size: 12px 10px;
+    background-repeat: no-repeat;
+    appearance: none;
+}
+
+/* Notificaciones Toast */
+.toast-sif {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #f8fafc;
+}

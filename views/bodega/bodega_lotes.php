@@ -1,4 +1,11 @@
 <?php
+/*
+ * Archivo: views/bodega/bodega_lotes.php
+ * Propósito: Módulo de gestión de bodega e inventario.
+ * Qué muestra: Tabla de lotes, filtros, alertas de vencimiento y botón de registro.
+ */
+// Esta es la pantalla de Bodega y Lotes, que permite gestionar la entrada de lotes de medicamentos, sus fechas de vencimiento, laboratorios y stock.
+
 require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
 ?>
 <!DOCTYPE html>
@@ -19,7 +26,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
     <!-- Hojas de estilo personalizadas -->
-    <link href="../../assets/css/bodega_lotes.css" rel="stylesheet" />
+    <link href="../../assets/css/bodega/bodega_lotes.css" rel="stylesheet" />
 </head>
 
 <body class="h-100">
@@ -44,49 +51,53 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Dashboard</span>
                     </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=usuarios">
                         <span class="material-symbols-outlined">group</span>
                         <span>Gestión Usuarios</span>
                     </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=productos">
                         <span class="material-symbols-outlined">inventory_2</span>
                         <span>Catálogo Productos</span>
                     </a>
-                    <a class="nav-link-custom active" href="bodega_lotes.php">
+                    <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
                         <span class="material-symbols-outlined">warehouse</span>
                         <span>Bodega y Lotes</span>
                     </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=auditoria">
                         <span class="material-symbols-outlined">receipt_long</span>
                         <span>Auditoría de Ingresos</span>
                     </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
+                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=reportes">
                         <span class="material-symbols-outlined">analytics</span>
                         <span>Reportes Diarios</span>
                     </a>
-                <?php else: ?>
-                    <a class="nav-link-custom" href="../vendedor_dashboard.php">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Inicio</span>
-                    </a>
-                    <a class="nav-link-custom active" href="bodega_lotes.php">
+                <?php elseif ($_SESSION['rol'] === 'Bodega'): ?>
+                    <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
                         <span class="material-symbols-outlined">warehouse</span>
                         <span>Bodega y Lotes</span>
                     </a>
-                    <a class="nav-link-custom" href="#">
+                    <a class="nav-link-custom" id="btn-sidebar-reportes" href="#">
+                        <span class="material-symbols-outlined">analytics</span>
+                        <span>Mis Reportes</span>
+                    </a>
+                <?php else: ?>
+                    <a class="nav-link-custom" href="../Interfaz_vendedor/vendedor_dashboard.php">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        <span>Inicio</span>
+                    </a>
+                    <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
+                        <span class="material-symbols-outlined">warehouse</span>
+                        <span>Bodega y Lotes</span>
+                    </a>
+                    <a class="nav-link-custom" id="btn-sidebar-reportes" href="#">
                         <span class="material-symbols-outlined">analytics</span>
                         <span>Mis Reportes</span>
                     </a>
                 <?php endif; ?>
             </nav>
 
-            <!-- Botón de ajustes y cerrar sesión integrado de forma consistente -->
             <div class="sidebar-footer">
-                <a class="nav-link-custom" href="#">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span>Ajustes</span>
-                </a>
-                <a class="nav-link-custom text-error-custom" href="../../controllers/logout.php">
+                <a class="nav-link-custom text-error-custom" href="../../controllers/auth/logout.php">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Cerrar Sesión</span>
                 </a>
@@ -102,18 +113,14 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                 <h2 class="header-title">Bodega y Lotes</h2>
 
                 <div class="d-flex align-items-center gap-4">
-                    <div class="header-icons d-flex gap-3">
-                        <span class="material-symbols-outlined header-icon-btn">notifications</span>
-
-                    </div>
                     <!--Perfil del usuario logueado -->
                     <div class="profile-container d-flex align-items-center gap-3 border-start border-secondary-subtle ps-4">
                         <div class="text-end d-none d-sm-block">
                             <p class="mb-0 font-bold text-light" style="font-size: 14px; font-weight: 700;"><?php echo $nombre_usuario; ?></p>
                             <p class="mb-0 text-muted uppercase tracking-wider" style="font-size: 10px;"><?php echo $rol_usuario; ?></p>
                         </div>
-                        <div class="avatar-box">
-                            <img class="w-100 h-100 object-fit-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuF-iQpxxKVH4dx-vZoHx-5U8lhGCDmzgsTwm3oZr6Na276hBSHqhkmbpEqZdgV1meyGb_jKZQlTsIPbhhSStuy4CY5cBn0ZURf2TnyzatF-TXxpYbHwBbdzJcuE6R88T4pu1bFmdA3zi1r9QcbaFPNPK0_kpPBuRf8inZ-puuthBNSfQxLQz3UBbryi9bwzMNtmR9ZjD-4oVqVDN5ThrbQ9duX9qx6FlXxQYiE1TKg6nhb8n9m3-BaIZAjJr5qu1JFI6LRMLAcAVw" alt="Perfil" />
+                        <div class="avatar-box d-flex align-items-center justify-content-center text-white fw-bold" style="background-color: #10b981; font-size: 16px;">
+                            <?php echo strtoupper(substr($nombre_usuario, 0, 1)); ?>
                         </div>
                     </div>
                 </div>
@@ -135,7 +142,8 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                     </div>
                 <?php endif; ?>
 
-                <!-- Summary Metrics Bento (Movimientos de hoy omitido) -->
+                <div id="lotes-view-container">
+                    <!-- Summary Metrics Bento (Movimientos de hoy omitido) -->
                 <div class="row g-4 mb-4">
                     <!-- Metric 1 -->
                     <div class="col-12 col-md-4">
@@ -221,8 +229,8 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                     <input class="filter-input mb-2" id="filterDesde" placeholder="Desde" type="date" />
                                     <input class="filter-input" id="filterHasta" placeholder="Hasta" type="date" />
                                 </div>
-                                <button type="button" class="btn-apply mb-2" id="btnApplyFilters">Aplicar Filtros</button>
-                                <button type="button" class="btn-clear" id="btnClearFilters">Limpiar Búsqueda</button>
+                                <button type="button" class="btn btn-primary w-100 mb-2" id="btnApplyFilters">Aplicar Filtros</button>
+                                <button type="button" class="btn btn-outline-secondary w-100" id="btnClearFilters">Limpiar Búsqueda</button>
                             </form>
                         </aside>
                     </div>
@@ -237,12 +245,12 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                     <input class="search-input" id="searchBar" placeholder="Buscar por código o producto..." type="text" />
                                 </div>
                                 <div class="d-flex gap-2 w-100 w-md-auto">
-                                    <button class="btn-primary-custom flex-grow-1 flex-md-grow-0 justify-content-center" data-bs-toggle="modal" data-bs-target="#nuevoLoteModal">
+                                    <button class="btn btn-primary flex-grow-1 flex-md-grow-0 justify-content-center" data-bs-toggle="modal" data-bs-target="#nuevoLoteModal">
                                         <span class="material-symbols-outlined" style="font-size: 18px;">add_circle</span>
                                         NUEVO INGRESO
                                     </button>
                                     <div class="dropdown d-flex flex-grow-1 flex-md-grow-0">
-                                        <button class="btn-secondary-custom dropdown-toggle w-100 justify-content-center" type="button" id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn btn-secondary dropdown-toggle w-100 justify-content-center" type="button" id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
                                             <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
                                             EXPORTAR
                                         </button>
@@ -265,7 +273,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-dark table-borderless align-middle mb-0 w-100" id="inventoryTable">
+                                <table class="table table-custom table-borderless align-middle mb-0 w-100" id="inventoryTable">
                                     <thead>
                                         <tr class="table-custom-header">
                                             <th>Código</th>
@@ -309,8 +317,8 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                                     </td>
                                                     <td class="text-light" style="font-size: 14px;"><?php echo htmlspecialchars($lote['nombre_laboratorio'] ?? 'No asignado'); ?></td>
                                                     <td class="text-light font-semibold"><?php echo htmlspecialchars($lote['cantidad_recibida']) . ' ' . htmlspecialchars($lote['unidad_medida']); ?></td>
-                                                    <td class="text-light" style="font-size: 14px; color: #e2e8f0 !important;"><?php echo $fecha_ingreso_formateada; ?></td>
-                                                    <td class="text-light <?php echo ($estado === 'Próximo a Vencer') ? 'text-tertiary-custom font-bold' : (($estado === 'Vencido') ? 'text-error-custom font-bold' : ''); ?>" style="font-size: 14px; <?php echo ($estado === 'Disponible') ? 'color: #e2e8f0 !important;' : ''; ?>"><?php echo $fecha_venc_formateada; ?></td>
+                                                    <td class="text-light" style="font-size: 14px;"><?php echo $fecha_ingreso_formateada; ?></td>
+                                                    <td class="text-light <?php echo ($estado === 'Próximo a Vencer') ? 'text-tertiary-custom font-bold' : (($estado === 'Vencido') ? 'text-error-custom font-bold' : ''); ?>" style="font-size: 14px;"><?php echo $fecha_venc_formateada; ?></td>
                                                     <td class="text-center">
                                                         <span class="badge-status <?php echo $badge_class; ?>"><?php echo $estado; ?></span>
                                                     </td>
@@ -350,18 +358,14 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
 
                         </div>
                     </div>
-
                 </div>
-
-                <!-- Footer Meta -->
-                <div class="footer-meta">
-                    <p class="mb-0">© 2026 SISTEMA SIF </p>
-                    <div class="d-flex gap-4">
-                        <span>ESTADO DEL SERVIDOR: ÓPTIMO</span>
-                        <span>VERSIÓN: 1.0</span>
-                    </div>
                 </div>
-
+                <div id="reportes-view-container" style="display: none;">
+                    <?php include __DIR__ . '/partials/reportes_bodega.php'; ?>
+                </div>
+                <div id="perfil-view-container" style="display: none;">
+                    <?php include __DIR__ . '/../perfil/ver_perfil.php'; ?>
+                </div>
             </main>
         </div>
 
@@ -557,6 +561,62 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
             }
             if (selectCategoria) {
                 selectCategoria.addEventListener('change', toggleCategoriaField);
+            }
+
+            // Cambiar entre Lotes y Reportes
+            const btnSidebarLotes = document.getElementById('btn-sidebar-lotes');
+            const btnSidebarReportes = document.getElementById('btn-sidebar-reportes');
+            const lotesViewContainer = document.getElementById('lotes-view-container');
+            const reportesViewContainer = document.getElementById('reportes-view-container');
+            const headerTitle = document.querySelector('.header-title');
+
+            const perfilViewContainer = document.getElementById('perfil-view-container');
+            const profileContainer = document.querySelector('.profile-container');
+
+            if (btnSidebarReportes) {
+                btnSidebarReportes.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (lotesViewContainer && reportesViewContainer && perfilViewContainer) {
+                        lotesViewContainer.style.display = 'none';
+                        perfilViewContainer.style.display = 'none';
+                        reportesViewContainer.style.display = '';
+                        
+                        document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
+                        btnSidebarReportes.classList.add('active');
+                        if (headerTitle) headerTitle.textContent = "Mis Reportes de Bodega";
+                    }
+                });
+            }
+
+            if (btnSidebarLotes) {
+                btnSidebarLotes.addEventListener('click', function(e) {
+                    const isReportesVisible = reportesViewContainer && reportesViewContainer.style.display !== 'none';
+                    const isPerfilVisible = perfilViewContainer && perfilViewContainer.style.display !== 'none';
+                    if (isReportesVisible || isPerfilVisible) {
+                        e.preventDefault();
+                        if (reportesViewContainer) reportesViewContainer.style.display = 'none';
+                        if (perfilViewContainer) perfilViewContainer.style.display = 'none';
+                        if (lotesViewContainer) lotesViewContainer.style.display = '';
+                        
+                        document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
+                        btnSidebarLotes.classList.add('active');
+                        if (headerTitle) headerTitle.textContent = "Bodega y Lotes";
+                    }
+                });
+            }
+
+            if (profileContainer) {
+                profileContainer.style.cursor = 'pointer';
+                profileContainer.addEventListener('click', function() {
+                    if (lotesViewContainer && reportesViewContainer && perfilViewContainer) {
+                        lotesViewContainer.style.display = 'none';
+                        reportesViewContainer.style.display = 'none';
+                        perfilViewContainer.style.display = '';
+
+                        document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
+                        if (headerTitle) headerTitle.textContent = "Mi Perfil de Usuario";
+                    }
+                });
             }
         });
     </script>

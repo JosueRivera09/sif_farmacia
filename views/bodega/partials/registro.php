@@ -188,12 +188,14 @@ $laboratories_list = isset($laboratories_list) ? $laboratories_list : [];
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid #334155; padding-top: 1.5rem;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <span class="material-symbols-outlined align-middle" style="font-size: 18px;">close</span> Cancelar
+                <div class="modal-footer" style="border-top: 1px solid #334155;">
+                    <button type="button" class="btn-secondary-custom" data-bs-dismiss="modal">
+                        <span class="material-symbols-outlined me-1" style="font-size: 18px;">close</span>
+                        Cancelar
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        <span class="material-symbols-outlined align-middle" style="font-size: 18px;">save</span> Guardar Lote
+                    <button type="submit" class="btn-primary-custom">
+                        <span class="material-symbols-outlined me-1" style="font-size: 18px;">task_alt</span>
+                        Registrar Ingreso
                     </button>
                 </div>
             </form>

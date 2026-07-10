@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+// Esta es la pantalla del dashboard del Administrador, que contiene accesos rápidos a la gestión de usuarios, productos, reportes y configuraciones.
+
 // Verificar si hay sesión iniciada y si el rol es Administrador
 if (!isset($_SESSION['id_usuario']) || $_SESSION['rol'] !== 'Administrador') {
     header("Location: ../login.php");
@@ -26,331 +28,10 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- User Management custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/admin/usuarios.css">
     
-    <style>
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        /* Contenedor Principal Flex */
-        .app-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* Barra Lateral (Sidebar) */
-        .sidebar {
-            width: 280px;
-            background-color: #1e293b;
-            border-right: 1px solid #334155;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            padding: 24px 16px;
-        }
-
-        .sidebar-header {
-            margin-bottom: 32px;
-            padding: 0 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-box {
-            background-color: #10b981;
-            padding: 6px 12px;
-            border-radius: 8px;
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ffffff;
-            margin: 0;
-            letter-spacing: -0.025em;
-        }
-
-        .sidebar-subtitle {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            opacity: 0.7;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        /* Scrollbar personalizado */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        .nav-link-custom {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            color: #94a3b8;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .nav-link-custom:hover {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-
-        .nav-link-custom.active {
-            background-color: rgba(15, 23, 42, 0.6);
-            color: #10b981;
-            border-left: 4px solid #10b981;
-            border-radius: 0 8px 8px 0;
-            padding-left: 12px;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid #334155;
-            padding-top: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .text-error-custom {
-            color: #ef4444 !important;
-        }
-        .text-error-custom:hover {
-            background-color: rgba(239, 68, 68, 0.1) !important;
-        }
-
-        /* Área de Contenido */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            background-color: #0f172a;
-        }
-
-        /* Cabecera (Header) */
-        .top-header {
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            background-color: #0f172a;
-            border-bottom: 1px solid #334155;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #f8fafc;
-            margin: 0;
-        }
-
-        .header-icons {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            color: #94a3b8;
-        }
-
-        .header-icon-btn {
-            cursor: pointer;
-            color: #94a3b8;
-            transition: color 0.2s ease;
-        }
-        .header-icon-btn:hover {
-            color: #10b981;
-        }
-
-        .profile-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-left: 24px;
-            border-left: 1px solid #334155;
-        }
-
-        .avatar-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(16, 185, 129, 0.2);
-            overflow: hidden;
-            background-color: #1e293b;
-        }
-
-        /* Contenido Central Scrollable */
-        .content-body {
-            padding: 24px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        /* Tarjetas de Métricas */
-        .metric-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-            overflow: hidden;
-            height: 100%;
-        }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-
-        .metric-card.card-primary::before { background-color: #10b981; }
-        .metric-card.card-secondary::before { background-color: #3b82f6; }
-        .metric-card.card-danger::before { background-color: #ef4444; }
-        .metric-card.card-purple::before { background-color: #8b5cf6; }
-
-        .metric-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            margin: 0;
-        }
-
-        .metric-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-top: 4px;
-            margin-bottom: 0;
-        }
-
-        .metric-icon-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .bg-primary-box { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .bg-secondary-box { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-        .bg-danger-box { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
-        .bg-purple-box { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-
-        /* Contenedores de Tablas y Tarjetas Personalizadas */
-        .custom-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .height-historial { min-height: 340px; }
-        .height-alertas { min-height: 525px; }
-
-        .card-title-custom {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #f8fafc;
-        }
-
-        .text-wait-custom {
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        .text-sub-wait {
-            color: #64748b;
-            font-size: 12px;
-        }
-
-        .table-custom {
-            margin-bottom: 0;
-            color: #f8fafc;
-        }
-
-        .table-custom th {
-            font-size: 11px;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            border-bottom: 2px solid #334155;
-            background-color: transparent;
-            padding: 12px 16px;
-        }
-
-        .table-custom td {
-            border-bottom: 1px solid #334155;
-            background-color: transparent;
-            vertical-align: middle;
-            padding: 12px 16px;
-            font-size: 14px;
-        }
-
-        .table-custom tbody tr:hover td {
-            background-color: rgba(15, 23, 42, 0.3);
-        }
-
-        /* Spinner de carga */
-        .spinner-border.text-success {
-            color: #10b981 !important;
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/css/admin/admin_dashboard.css">
 </head>
 <body class="h-100">
 
@@ -396,11 +77,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         </nav>
 
         <div class="sidebar-footer">
-            <a class="nav-link-custom" href="#">
-                <span class="material-symbols-outlined">settings</span>
-                <span>Ajustes</span>
-            </a>
-            <a class="nav-link-custom text-error-custom" href="../../controllers/logout.php">
+            <a class="nav-link-custom text-error-custom" href="../../controllers/auth/logout.php">
                 <span class="material-symbols-outlined">logout</span>
                 <span>Cerrar Sesión</span>
             </a>
@@ -416,17 +93,14 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
             <h2 class="header-title">Panel de Administración</h2>
             
             <div class="d-flex align-items-center gap-4">
-                <div class="header-icons d-flex gap-3">
-                    <span class="material-symbols-outlined header-icon-btn">notifications</span>
-                </div>
                 
                 <div class="profile-container d-flex align-items-center gap-3 border-start border-secondary-subtle ps-4">
                     <div class="text-end d-none d-sm-block">
                         <p class="mb-0 font-bold text-light" style="font-size: 14px; font-weight: 700;"><?php echo $nombre_usuario; ?></p>
                         <p class="mb-0 text-muted uppercase tracking-wider" style="font-size: 10px;"><?php echo $rol_usuario; ?></p>
                     </div>
-                    <div class="avatar-box">
-                        <img class="w-100 h-100 object-fit-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuF-iQpxxKVH4dx-vZoHx-5U8lhGCDmzgsTwm3oZr6Na276hBSHqhkmbpEqZdgV1meyGb_jKZQlTsIPbhhSStuy4CY5cBn0ZURf2TnyzatF-TXxpYbHwBbdzJcuE6R88T4pu1bFmdA3zi1r9QcbaFPNPK0_kpPBuRf8inZ-puuthBNSfQxLQz3UBbryi9bwzMNtmR9ZjD-4oVqVDN5ThrbQ9duX9qx6FlXxQYiE1TKg6nhb8n9m3-BaIZAjJr5qu1JFI6LRMLAcAVw" alt="Perfil"/>
+                    <div class="avatar-box d-flex align-items-center justify-content-center text-white fw-bold" style="background-color: #10b981; font-size: 16px;">
+                        <?php echo strtoupper(substr($nombre_usuario, 0, 1)); ?>
                     </div>
                 </div>
             </div>
@@ -589,7 +263,17 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                 if(!response.ok) throw new Error('Error al cargar archivo');
                 return response.text();
             })
-            .then(data => { contentArea.innerHTML = data; })
+            .then(data => { 
+                contentArea.innerHTML = data; 
+                // Ejecutar scripts cargados por ajax
+                const scripts = contentArea.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            })
             .catch(error => {
                 contentArea.innerHTML = `<div class="alert alert-danger m-3">Error: ${error.message}</div>`;
             });
@@ -609,7 +293,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
 
     btnProductos.addEventListener('click', (e) => {
         e.preventDefault();
-        manejarCarga('botones_menu/Gestion_productos.php', btnProductos, 'Catálogo de Productos');
+        manejarCarga('../productos/catalogo.php', btnProductos, 'Catálogo de Productos');
     });
 
     btnBodega.addEventListener('click', (e) => {
@@ -627,6 +311,26 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         manejarCarga('botones_menu/Reportes_diarios.php', btnReportes, 'Reportes Diarios');
     });
 
+    // Enrutamiento basado en parámetros de consulta de la URL (Query Parameters)
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get('page');
+    if (page === 'usuarios') {
+        manejarCarga('botones_menu/Gestion_usuarios.php', btnUsuarios, 'Gestión de Usuarios');
+    } else if (page === 'productos') {
+        manejarCarga('../productos/catalogo.php', btnProductos, 'Catálogo de Productos');
+    } else if (page === 'auditoria') {
+        manejarCarga('botones_menu/Auditoria_ingresos.php', btnCompras, 'Auditoría de Ingresos');
+    } else if (page === 'reportes') {
+        manejarCarga('botones_menu/Reportes_diarios.php', btnReportes, 'Reportes Diarios');
+    }
+
+    const profileContainer = document.querySelector('.profile-container');
+    if (profileContainer) {
+        profileContainer.style.cursor = 'pointer';
+        profileContainer.addEventListener('click', () => {
+            manejarCarga('../perfil/ver_perfil.php', { classList: { remove: () => {}, add: () => {} } }, 'Mi Perfil');
+        });
+    }
 </script>
 </body>
 </html>

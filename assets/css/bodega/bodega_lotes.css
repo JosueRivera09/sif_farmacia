@@ -1,6 +1,13 @@
+/* ==========================================================================
+   HOJA DE ESTILOS: DASHBOARD DE BODEGA Y LOTES
+   Destino: views/bodega/bodega_lotes.php
+   Descripción: Controla la visualización del stock de lotes, alertas de vencimiento,
+                filtros avanzados, reportes de inventario y el ingreso de nuevos productos.
+   ========================================================================== */
+
 body {
-    background-color: #0f172a; /* Fondo principal de la indicación anterior */
-    color: #f8fafc;
+    background-color: #ffffff;
+    color: #1e293b;
     font-family: 'Inter', sans-serif;
     overflow: hidden;
 }
@@ -121,7 +128,7 @@ body {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background-color: #0f172a;
+    background-color: #ffffff;
 }
 
 /* Cabecera (Header) */
@@ -131,14 +138,14 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    background-color: #0f172a;
-    border-bottom: 1px solid #334155;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .header-title {
     font-size: 20px;
     font-weight: 700;
-    color: #f8fafc;
+    color: #0f172a;
     margin: 0;
 }
 
@@ -163,7 +170,7 @@ body {
     align-items: center;
     gap: 12px;
     padding-left: 24px;
-    border-left: 1px solid #334155;
+    border-left: 1px solid #e2e8f0;
 }
 
 .avatar-box {
@@ -172,7 +179,7 @@ body {
     border-radius: 50%;
     border: 2px solid rgba(16, 185, 129, 0.2);
     overflow: hidden;
-    background-color: #1e293b;
+    background-color: #f1f5f9;
 }
 
 /* Contenido Central Scrollable */
@@ -184,8 +191,8 @@ body {
 
 /* Tarjetas de Métricas */
 .metric-card {
-    background-color: #1e293b; /* Card bg */
-    border: 1px solid #334155;
+    background-color: #ffffff; /* Card bg */
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 20px;
     display: flex;
@@ -193,6 +200,7 @@ body {
     align-items: flex-start;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .metric-card::before {
@@ -220,7 +228,7 @@ body {
 .metric-value {
     font-size: 28px;
     font-weight: 700;
-    color: #f8fafc;
+    color: #0f172a;
     margin-top: 4px;
     margin-bottom: 0;
 }
@@ -253,11 +261,12 @@ body {
 
 /* Filtros */
 .filter-panel {
-    background-color: #1e293b;
-    border: 1px solid #334155;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 24px;
     width: 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .filter-title-section {
@@ -272,16 +281,16 @@ body {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.05em;
-    color: #94a3b8;
+    color: #64748b;
     margin-bottom: 8px;
     text-transform: uppercase;
 }
 
 .filter-input {
     width: 100%;
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    color: #f8fafc;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 14px;
@@ -311,7 +320,7 @@ body {
 .btn-clear {
     background: none;
     border: none;
-    color: #94a3b8;
+    color: #64748b;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -320,21 +329,22 @@ body {
     transition: color 0.2s;
 }
 .btn-clear:hover {
-    color: #f8fafc;
+    color: #0f172a;
 }
 
 /* Tabla y Contenedores */
 .data-section {
-    background-color: #1e293b;
-    border: 1px solid #334155;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     overflow: hidden;
     width: 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .table-controls {
     padding: 24px;
-    border-bottom: 1px solid #334155;
+    border-bottom: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -356,9 +366,9 @@ body {
 
 .search-input {
     width: 100%;
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    color: #f8fafc;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
     border-radius: 8px;
     padding: 8px 12px 8px 40px;
     font-size: 14px;
@@ -379,9 +389,9 @@ body {
 }
 
 .btn-secondary-custom {
-    background-color: #334155;
-    color: #f8fafc;
-    border: 1px solid #475569;
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -392,33 +402,39 @@ body {
     gap: 8px;
 }
 .btn-secondary-custom:hover {
-    background-color: #475569;
+    background-color: #e2e8f0;
+}
+
+.table-custom {
+    margin-bottom: 0;
+    color: #1e293b;
 }
 
 .table-custom-header {
-    background-color: rgba(15, 23, 42, 0.4);
-    border-bottom: 1px solid #334155;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .table-custom-header th {
     font-size: 12px;
     font-weight: 700;
-    color: #94a3b8;
+    color: #64748b;
     text-transform: uppercase;
     padding: 16px 24px;
 }
 
-.table tbody tr {
-    border-bottom: 1px solid #334155;
+.table-custom tbody tr {
+    border-bottom: 1px solid #e2e8f0;
     transition: background-color 0.2s ease;
 }
-.table tbody tr:hover {
-    background-color: rgba(15, 23, 42, 0.3);
+.table-custom tbody tr:hover td {
+    background-color: #f1f5f9;
 }
 
-.table td {
+.table-custom td {
     padding: 16px 24px;
     vertical-align: middle;
+    background-color: transparent;
 }
 
 .text-primary-custom { color: #10b981; }
@@ -442,8 +458,8 @@ body {
 /* Paginación */
 .pagination-container {
     padding: 16px 24px;
-    background-color: rgba(15, 23, 42, 0.4);
-    border-top: 1px solid #334155;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -456,14 +472,14 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 4px;
-    border: 1px solid #334155;
+    border: 1px solid #cbd5e1;
     background: none;
-    color: #f8fafc;
+    color: #1e293b;
     font-size: 12px;
     transition: background-color 0.2s;
 }
 .btn-page:hover:not(:disabled) {
-    background-color: #334155;
+    background-color: #e2e8f0;
 }
 .btn-page.active {
     background-color: #10b981;
@@ -478,7 +494,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #94a3b8;
+    color: #64748b;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -490,9 +506,23 @@ body {
     width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #ffffff;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #cbd5e1;
     border-radius: 10px;
+}
+
+/* Light mode overrides for content text */
+.main-content .text-light, 
+.content-body .text-light,
+.main-content .text-white, 
+.content-body .text-white,
+.main-content h6.text-light,
+.main-content span.text-light {
+    color: #0f172a !important;
+}
+.main-content .text-muted,
+.content-body .text-muted {
+    color: #64748b !important;
 }

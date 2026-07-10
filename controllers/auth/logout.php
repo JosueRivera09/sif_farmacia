@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+// Este controlador se encarga de cerrar la sesión activa del usuario, limpiar los datos de sesión y redirigir a la pantalla de login.
+
 // Destruir todas las variables de sesión
 $_SESSION = array();
 
@@ -18,6 +20,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redireccionar al login
-header("Location: ../views/login.php");
+header("Location: ../../views/login.php");
 exit;
 ?>
