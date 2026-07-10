@@ -12,6 +12,29 @@ body {
     overflow: hidden;
 }
 
+/* Bootstrap Primary Color Override (Emerald Green #10b981) */
+.btn-primary {
+    --bs-btn-bg: #10b981;
+    --bs-btn-border-color: #10b981;
+    --bs-btn-hover-bg: #0d9668;
+    --bs-btn-hover-border-color: #0d9668;
+    --bs-btn-active-bg: #0b7e57;
+    --bs-btn-active-border-color: #0b7e57;
+    --bs-btn-disabled-bg: #10b981;
+    --bs-btn-disabled-border-color: #10b981;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #10b981;
+    --bs-btn-border-color: #10b981;
+    --bs-btn-hover-bg: #10b981;
+    --bs-btn-hover-border-color: #10b981;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: #10b981;
+    --bs-btn-active-border-color: #10b981;
+    --bs-btn-active-color: #fff;
+}
+
 .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     display: inline-block;
