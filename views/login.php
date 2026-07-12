@@ -24,6 +24,7 @@ if (isset($_SESSION['id_usuario'])) {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,25 +35,15 @@ if (isset($_SESSION['id_usuario'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Google Fonts - Outfit -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="../assets/css/auth/login.css">
+    <link rel="stylesheet" href="../assets/css/auth/login.css">
 </head>
+
 <body>
 
     <div class="login-container">
-        
+
         <!-- Sección de Logo -->
         <div class="logo-section">
-            <!-- 
-               ====================================================
-               IMAGEN O LOGO DEL SISTEMA
-               ----------------------------------------------------
-               Actualmente renderiza un SVG inline que representa el
-               maletín de primeros auxilios verde de la maqueta.
-               Si deseas cambiar el logo por una imagen física, reemplaza
-               el código <svg> por:
-               <img src="../assets/img/tu_logo.png" alt="Logo SIF" width="80">
-               ====================================================
-            -->
             <div class="d-flex justify-content-center align-items-center mb-2">
                 <img src="../assets/img/logo.png" alt="Logo SIF" style="width: 80px; height: 80px; object-fit: contain;">
                 <span class="logo-title ms-2">SIF</span>
@@ -62,21 +53,21 @@ if (isset($_SESSION['id_usuario'])) {
 
         <!-- Tarjeta de Login -->
         <div class="login-card">
-            <h2 class="login-card-title">Acceso al Sistema de<br>Inventario de Farmacia</h2>
+            <h2 class="login-card-title">Acceso al Sistema</h2>
 
             <!-- Mostrar mensaje de error si existe -->
             <?php if (isset($_GET['error'])): ?>
                 <div class="alert alert-custom d-flex align-items-center" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     <div>
-                        <?php 
-                            if ($_GET['error'] == 'vacio') {
-                                echo "Por favor, llene todos los campos.";
-                            } elseif ($_GET['error'] == 'incorrecto') {
-                                echo "Usuario o contraseña incorrectos.";
-                            } else {
-                                echo "Error de autenticación.";
-                            }
+                        <?php
+                        if ($_GET['error'] == 'vacio') {
+                            echo "Por favor, llene todos los campos.";
+                        } elseif ($_GET['error'] == 'incorrecto') {
+                            echo "Usuario o contraseña incorrectos.";
+                        } else {
+                            echo "Error de autenticación.";
+                        }
                         ?>
                     </div>
                 </div>
@@ -111,4 +102,5 @@ if (isset($_SESSION['id_usuario'])) {
     <!-- Bootstrap 5 Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

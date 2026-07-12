@@ -66,6 +66,14 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                 <span class="material-symbols-outlined">warehouse</span>
                 <span>Bodega y Lotes</span>
             </a>
+            <a class="nav-link-custom" id="btn-caja" href="../Interfaz_caja/cajero_dashboard.php">
+                <span class="material-symbols-outlined">point_of_sale</span>
+                <span>Módulo de Caja</span>
+            </a>
+            <a class="nav-link-custom" id="btn-ventas" href="../Interfaz_vendedor/vendedor_dashboard.php">
+                <span class="material-symbols-outlined">storefront</span>
+                <span>Módulo de Ventas</span>
+            </a>
             <a class="nav-link-custom" id="btn-compras">
                 <span class="material-symbols-outlined">receipt_long</span>
                 <span>Auditoría de Ingresos</span>
@@ -116,7 +124,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     <div class="metric-card card-primary">
                         <div>
                             <p class="metric-title">Recaudación</p>
-                            <h3 class="metric-value">C$ 0.00</h3>
+                            <h3 class="metric-value" id="admin-metric-recaudacion">C$ 0.00</h3>
                         </div>
                         <div class="metric-icon-box bg-primary-box">
                             <span class="material-symbols-outlined">payments</span>
@@ -128,7 +136,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     <div class="metric-card card-secondary">
                         <div>
                             <p class="metric-title">Facturas de Hoy</p>
-                            <h3 class="metric-value">0 Tickets</h3>
+                            <h3 class="metric-value" id="admin-metric-facturas">0 Tickets</h3>
                         </div>
                         <div class="metric-icon-box bg-secondary-box">
                             <span class="material-symbols-outlined">receipt</span>
@@ -140,7 +148,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     <div class="metric-card card-danger">
                         <div>
                             <p class="metric-title">Stock Crítico</p>
-                            <h3 class="metric-value">0</h3>
+                            <h3 class="metric-value" id="admin-metric-critico">0</h3>
                         </div>
                         <div class="metric-icon-box bg-danger-box">
                             <span class="material-symbols-outlined">error</span>
@@ -152,7 +160,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     <div class="metric-card card-purple">
                         <div>
                             <p class="metric-title">Ingresos Bodega de Hoy</p>
-                            <h3 class="metric-value">0 Lotes</h3>
+                            <h3 class="metric-value" id="admin-metric-bodega">0 Lotes</h3>
                         </div>
                         <div class="metric-icon-box bg-purple-box">
                             <span class="material-symbols-outlined">move_to_inbox</span>
@@ -167,7 +175,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     <div class="custom-card height-historial">
                         <div class="border-bottom border-secondary pb-2 mb-3">
                             <h6 class="card-title-custom mb-0">
-                                Historial de Ventas del Sistema <span class="text-muted fw-normal lowercase">(tiempo real)</span>
+                                Historial de Ventas del Sistema <span class="text-muted fw-normal lowercase">(últimas 10)</span>
                             </h6>
                         </div>
                         <div class="table-responsive">
@@ -178,12 +186,12 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                                         <th>Ticket</th>
                                         <th>Cliente</th>
                                         <th>Monto</th>
-                                        <th>Detalles / Estado</th>
+                                        <th>Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="admin-table-ventas">
                                     <tr>
-                                        <td colspan="5" class="text-center text-wait-custom py-4">No hay ventas registradas el día de hoy.</td>
+                                        <td colspan="5" class="text-center text-wait-custom py-4">Cargando ventas...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -192,7 +200,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
 
                     <div class="custom-card">
                         <div class="border-bottom border-secondary pb-2 mb-3">
-                            <h6 class="card-title-custom mb-0">Usuarios Activos en Sistema</h6>
+                            <h6 class="card-title-custom mb-0">Usuarios en Sistema</h6>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-custom">
@@ -200,13 +208,13 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                                     <tr>
                                         <th>Nombre</th>
                                         <th>Rol</th>
-                                        <th>Última Actividad</th>
+                                        <th>Fecha Registro</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="admin-table-usuarios">
                                     <tr>
-                                        <td colspan="4" class="text-center text-wait-custom py-2">Esperando conexión de sesiones...</td>
+                                        <td colspan="4" class="text-center text-wait-custom py-2">Cargando usuarios...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -222,10 +230,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                             </h6>
                         </div>
                         
-                        <div class="d-flex flex-column justify-content-center align-items-center h-75 text-center">
+                        <div id="admin-list-alertas" class="d-flex flex-column justify-content-center align-items-center h-75 text-center">
                             <span class="material-symbols-outlined text-secondary fs-1 mb-2">inventory_2</span>
-                            <span class="text-wait-custom d-block">Sin alertas de inventario</span>
-                            <span class="text-sub-wait mt-1">Todo el stock se encuentra estable</span>
+                            <span class="text-wait-custom d-block">Cargando alertas...</span>
                         </div>
                     </div>
                 </div>
@@ -245,7 +252,98 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
     const btnCompras = document.getElementById('btn-compras');
     const btnReportes = document.getElementById('btn-reportes');
 
-    const vistaInicioHTML = contentArea.innerHTML;
+    // Almacenar el HTML inicial limpio para restaurarlo
+    let vistaInicioHTML = '';
+
+    function cargarDatosDashboard() {
+        fetch('../../controllers/admin/AdminDashboardController.php?action=todo')
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    const data = response.data;
+                    
+                    // Métricas
+                    document.getElementById('admin-metric-recaudacion').innerText = 'C$ ' + data.metricas.recaudacion_hoy.toFixed(2);
+                    document.getElementById('admin-metric-facturas').innerText = data.metricas.facturas_hoy + ' Tickets';
+                    document.getElementById('admin-metric-critico').innerText = data.metricas.stock_critico;
+                    document.getElementById('admin-metric-bodega').innerText = data.metricas.ingresos_bodega_hoy + ' Lotes';
+
+                    // Ventas
+                    const tbodyVentas = document.getElementById('admin-table-ventas');
+                    if (data.ventas.length === 0) {
+                        tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-wait-custom py-4">No hay ventas registradas el día de hoy.</td></tr>';
+                    } else {
+                        let htmlVentas = '';
+                        data.ventas.forEach(v => {
+                            const hora = new Date(v.fecha_creacion).toLocaleTimeString();
+                            htmlVentas += `
+                                <tr>
+                                    <td>${hora}</td>
+                                    <td><code class="text-success font-bold">${v.codigo_ticket}</code></td>
+                                    <td>${v.cliente ? v.cliente : 'Cliente Final'}</td>
+                                    <td class="font-monospace text-success fw-bold">C$ ${parseFloat(v.total).toFixed(2)}</td>
+                                    <td><span class="badge px-2 py-1 bg-success-box text-success">Pagado</span></td>
+                                </tr>
+                            `;
+                        });
+                        tbodyVentas.innerHTML = htmlVentas;
+                    }
+
+                    // Usuarios
+                    const tbodyUsuarios = document.getElementById('admin-table-usuarios');
+                    if (data.usuarios.length === 0) {
+                        tbodyUsuarios.innerHTML = '<tr><td colspan="4" class="text-center text-wait-custom py-2">No hay usuarios.</td></tr>';
+                    } else {
+                        let htmlUsuarios = '';
+                        data.usuarios.forEach(u => {
+                            htmlUsuarios += `
+                                <tr>
+                                    <td class="fw-bold text-light">${u.nombre_usuario}</td>
+                                    <td><span class="badge px-2 py-1" style="background-color: #334155;">${u.rol}</span></td>
+                                    <td>${new Date(u.fecha_creacion).toLocaleDateString()}</td>
+                                    <td><span class="text-success d-flex align-items-center gap-1"><span class="material-symbols-outlined" style="font-size:14px;">check_circle</span> Activo</span></td>
+                                </tr>
+                            `;
+                        });
+                        tbodyUsuarios.innerHTML = htmlUsuarios;
+                    }
+
+                    // Alertas
+                    const listAlertas = document.getElementById('admin-list-alertas');
+                    if (data.alertas.length === 0) {
+                        listAlertas.innerHTML = `
+                            <span class="material-symbols-outlined text-secondary fs-1 mb-2">inventory_2</span>
+                            <span class="text-wait-custom d-block">Sin alertas de inventario</span>
+                            <span class="text-sub-wait mt-1">Todo el stock se encuentra estable</span>
+                        `;
+                    } else {
+                        let htmlAlertas = '<div class="w-100 text-start px-2 mt-2" style="max-height: 200px; overflow-y: auto;">';
+                        data.alertas.forEach(a => {
+                            htmlAlertas += `
+                                <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background-color: #1e293b; border-left: 3px solid #ef4444;">
+                                    <div>
+                                        <span class="d-block text-light fw-bold" style="font-size: 13px;">${a.nombre_commercial}</span>
+                                        <span class="text-muted" style="font-size: 11px;">Mín: ${a.stock_minimo}</span>
+                                    </div>
+                                    <span class="badge bg-danger rounded-pill px-2 py-1">${a.stock_actual} en stock</span>
+                                </div>
+                            `;
+                        });
+                        htmlAlertas += '</div>';
+                        listAlertas.innerHTML = htmlAlertas;
+                    }
+                }
+            })
+            .catch(err => console.error("Error al cargar datos del dashboard:", err));
+    }
+
+    // Guardar el HTML inicial de la vista de inicio DESPUES de renderizar o antes.
+    // Como las tablas están vacías, queremos cargarlas, luego guardar el HTML si es necesario.
+    // Alternativa: no guardar el HTML inicial, simplemente recargar la página o volver a mostrar el contenedor y ejecutar cargarDatosDashboard()
+
+
+    // Inicializar guardado del HTML
+    vistaInicioHTML = contentArea.innerHTML;
 
     function manejarCarga(url, btnClicado, nombreModulo) {
         document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
@@ -284,6 +382,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
         btnInicio.classList.add('active');
         contentArea.innerHTML = vistaInicioHTML;
+        cargarDatosDashboard(); // Recargar datos frescos al volver al dashboard
     });
 
     btnUsuarios.addEventListener('click', (e) => {
@@ -322,6 +421,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         manejarCarga('botones_menu/Auditoria_ingresos.php', btnCompras, 'Auditoría de Ingresos');
     } else if (page === 'reportes') {
         manejarCarga('botones_menu/Reportes_diarios.php', btnReportes, 'Reportes Diarios');
+    } else {
+        // Cargar métricas del dashboard por defecto si no hay página seleccionada
+        cargarDatosDashboard();
     }
 
     const profileContainer = document.querySelector('.profile-container');

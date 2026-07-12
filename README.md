@@ -12,21 +12,23 @@ Para configurar la base de datos y las tablas correspondientes:
 1. Importar el archivo [schema.sql](file:///C:/xampp/htdocs/sistema_sif/database/schema.sql) en el servidor MySQL desde phpMyAdmin
 2. Configura los parámetros de conexión correspondientes en el directorio `config/`.
 
-### Usuarios de Prueba Creados:
+### Usuarios por Defecto (Ver `schema.sql` para detalles completos):
 - **Administrador**:
-  - Usuario: `admin`
-  - Contraseña: `admin123`
+  - Usuario: `joel_admin`
+  - Contraseña: `J48_adm!`
+- **Cajero**:
+  - Usuario: `darllely_caja`
+  - Contraseña: `D72_caj#`
 - **Vendedor**:
-  - Usuario: `vendedor`
-  - Contraseña: `vendedor123`
+  - Usuario: `cesar_ventas`
+  - Contraseña: `C58_vnt$`
 
 ## Estructura del Proyecto
 
 - `assets/`: Recursos estáticos (CSS, JS, Imágenes).
 - `config/`: Archivos de configuración y conexión a la base de datos.
-- `controllers/`: Controladores de la arquitectura MVC.
-- `models/`: Modelos de la arquitectura MVC (consultas SQL).
-- `views/`: Vistas de la arquitectura MVC (interfaces de usuario).
-- `reportes/`: Módulo de generación de reportes.
-- `database/`: Scripts de base de datos SQL y semillas.
-
+- `controllers/`: Controladores de la arquitectura MVC (agrupados por roles/módulos).
+- `models/`: Modelos de la arquitectura MVC y consultas a la base de datos (organizados lógicamente en `admin`, `inventario`, `personas` y `ventas`).
+- `views/`: Interfaces gráficas de usuario para los diferentes módulos.
+- `database/`: Contiene `schema.sql` para la creación inicial de la base de datos.
+- `migrar_db.php`: Script utilitario en la raíz para ejecutar actualizaciones estructurales rápidas a la base de datos de manera automática.

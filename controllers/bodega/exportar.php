@@ -23,8 +23,8 @@ if (!isset($_SESSION['id_usuario'])) {
 
 // 2. Cargar dependencias
 require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../models/Lote.php';
-require_once __DIR__ . '/../../models/Producto.php';
+require_once __DIR__ . '/../../models/inventario/Lote.php';
+require_once __DIR__ . '/../../models/inventario/Producto.php';
 
 // 3. Obtener formato solicitado
 $format = isset($_GET['format']) ? trim($_GET['format']) : 'excel';

@@ -4,7 +4,7 @@ session_start();
 // Este controlador gestiona las operaciones de cobro de tickets realizadas por el Cajero.
 
 require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../models/admin/TicketModel.php';
+require_once __DIR__ . '/../../models/ventas/TicketModel.php';
 
 header('Content-Type: application/json');
 
@@ -71,6 +71,25 @@ elseif ($action === 'metricas') {
 elseif ($action === 'listar_pendientes') {
     $tickets = obtenerTicketsPendientesHoy($conexion);
     echo json_encode(['status' => 'success', 'data' => $tickets]);
+    exit;
+}
+
+elseif ($action === 'listar_pagados') {
+    // Obtener tickets pagados de hoy
+    $query = "SELECT t.codigo_ticket, t.total, t.fecha_creacion, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
+              FROM tickets t 
+              LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
+              LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
+              WHERE t.estado = 'Pagado' AND DATE(t.fecha_creacion) = CURDATE()
+              ORDER BY t.id_ticket DESC";
+    $res = mysqli_query($conexion, $query);
+    $pagados = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $pagados[] = $row;
+        }
+    }
+    echo json_encode(['status' => 'success', 'data' => $pagados]);
     exit;
 }
 

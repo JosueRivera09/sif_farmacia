@@ -3,8 +3,11 @@ session_start();
 
 // Esta es la pantalla del dashboard del Vendedor, que permite registrar ventas, consultar stock de productos y ver el historial de ventas.
 
-// Verificar si hay sesión iniciada y si el rol es Vendedor
-if (!isset($_SESSION['id_usuario']) || $_SESSION['rol'] !== 'Vendedor') {
+// Verificar si hay sesión iniciada y si el rol tiene acceso
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso = ($_SESSION['rol'] === 'Vendedor' || $_SESSION['rol'] === 'Administrador' || in_array('ventas', $permisos_extra));
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso) {
     header("Location: ../login.php");
     exit;
 }
@@ -50,6 +53,12 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
             </div>
 
             <nav class="sidebar-menu custom-scrollbar">
+                <?php if ($_SESSION['rol'] !== 'Vendedor'): ?>
+                    <a class="nav-link-custom text-warning" href="<?php echo ($_SESSION['rol'] === 'Administrador') ? '../Interfaz_admin/admin_dashboard.php' : (($_SESSION['rol'] === 'Cajero') ? '../Interfaz_caja/cajero_dashboard.php' : '../bodega/bodega_lotes.php'); ?>" style="color: #f59e0b !important;">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                        <span>Volver al Panel</span>
+                    </a>
+                <?php endif; ?>
                 <a class="nav-link-custom active" id="btn-inicio">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>Resumen</span>

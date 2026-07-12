@@ -46,7 +46,12 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
             </div>
 
             <nav class="sidebar-menu custom-scrollbar">
-                <?php if ($_SESSION['rol'] === 'Administrador'): ?>
+                <?php 
+                $permisos = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+                $es_admin = ($_SESSION['rol'] === 'Administrador');
+                
+                if ($es_admin): 
+                ?>
                     <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Dashboard</span>
@@ -63,6 +68,14 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                         <span class="material-symbols-outlined">warehouse</span>
                         <span>Bodega y Lotes</span>
                     </a>
+                    <a class="nav-link-custom" href="../Interfaz_caja/cajero_dashboard.php">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                        <span>Módulo de Caja</span>
+                    </a>
+                    <a class="nav-link-custom" href="../Interfaz_vendedor/vendedor_dashboard.php">
+                        <span class="material-symbols-outlined">storefront</span>
+                        <span>Módulo de Ventas</span>
+                    </a>
                     <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=auditoria">
                         <span class="material-symbols-outlined">receipt_long</span>
                         <span>Auditoría de Ingresos</span>
@@ -71,28 +84,27 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                         <span class="material-symbols-outlined">analytics</span>
                         <span>Reportes Diarios</span>
                     </a>
-                <?php elseif ($_SESSION['rol'] === 'Bodega'): ?>
-                    <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
-                        <span class="material-symbols-outlined">warehouse</span>
-                        <span>Bodega y Lotes</span>
-                    </a>
-                    <a class="nav-link-custom" id="btn-sidebar-reportes" href="#">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span>Mis Reportes</span>
-                    </a>
                 <?php else: ?>
-                    <a class="nav-link-custom" href="../Interfaz_vendedor/vendedor_dashboard.php">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Inicio</span>
-                    </a>
-                    <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
-                        <span class="material-symbols-outlined">warehouse</span>
-                        <span>Bodega y Lotes</span>
-                    </a>
-                    <a class="nav-link-custom" id="btn-sidebar-reportes" href="#">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span>Mis Reportes</span>
-                    </a>
+                    <?php if ($_SESSION['rol'] === 'Bodega'): ?>
+                        <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
+                            <span class="material-symbols-outlined">warehouse</span>
+                            <span>Bodega y Lotes</span>
+                        </a>
+                        <a class="nav-link-custom" id="btn-sidebar-reportes" href="#">
+                            <span class="material-symbols-outlined">analytics</span>
+                            <span>Mis Reportes</span>
+                        </a>
+                    <?php else: ?>
+                        <!-- Si es Cajero o Vendedor con permiso a bodega, mostramos botón de volver a su dashboard principal -->
+                        <a class="nav-link-custom text-warning" href="<?php echo ($_SESSION['rol'] === 'Cajero') ? '../Interfaz_caja/cajero_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php'; ?>" style="color: #f59e0b !important;">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                            <span>Volver al Panel</span>
+                        </a>
+                        <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
+                            <span class="material-symbols-outlined">warehouse</span>
+                            <span>Bodega y Lotes</span>
+                        </a>
+                    <?php endif; ?>
                 <?php endif; ?>
             </nav>
 
@@ -361,7 +373,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                 </div>
                 </div>
                 <div id="reportes-view-container" style="display: none;">
-                    <?php include __DIR__ . '/partials/reportes_bodega.php'; ?>
+                    <?php include __DIR__ . '/componentes/reportes_bodega.php'; ?>
                 </div>
                 <div id="perfil-view-container" style="display: none;">
                     <?php include __DIR__ . '/../perfil/ver_perfil.php'; ?>
@@ -621,7 +633,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
         });
     </script>
 
-    <?php include __DIR__ . '/partials/registro_producto_modal.php'; ?>
+    <?php include __DIR__ . '/componentes/registro_producto_modal.php'; ?>
 </body>
 
 </html>

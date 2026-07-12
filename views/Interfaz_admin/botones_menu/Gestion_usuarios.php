@@ -80,6 +80,23 @@
                         </select>
                     </div>
 
+                    <!-- Permisos Extra -->
+                    <div class="mb-3">
+                        <label class="form-label form-label-sif">Permisos Extra (Opcional)</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="permisos_extra[]" value="caja" id="permiso_caja">
+                            <label class="form-check-label" for="permiso_caja">Acceso a Caja</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="permisos_extra[]" value="ventas" id="permiso_ventas">
+                            <label class="form-check-label" for="permiso_ventas">Acceso a Ventas</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="permisos_extra[]" value="bodega" id="permiso_bodega">
+                            <label class="form-check-label" for="permiso_bodega">Acceso a Bodega</label>
+                        </div>
+                    </div>
+
                     <!-- Contraseña -->
                     <div class="mb-3">
                         <label for="clave_acceso" class="form-label form-label-sif" id="lbl-clave">Contraseña</label>
@@ -175,6 +192,10 @@
         document.getElementById('helper-clave').style.setProperty('display', 'none', 'important');
         document.getElementById('btn-submit-modal').innerText = 'Registrar Usuario';
         
+        document.getElementById('permiso_caja').checked = false;
+        document.getElementById('permiso_ventas').checked = false;
+        document.getElementById('permiso_bodega').checked = false;
+
         if (!bootstrapModalUsuario) initModal();
         bootstrapModalUsuario.show();
     };
@@ -191,6 +212,10 @@
                     document.getElementById('rol').value = u.rol;
                     document.getElementById('clave_acceso').value = '';
                     
+                    document.getElementById('permiso_caja').checked = u.permisos_extra && u.permisos_extra.includes('caja');
+                    document.getElementById('permiso_ventas').checked = u.permisos_extra && u.permisos_extra.includes('ventas');
+                    document.getElementById('permiso_bodega').checked = u.permisos_extra && u.permisos_extra.includes('bodega');
+
                     document.getElementById('modalUsuarioLabel').innerText = 'Actualizar Datos de Usuario';
                     document.getElementById('lbl-clave').innerText = 'Nueva Contraseña';
                     document.getElementById('clave_acceso').required = false;

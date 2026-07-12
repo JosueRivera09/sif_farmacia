@@ -9,10 +9,10 @@ session_start();
 // Este controlador gestiona las solicitudes AJAX del Vendedor, como listar productos, obtener estadísticas y procesar la facturación/venta de productos.
 
 require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../models/Producto.php';
-require_once __DIR__ . '/../../models/Venta.php';
-require_once __DIR__ . '/../../models/admin/TicketModel.php';
-require_once __DIR__ . '/../../models/Cliente.php';
+require_once __DIR__ . '/../../models/inventario/Producto.php';
+require_once __DIR__ . '/../../models/ventas/Venta.php';
+require_once __DIR__ . '/../../models/ventas/TicketModel.php';
+require_once __DIR__ . '/../../models/personas/Cliente.php';
 
 header('Content-Type: application/json');
 
@@ -82,6 +82,24 @@ elseif ($action === 'vender') {
     }
 
     $id_cliente = isset($data['id_cliente']) ? intval($data['id_cliente']) : null;
+    $nombre_cliente_temporal = isset($data['nombre_cliente_temporal']) ? trim($data['nombre_cliente_temporal']) : '';
+
+    if (!$id_cliente && !empty($nombre_cliente_temporal)) {
+        // Create client on the fly or find existing
+        $nombre_safe = mysqli_real_escape_string($conexion, $nombre_cliente_temporal);
+        $queryBusqueda = "SELECT id_cliente FROM clientes WHERE nombre_completo = '$nombre_safe' LIMIT 1";
+        $resBusqueda = mysqli_query($conexion, $queryBusqueda);
+        if ($resBusqueda && mysqli_num_rows($resBusqueda) > 0) {
+            $row = mysqli_fetch_assoc($resBusqueda);
+            $id_cliente = $row['id_cliente'];
+        } else {
+            // Create new
+            $queryInsert = "INSERT INTO clientes (nombre_completo) VALUES ('$nombre_safe')";
+            if (mysqli_query($conexion, $queryInsert)) {
+                $id_cliente = mysqli_insert_id($conexion);
+            }
+        }
+    }
 
     // Iniciar transacción de base de datos
     mysqli_begin_transaction($conexion);

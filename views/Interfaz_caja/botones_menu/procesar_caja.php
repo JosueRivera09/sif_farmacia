@@ -213,12 +213,12 @@
         let html = '';
         tickets.forEach(t => {
             html += `
-                <tr>
+                <tr style="cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#1e293b'" onmouseout="this.style.backgroundColor='transparent'" onclick="window.cobrarTicketDesdeLista('${t.codigo_ticket}')">
                     <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
                     <td class="text-light">${t.nombre_vendedor}</td>
                     <td class="text-end text-light font-monospace">C$ ${parseFloat(t.total).toFixed(2)}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-success py-1 px-3 d-inline-flex align-items-center gap-1" style="font-size: 11px; background-color: #10b981; border: none; border-radius: 4px; font-weight:600;" onclick="window.cobrarTicketDesdeLista('${t.codigo_ticket}')">
+                        <button class="btn btn-sm btn-success py-1 px-3 d-inline-flex align-items-center gap-1" style="font-size: 11px; background-color: #10b981; border: none; border-radius: 4px; font-weight:600;" onclick="event.stopPropagation(); window.cobrarTicketDesdeLista('${t.codigo_ticket}')">
                             <span class="material-symbols-outlined" style="font-size:13px;">point_of_sale</span> Cobrar
                         </button>
                     </td>

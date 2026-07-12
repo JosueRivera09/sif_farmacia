@@ -4,7 +4,7 @@ session_start();
 // Este controlador se encarga de procesar el inicio de sesión de los usuarios del sistema SIF, validando sus credenciales y redirigiéndolos al dashboard correspondiente según su rol.
 
 require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../models/Usuario.php';
+require_once __DIR__ . '/../../models/personas/Usuario.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = isset($_POST['usuario']) ? trim($_POST['usuario']) : '';
@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['id_usuario'] = $user_data['id_usuario'];
             $_SESSION['nombre_usuario'] = $user_data['nombre_usuario'];
             $_SESSION['rol'] = $user_data['rol'];
+            $_SESSION['permisos_extra'] = Usuario::obtenerPermisosExtra($conexion, $user_data['id_usuario']);
 
             // Redirigir según el rol del usuario
             if ($user_data['rol'] === 'Administrador') {

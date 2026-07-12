@@ -144,6 +144,35 @@ CREATE TABLE cierres_caja (
     FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
 );
 
+-- =========================================================
+-- CAMBIOS RECIENTES: CONTROL DE ACCESO DINÁMICO
+-- =========================================================
+
+-- CÓDIGO NORMAL (Para ejecutar si es la primera vez que se crea la BD)
+CREATE TABLE IF NOT EXISTS permisos_extra (
+    id_permiso INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    modulo VARCHAR(50) NOT NULL,
+    fecha_otorgado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON DELETE CASCADE
+);
+
+/*
+-- =========================================================
+-- CÓDIGO DE ACTUALIZACIÓN (Si ya tenías la BD creada antes)
+-- =========================================================
+-- Si tu base de datos ya existe y sólo necesitas aplicar los cambios posterior a domingo 12 de julio,
+-- copia y ejecuta este bloque en tu gestor de base de datos (phpMyAdmin, MySQL, etc.)
+
+CREATE TABLE IF NOT EXISTS permisos_extra (
+id_permiso INT AUTO_INCREMENT PRIMARY KEY,
+id_usuario INT NOT NULL,
+modulo VARCHAR(50) NOT NULL,
+fecha_otorgado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON DELETE CASCADE
+);
+*/
+
 INSERT INTO categorias (nombre_categoria) VALUES ('analgesico');
 
 INSERT INTO laboratorios (nombre_laboratorio) VALUES ('bayer');

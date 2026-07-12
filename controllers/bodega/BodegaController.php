@@ -8,8 +8,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Verificar si hay sesión iniciada
-if (!isset($_SESSION['id_usuario'])) {
+// Verificar si hay sesión iniciada y si tiene acceso
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso = (
+    $_SESSION['rol'] === 'Bodega' || 
+    $_SESSION['rol'] === 'Administrador' || 
+    in_array('bodega', $permisos_extra)
+);
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso) {
     header("Location: ../login.php");
     exit;
 }
@@ -19,10 +26,10 @@ $nombre_usuario = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSIO
 $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'Administrador';
 
 require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../models/bodega/CategoriaModel.php';
-require_once __DIR__ . '/../../models/Lote.php';
-require_once __DIR__ . '/../../models/Producto.php';
-require_once __DIR__ . '/../../models/Laboratorio.php';
+require_once __DIR__ . '/../../models/inventario/CategoriaModel.php';
+require_once __DIR__ . '/../../models/inventario/Lote.php';
+require_once __DIR__ . '/../../models/inventario/Producto.php';
+require_once __DIR__ . '/../../models/inventario/Laboratorio.php';
 
 function obtenerDatosBodega($conexion) {
     $lotes_por_pagina = 5;

@@ -75,11 +75,11 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                 <h6 class="card-title-custom mb-0">Cliente / Paciente</h6>
             </div>
             
-            <!-- Buscador de Cliente -->
+            <!-- Buscador o Nombre de Cliente -->
             <div class="mb-3 position-relative">
-                <label for="buscar-cliente-input" class="form-label text-light" style="font-size: 12px;">Buscar Cliente (Cédula, Teléfono o Nombre)</label>
+                <label for="buscar-cliente-input" class="form-label text-light" style="font-size: 12px;">Cliente (Búsqueda o Nombre Directo)</label>
                 <div class="input-group bg-slate border border-secondary" style="border-radius: 8px; overflow:hidden;">
-                    <input type="text" id="buscar-cliente-input" class="form-control bg-transparent border-0 text-light py-2" placeholder="Cédula, teléfono o nombre..." autocomplete="off">
+                    <input type="text" id="buscar-cliente-input" class="form-control bg-transparent border-0 text-light py-2" placeholder="Escribe el nombre para omitir registro, o busca..." autocomplete="off">
                     <button class="btn btn-secondary border-0 px-3 d-flex align-items-center" type="button" id="btn-buscar-cliente-trigger" style="background-color: #334155;">
                         <span class="material-symbols-outlined" style="font-size:16px;">search</span>
                     </button>
@@ -550,6 +550,8 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
 
             btnProcesar.disabled = true;
             btnProcesar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span> Generando...`;
+            
+            const nombreTemporal = (!selectedClientId && inputBuscarCliente.value.trim() !== '') ? inputBuscarCliente.value.trim() : null;
 
             fetch('../../controllers/vendedor/VentaController.php?action=vender', {
                     method: 'POST',
@@ -558,7 +560,8 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                     },
                     body: JSON.stringify({
                         items: cart,
-                        id_cliente: selectedClientId
+                        id_cliente: selectedClientId,
+                        nombre_cliente_temporal: nombreTemporal
                     })
                 })
                 .then(res => res.json())
@@ -573,6 +576,9 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                         const ticketClientName = document.getElementById('ticket-generated-client-name');
                         if (selectedClientId && selectedClientData) {
                             ticketClientName.innerText = selectedClientData.nombre;
+                            ticketClientRow.style.display = 'flex';
+                        } else if (nombreTemporal) {
+                            ticketClientName.innerText = nombreTemporal;
                             ticketClientRow.style.display = 'flex';
                         } else {
                             ticketClientRow.style.display = 'none';
@@ -596,6 +602,7 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                         cart = [];
                         selectedClientId = null;
                         selectedClientData = null;
+                        inputBuscarCliente.value = '';
                         infoBox.classList.add('d-none');
                         renderCart();
                         cargarProductosParaVenta(); // Recargar para actualizar stock

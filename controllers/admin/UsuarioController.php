@@ -11,7 +11,7 @@ if (!isset($_SESSION['id_usuario']) || $_SESSION['rol'] !== 'Administrador') {
 
 // Cargar la conexión y el modelo de usuario (rutas actualizadas para subcarpeta controllers/admin/)
 require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../models/Usuario.php';
+require_once __DIR__ . '/../../models/personas/Usuario.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -32,6 +32,7 @@ switch ($action) {
         }
         $usuario = Usuario::obtenerUsuarioPorId($conexion, $id);
         if ($usuario) {
+            $usuario['permisos_extra'] = Usuario::obtenerPermisosExtra($conexion, $id);
             echo json_encode(['status' => 'success', 'data' => $usuario]);
         } else {
             http_response_code(404);
@@ -51,6 +52,7 @@ switch ($action) {
         $nombre_usuario = isset($_POST['nombre_usuario']) ? trim($_POST['nombre_usuario']) : '';
         $rol = isset($_POST['rol']) ? trim($_POST['rol']) : '';
         $clave_acceso = isset($_POST['clave_acceso']) ? $_POST['clave_acceso'] : '';
+        $permisos_extra = isset($_POST['permisos_extra']) ? $_POST['permisos_extra'] : [];
 
         // Validaciones básicas
         if (empty($nombre_usuario) || empty($rol)) {
@@ -78,6 +80,7 @@ switch ($action) {
             // Edición de usuario existente
             $exito = Usuario::actualizarUsuario($conexion, $id_usuario, $nombre_usuario, $rol, $clave_acceso);
             if ($exito) {
+                Usuario::actualizarPermisosExtra($conexion, $id_usuario, $permisos_extra);
                 echo json_encode(['status' => 'success', 'message' => 'Usuario actualizado correctamente.']);
             } else {
                 http_response_code(500);
@@ -93,6 +96,11 @@ switch ($action) {
 
             $exito = Usuario::crearUsuario($conexion, $nombre_usuario, $clave_acceso, $rol);
             if ($exito) {
+                // Obtener el ID del usuario recién creado
+                $nuevo_usuario = Usuario::obtenerUsuarioPorNombre($conexion, $nombre_usuario);
+                if ($nuevo_usuario) {
+                    Usuario::actualizarPermisosExtra($conexion, $nuevo_usuario['id_usuario'], $permisos_extra);
+                }
                 echo json_encode(['status' => 'success', 'message' => 'Usuario creado correctamente.']);
             } else {
                 http_response_code(500);

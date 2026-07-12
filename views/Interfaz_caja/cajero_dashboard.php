@@ -3,8 +3,11 @@ session_start();
 
 // Esta es la pantalla del dashboard del Cajero, que contiene las opciones para realizar cobros, transacciones y consultar el historial de caja.
 
-// Verificar si hay sesión iniciada y si el rol es Cajero
-if (!isset($_SESSION['id_usuario']) || $_SESSION['rol'] !== 'Cajero') {
+// Verificar si hay sesión iniciada y si el rol tiene acceso
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso = ($_SESSION['rol'] === 'Cajero' || $_SESSION['rol'] === 'Administrador' || in_array('caja', $permisos_extra));
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso) {
     header("Location: ../login.php");
     exit;
 }
@@ -48,6 +51,12 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
         </div>
         
         <nav class="sidebar-menu custom-scrollbar">
+            <?php if ($_SESSION['rol'] !== 'Cajero'): ?>
+                <a class="nav-link-custom text-warning" href="<?php echo ($_SESSION['rol'] === 'Administrador') ? '../Interfaz_admin/admin_dashboard.php' : (($_SESSION['rol'] === 'Vendedor') ? '../Interfaz_vendedor/vendedor_dashboard.php' : '../bodega/bodega_lotes.php'); ?>" style="color: #f59e0b !important;">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    <span>Volver al Panel</span>
+                </a>
+            <?php endif; ?>
             <a class="nav-link-custom active" id="btn-modulo-caja">
                 <span class="material-symbols-outlined">payments</span>
                 <span>Pedidos por Cobrar</span>
@@ -56,10 +65,12 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
                 <span class="material-symbols-outlined">receipt_long</span>
                 <span>Historial Cobros</span>
             </a>
+            <?php if ($_SESSION['rol'] === 'Cajero'): ?>
             <a class="nav-link-custom" id="btn-arqueo">
                 <span class="material-symbols-outlined">account_balance_wallet</span>
                 <span>Arqueo de Caja</span>
             </a>
+            <?php endif; ?>
         </nav>
 
         <div class="sidebar-footer">
@@ -145,10 +156,12 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
         manejarCarga('botones_menu/historial_cobros.php', btnHistorial, 'Historial de Cobros');
     });
 
-    btnArqueo.addEventListener('click', (e) => {
-        e.preventDefault();
-        manejarCarga('botones_menu/arqueo_caja.php', btnArqueo, 'Arqueo de Caja y Turno');
-    });
+    if (btnArqueo) {
+        btnArqueo.addEventListener('click', (e) => {
+            e.preventDefault();
+            manejarCarga('botones_menu/arqueo_caja.php', btnArqueo, 'Arqueo de Caja y Turno');
+        });
+    }
 
     // Carga inicial por defecto: Pedidos por cobrar
     manejarCarga('botones_menu/procesar_caja.php', btnModuloCaja, 'Pedidos por Cobrar');

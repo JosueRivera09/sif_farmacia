@@ -128,5 +128,49 @@ class Usuario {
         }
         return false;
     }
+
+    /**
+     * Obtiene los permisos extra de un usuario
+     */
+    public static function obtenerPermisosExtra(mysqli $conexion, int $id_usuario) {
+        $permisos = [];
+        $stmt = mysqli_prepare($conexion, "SELECT modulo FROM permisos_extra WHERE id_usuario = ?");
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "i", $id_usuario);
+            mysqli_stmt_execute($stmt);
+            $resultado = mysqli_stmt_get_result($stmt);
+            while ($row = mysqli_fetch_assoc($resultado)) {
+                $permisos[] = $row['modulo'];
+            }
+            mysqli_stmt_close($stmt);
+        }
+        return $permisos;
+    }
+
+    /**
+     * Actualiza los permisos extra de un usuario
+     */
+    public static function actualizarPermisosExtra(mysqli $conexion, int $id_usuario, array $permisos) {
+        // Eliminar permisos actuales
+        $stmt = mysqli_prepare($conexion, "DELETE FROM permisos_extra WHERE id_usuario = ?");
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "i", $id_usuario);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+        }
+
+        // Insertar nuevos permisos
+        if (!empty($permisos)) {
+            $stmt = mysqli_prepare($conexion, "INSERT INTO permisos_extra (id_usuario, modulo) VALUES (?, ?)");
+            if ($stmt) {
+                foreach ($permisos as $modulo) {
+                    mysqli_stmt_bind_param($stmt, "is", $id_usuario, $modulo);
+                    mysqli_stmt_execute($stmt);
+                }
+                mysqli_stmt_close($stmt);
+            }
+        }
+        return true;
+    }
 }
 ?>
