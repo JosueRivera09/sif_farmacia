@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Ejecutar con F5 (Abrir en Navegador)",
-            "type": "chrome",
+            "name": "Ejecutar con F5(Abrir en Navegador)",
+            "type": "msedge",
             "request": "launch",
-            "url": "http://localhost/sistema_sif/",
+            "url": "http://localhost/sif_farmacia/",
             "webRoot": "${workspaceRoot}"
         },
         {

@@ -144,6 +144,7 @@ CREATE TABLE cierres_caja (
     FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
 );
 
+<<<<<<< HEAD
 -- =========================================================
 -- CAMBIOS RECIENTES: CONTROL DE ACCESO DINÁMICO
 -- =========================================================
@@ -173,6 +174,8 @@ FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON DELETE CASCADE
 );
 */
 
+=======
+>>>>>>> 36edfc4bd8dd25d523b51724c11940cbe022b152
 INSERT INTO categorias (nombre_categoria) VALUES ('analgesico');
 
 INSERT INTO laboratorios (nombre_laboratorio) VALUES ('bayer');

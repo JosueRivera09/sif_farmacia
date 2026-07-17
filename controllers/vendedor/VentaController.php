@@ -128,6 +128,22 @@ elseif ($action === 'vender') {
 
             $total_venta += floatval($prod['precio_venta_actual']) * $cantidad;
         }
+          // lo que edite
+        // === RESTA DE STOCK AL GENERAR TICKET ===
+        // Se resta aquí para que el inventario se actualice inmediatamente
+        foreach ($data['items'] as $item) {
+            $id_producto = intval($item['id_producto']);
+            $cantidad = intval($item['cantidad']);
+
+            $updateStock = "UPDATE productos 
+                           SET stock_actual = stock_actual - $cantidad 
+                           WHERE id_producto = $id_producto";
+
+            if (!mysqli_query($conexion, $updateStock)) {
+                throw new Exception("Error al actualizar el stock del producto ID: $id_producto");
+            }
+        }
+        // =======================================================================================
 
         // Crear ticket en la base de datos
         $codigo_ticket = crearTicket($conexion, $_SESSION['id_usuario'], $data['items'], $total_venta, $id_cliente);
