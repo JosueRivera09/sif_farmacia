@@ -12,8 +12,11 @@ class Producto {
      */
     public static function obtenerProductosVenta(mysqli $conexion) {
         $productos = [];
-        $query = "SELECT p.id_producto, p.nombre_commercial, p.codigo_barras, p.stock_actual, p.precio_venta_actual, 
-                         p.requiere_receta, p.miligramos, p.unidad_medida, c.nombre_categoria, l.nombre_laboratorio 
+        $query = "SELECT p.id_producto, p.nombre_commercial, p.codigo_barras, p.stock_actual, 
+                         p.empaque_principal, p.empaque_medio, p.unidad_minima,
+                         p.unidades_por_empaque_medio, p.unidades_totales_por_empaque_principal, p.es_fraccionable,
+                         p.precio_empaque_principal, p.precio_empaque_medio, p.precio_unidad_minima,
+                         p.requiere_receta, p.miligramos, c.nombre_categoria, l.nombre_laboratorio 
                   FROM productos p 
                   LEFT JOIN categorias c ON p.id_categoria = c.id_categoria 
                   LEFT JOIN laboratorios l ON p.id_laboratorio = l.id_laboratorio 
@@ -24,7 +27,12 @@ class Producto {
             while ($row = mysqli_fetch_assoc($resultado)) {
                 $row['id_producto'] = intval($row['id_producto']);
                 $row['stock_actual'] = intval($row['stock_actual']);
-                $row['precio_venta_actual'] = floatval($row['precio_venta_actual']);
+                $row['precio_empaque_principal'] = floatval($row['precio_empaque_principal']);
+                $row['precio_empaque_medio'] = $row['precio_empaque_medio'] !== null ? floatval($row['precio_empaque_medio']) : null;
+                $row['precio_unidad_minima'] = floatval($row['precio_unidad_minima']);
+                $row['unidades_por_empaque_medio'] = intval($row['unidades_por_empaque_medio']);
+                $row['unidades_totales_por_empaque_principal'] = intval($row['unidades_totales_por_empaque_principal']);
+                $row['es_fraccionable'] = ($row['es_fraccionable'] == 1 || $row['es_fraccionable'] == "\x01");
                 $row['requiere_receta'] = ($row['requiere_receta'] == 1 || $row['requiere_receta'] == "\x01");
                 $productos[] = $row;
             }
@@ -47,7 +55,7 @@ class Producto {
      */
     public static function obtenerProductosBajoStock(mysqli $conexion) {
         $productos = [];
-        $query = "SELECT p.id_producto, p.codigo_barras, p.nombre_commercial, p.stock_actual, p.stock_minimo, p.unidad_medida
+        $query = "SELECT p.id_producto, p.codigo_barras, p.nombre_commercial, p.stock_actual, p.stock_minimo, p.unidad_minima
                   FROM productos p
                   WHERE p.stock_actual <= p.stock_minimo
                   ORDER BY p.stock_actual ASC";

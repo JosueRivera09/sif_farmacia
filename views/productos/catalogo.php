@@ -123,7 +123,7 @@ $es_admin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador';
                 : '<span class="badge bg-success-subtle text-success px-2 py-1 font-bold" style="font-size: 10px;">Libre Venta</span>';
             
             const stockClass = p.stock_actual <= 10 ? 'text-danger font-bold' : 'text-light';
-            const stockLabel = p.stock_actual <= 10 ? `${p.stock_actual} (Crítico)` : p.stock_actual;
+            const stockLabel = p.stock_actual <= 10 ? `${p.stock_actual} ${p.unidad_minima} (Crítico)` : `${p.stock_actual} ${p.unidad_minima}`;
 
             let actionColumn = '';
             if (esAdmin) {
@@ -136,13 +136,27 @@ $es_admin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador';
                 `;
             }
 
+            // Crear desglose de precios según niveles disponibles
+            let preciosHtml = `<div><strong>C$ ${p.precio_empaque_principal.toFixed(2)}</strong> <small class="text-muted">(${p.empaque_principal})</small></div>`;
+            if (p.empaque_medio && p.precio_empaque_medio !== null && p.precio_empaque_medio > 0) {
+                preciosHtml += `<div>C$ ${p.precio_empaque_medio.toFixed(2)} <small class="text-muted">(${p.empaque_medio})</small></div>`;
+            }
+            if (p.es_fraccionable && p.precio_unidad_minima > 0) {
+                preciosHtml += `<div>C$ ${p.precio_unidad_minima.toFixed(2)} <small class="text-muted">(${p.unidad_minima})</small></div>`;
+            }
+
+            let empaquesDesc = `${p.empaque_principal} de ${p.unidades_totales_por_empaque_principal} ${p.unidad_minima}`;
+            if (p.empaque_medio) {
+                empaquesDesc += ` (Blíster: ${p.unidades_por_empaque_medio} ${p.unidad_minima})`;
+            }
+
             html += `
                 <tr>
                     <td><code class="text-secondary">${p.codigo_barras}</code></td>
-                    <td class="font-bold text-light">${p.nombre_commercial} <small class="text-muted d-block">${p.miligramos}mg / ${p.unidad_medida}</small></td>
+                    <td class="font-bold text-light">${p.nombre_commercial} <small class="text-muted d-block">${p.miligramos ? p.miligramos + 'mg' : ''} / ${empaquesDesc}</small></td>
                     <td class="text-light">${p.nombre_categoria} <small class="text-muted d-block">${p.nombre_laboratorio}</small></td>
                     <td class="text-center">${recetaBadge}</td>
-                    <td class="text-end text-light">C$ ${p.precio_venta_actual.toFixed(2)}</td>
+                    <td class="text-end text-light" style="font-size: 12.5px;">${preciosHtml}</td>
                     <td class="text-center ${stockClass}">${stockLabel}</td>
                     ${actionColumn}
                 </tr>

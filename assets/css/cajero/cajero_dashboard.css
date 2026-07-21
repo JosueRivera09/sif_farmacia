@@ -95,8 +95,15 @@ body {
     width: 6px;
     height: 6px;
 }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
 
 .nav-link-custom {
     display: flex;
@@ -114,7 +121,11 @@ body {
     cursor: pointer;
 }
 
-.nav-link-custom:hover { background-color: #0f172a; color: #f8fafc; }
+.nav-link-custom:hover {
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
 .nav-link-custom.active {
     background-color: rgba(15, 23, 42, 0.6);
     color: #10b981;
@@ -132,8 +143,13 @@ body {
     gap: 4px;
 }
 
-.text-error-custom { color: #ef4444 !important; }
-.text-error-custom:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
+.text-error-custom {
+    color: #ef4444 !important;
+}
+
+.text-error-custom:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
 
 /* Área de Contenido */
 .main-content {
@@ -161,6 +177,7 @@ body {
     color: #0f172a;
     margin: 0;
 }
+
 .profile-container {
     display: flex;
     align-items: center;
@@ -178,7 +195,11 @@ body {
     background-color: #f1f5f9;
 }
 
-.content-body { padding: 24px; overflow-y: auto; flex-grow: 1; }
+.content-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
 
 /* Tarjetas de Métricas */
 .metric-card {
@@ -193,38 +214,181 @@ body {
     overflow: hidden;
     height: 100%;
 }
-.metric-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
-.metric-card.card-primary::before { background-color: #10b981; }
-.metric-card.card-secondary::before { background-color: #3b82f6; }
-.metric-card.card-danger::before { background-color: #f59e0b; }
 
-.metric-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 0; }
-.metric-value { font-size: 24px; font-weight: 700; color: #f8fafc; margin-top: 4px; margin-bottom: 0; }
-.metric-icon-box { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.metric-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
 
-.bg-primary-box { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-.bg-secondary-box { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.bg-danger-box { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.metric-card.card-primary::before {
+    background-color: #10b981;
+}
+
+.metric-card.card-secondary::before {
+    background-color: #3b82f6;
+}
+
+.metric-card.card-danger::before {
+    background-color: #f59e0b;
+}
+
+.metric-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+.metric-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.bg-primary-box {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.bg-secondary-box {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.bg-danger-box {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
 
 .custom-card {
-    background-color: #1e293b;
-    border: 1px solid #334155;
+    background-color: #ffffff;
+    border: 1px solid #10b981;
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
-.text-wait-custom { color: #94a3b8; font-size: 14px; }
-.spinner-border.text-success { color: #10b981 !important; }
+
+.text-wait-custom {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.spinner-border.text-success {
+    color: #10b981 !important;
+}
+
 /* Light mode overrides for content text */
-.main-content .text-light, 
+.main-content .text-light,
 .content-body .text-light,
-.main-content .text-white, 
+.main-content .text-white,
 .content-body .text-white,
 .main-content h6.text-light,
 .main-content span.text-light {
-    color: #0f172a !important;
+    color: #e4e5e7 !important;
 }
+
 .main-content .text-muted,
 .content-body .text-muted {
     color: #64748b !important;
+}
+
+/* Custom card content overrides for white theme */
+.custom-card h2,
+.custom-card h3,
+.custom-card h4,
+.custom-card h5,
+.custom-card h6,
+.custom-card .card-title-custom {
+    color: #0f172a !important;
+}
+
+.custom-card p,
+.custom-card span:not(.material-symbols-outlined):not(.badge) {
+    color: #1e293b;
+}
+
+.custom-card .text-muted {
+    color: #64748b !important;
+}
+
+.custom-card label {
+    color: #1e293b !important;
+}
+
+.custom-card input,
+.custom-card select,
+.custom-card textarea {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+.custom-card input:focus,
+.custom-card select:focus,
+.custom-card textarea:focus {
+    border-color: #10b981 !important;
+}
+
+.custom-card .table-custom td,
+.custom-card .tabla-sif td {
+    color: #1e293b !important;
+}
+
+.custom-card .table-custom th,
+.custom-card .tabla-sif th {
+    color: #475569 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+.custom-card .table-custom tbody tr,
+.custom-card .tabla-sif tbody tr {
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.custom-card .table-custom tbody tr:hover,
+.custom-card .tabla-sif tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+/* Extra overrides for borders and backgrounds in cash management cards */
+.custom-card .bg-slate {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+
+.custom-card .border-secondary {
+    border-color: #cbd5e1 !important;
+}
+
+.custom-card hr.border-secondary {
+    border-color: #cbd5e1 !important;
+    opacity: 0.5;
+}
+
+.custom-card .text-light,
+.custom-card .text-white {
+    color: #1e293b !important;
+}
+
+.custom-card .text-warning {
+    color: #d97706 !important;
+    /* Darker amber warning color for readability on white background */
 }

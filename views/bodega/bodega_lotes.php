@@ -34,87 +34,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
     <div class="app-container">
 
         <!-- BEGIN: Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div>
-                    <img src="../../assets/img/logo.png" alt="Logo SISTEMA SIF" style="width: 50px; height: 50px; object-fit: contain;">
-                </div>
-                <div>
-                    <h1 class="sidebar-brand">SISTEMA SIF</h1>
-                    <p class="sidebar-subtitle mb-0">Panel Bodega</p>
-                </div>
-            </div>
-
-            <nav class="sidebar-menu custom-scrollbar">
-                <?php 
-                $permisos = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
-                $es_admin = ($_SESSION['rol'] === 'Administrador');
-                
-                if ($es_admin): 
-                ?>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=usuarios">
-                        <span class="material-symbols-outlined">group</span>
-                        <span>Gestión Usuarios</span>
-                    </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=productos">
-                        <span class="material-symbols-outlined">inventory_2</span>
-                        <span>Catálogo Productos</span>
-                    </a>
-                    <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
-                        <span class="material-symbols-outlined">warehouse</span>
-                        <span>Bodega y Lotes</span>
-                    </a>
-                    <a class="nav-link-custom" href="../Interfaz_caja/cajero_dashboard.php">
-                        <span class="material-symbols-outlined">point_of_sale</span>
-                        <span>Módulo de Caja</span>
-                    </a>
-                    <a class="nav-link-custom" href="../Interfaz_vendedor/vendedor_dashboard.php">
-                        <span class="material-symbols-outlined">storefront</span>
-                        <span>Módulo de Ventas</span>
-                    </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=auditoria">
-                        <span class="material-symbols-outlined">receipt_long</span>
-                        <span>Auditoría de Ingresos</span>
-                    </a>
-                    <a class="nav-link-custom" href="../Interfaz_admin/admin_dashboard.php?page=reportes">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span>Reportes Diarios</span>
-                    </a>
-                <?php else: ?>
-                    <?php if ($_SESSION['rol'] === 'Bodega'): ?>
-                        <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
-                            <span class="material-symbols-outlined">warehouse</span>
-                            <span>Bodega y Lotes</span>
-                        </a>
-                        <a class="nav-link-custom" id="btn-sidebar-reportes" href="#">
-                            <span class="material-symbols-outlined">analytics</span>
-                            <span>Mis Reportes</span>
-                        </a>
-                    <?php else: ?>
-                        <!-- Si es Cajero o Vendedor con permiso a bodega, mostramos botón de volver a su dashboard principal -->
-                        <a class="nav-link-custom text-warning" href="<?php echo ($_SESSION['rol'] === 'Cajero') ? '../Interfaz_caja/cajero_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php'; ?>" style="color: #f59e0b !important;">
-                            <span class="material-symbols-outlined">arrow_back</span>
-                            <span>Volver al Panel</span>
-                        </a>
-                        <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
-                            <span class="material-symbols-outlined">warehouse</span>
-                            <span>Bodega y Lotes</span>
-                        </a>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </nav>
-
-            <div class="sidebar-footer">
-                <a class="nav-link-custom text-error-custom" href="../../controllers/auth/logout.php">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span>Cerrar Sesión</span>
-                </a>
-            </div>
-        </aside>
+        <?php include_once __DIR__ . '/../sidebar.php'; ?>
         <!-- END: Sidebar -->
 
         <!-- Main Content Area -->
@@ -328,7 +248,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                                         <p class="mb-0 text-muted" style="font-size: 11px;">Medicamentos / <?php echo htmlspecialchars($lote['nombre_categoria']); ?> | <?php echo htmlspecialchars($lote['bodega']); ?></p>
                                                     </td>
                                                     <td class="text-light" style="font-size: 14px;"><?php echo htmlspecialchars($lote['nombre_laboratorio'] ?? 'No asignado'); ?></td>
-                                                    <td class="text-light font-semibold"><?php echo htmlspecialchars($lote['cantidad_recibida']) . ' ' . htmlspecialchars($lote['unidad_medida']); ?></td>
+                                                    <td class="text-light font-semibold"><?php echo htmlspecialchars($lote['cantidad_unidades_recibidas']) . ' ' . htmlspecialchars($lote['unidad_minima']); ?></td>
                                                     <td class="text-light" style="font-size: 14px;"><?php echo $fecha_ingreso_formateada; ?></td>
                                                     <td class="text-light <?php echo ($estado === 'Próximo a Vencer') ? 'text-tertiary-custom font-bold' : (($estado === 'Vencido') ? 'text-error-custom font-bold' : ''); ?>" style="font-size: 14px;"><?php echo $fecha_venc_formateada; ?></td>
                                                     <td class="text-center">

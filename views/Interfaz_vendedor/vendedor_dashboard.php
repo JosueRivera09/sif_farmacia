@@ -41,45 +41,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
     <div class="app-container">
 
         <!-- BEGIN: Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div>
-                    <img src="../../assets/img/logo.png" alt="Logo SISTEMA SIF" style="width: 50px; height: 50px; object-fit: contain;">
-                </div>
-                <div>
-                    <h1 class="sidebar-brand">SISTEMA SIF</h1>
-                    <p class="sidebar-subtitle mb-0">Panel Ventas</p>
-                </div>
-            </div>
-
-            <nav class="sidebar-menu custom-scrollbar">
-                <?php if ($_SESSION['rol'] !== 'Vendedor'): ?>
-                    <a class="nav-link-custom text-warning" href="<?php echo ($_SESSION['rol'] === 'Administrador') ? '../Interfaz_admin/admin_dashboard.php' : (($_SESSION['rol'] === 'Cajero') ? '../Interfaz_caja/cajero_dashboard.php' : '../bodega/bodega_lotes.php'); ?>" style="color: #f59e0b !important;">
-                        <span class="material-symbols-outlined">arrow_back</span>
-                        <span>Volver al Panel</span>
-                    </a>
-                <?php endif; ?>
-                <a class="nav-link-custom active" id="btn-inicio">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span>Resumen</span>
-                </a>
-                <a class="nav-link-custom" id="btn-nueva-venta">
-                    <span class="material-symbols-outlined">point_of_sale</span>
-                    <span>Nueva Venta</span>
-                </a>
-                <a class="nav-link-custom" id="btn-inventario">
-                    <span class="material-symbols-outlined">search</span>
-                    <span>Catálogo Inventario</span>
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <a class="nav-link-custom text-error-custom" href="../../controllers/auth/logout.php">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span>Cerrar Sesión</span>
-                </a>
-            </div>
-        </aside>
+        <?php include_once __DIR__ . '/../sidebar.php'; ?>
         <!-- END: Sidebar -->
 
         <!-- Main Content Area -->

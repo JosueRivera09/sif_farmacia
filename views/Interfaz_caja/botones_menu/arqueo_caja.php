@@ -89,7 +89,7 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
     </div>
 
     <!-- Columna Derecha: Comparativa de Totales y Cierre -->
-    <div class="col-lg-5">
+    <div class="col-lg-5"> 
         <div class="custom-card h-100 d-flex flex-column justify-content-between">
             <div>
                 <div class="border-bottom border-secondary pb-2 mb-4">

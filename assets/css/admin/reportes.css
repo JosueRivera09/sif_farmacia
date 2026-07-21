@@ -1,0 +1,200 @@
+/* ==========================================================================
+   HOJA DE ESTILOS: MÓDULO DE REPORTES CONTABLES (WHITE THEME PANELS)
+   Destino: views/Interfaz_admin/botones_menu/Reportes.php
+   ========================================================================== */
+
+.report-filter-container {
+    background-color: #ffffff;
+    border: 1px solid #10b981;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.report-filter-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #10b981;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+}
+
+.report-select {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    width: 100%;
+}
+
+.report-select:focus {
+    border-color: #10b981;
+}
+
+.report-input-date {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    font-size: 14px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    width: 100%;
+}
+
+.report-input-date:focus {
+    border-color: #10b981;
+}
+
+.btn-report-generate {
+    background-color: #10b981;
+    border: none;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.btn-report-generate:hover {
+    background-color: #0d9668;
+    transform: translateY(-1px);
+}
+
+.btn-report-generate:active {
+    transform: translateY(0);
+}
+
+/* Tarjetas de Métricas */
+.report-metric-card {
+    background-color: #ffffff;
+    border: 1px solid #10b981; /* Verde */
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.report-metric-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.report-metric-card.recaudado::before { background-color: #10b981; }
+.report-metric-card.tickets::before { background-color: #3b82f6; }
+.report-metric-card.promedio::before { background-color: #f59e0b; }
+.report-metric-card.estrella::before { background-color: #a855f7; }
+
+.report-metric-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.report-metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    word-break: break-all;
+}
+
+/* Gráficos sencillos basados en HTML/CSS */
+.chart-container-box {
+    background-color: #ffffff;
+    border: 1px solid #10b981; /* Verde */
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+}
+
+.chart-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 10px;
+}
+
+.custom-bar-row {
+    margin-bottom: 16px;
+}
+
+.bar-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.bar-label {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.bar-value {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.bar-track {
+    background-color: #f1f5f9;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 1s ease-in-out;
+}
+
+.bar-fill-green { background-color: #10b981; }
+.bar-fill-blue { background-color: #3b82f6; }
+.bar-fill-purple { background-color: #a855f7; }
+
+/* Tabla de transacciones */
+.report-table-card {
+    background-color: #ffffff;
+    border: 1px solid #10b981; /* Verde */
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.report-table-card .card-title-custom {
+    color: #0f172a !important;
+}
+
+/* Forzar colores de celdas de tabla para que contrasten en fondo blanco */
+.report-table-card .table-custom td {
+    color: #1e293b !important;
+}
+
+.report-table-card .table-custom th {
+    color: #475569 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+.report-table-card .table-custom tbody tr {
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.report-table-card .table-custom tbody tr:hover {
+    background-color: #f8fafc !important;
+}

@@ -39,47 +39,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
 <div class="app-container">
     
     <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div>
-                <img src="../../assets/img/logo.png" alt="Logo" style="width: 50px; height: 50px; object-fit: contain;">
-            </div>
-            <div>
-                <h1 class="sidebar-brand">SISTEMA SIF</h1>
-                <p class="sidebar-subtitle mb-0">Panel Caja</p>
-            </div>
-        </div>
-        
-        <nav class="sidebar-menu custom-scrollbar">
-            <?php if ($_SESSION['rol'] !== 'Cajero'): ?>
-                <a class="nav-link-custom text-warning" href="<?php echo ($_SESSION['rol'] === 'Administrador') ? '../Interfaz_admin/admin_dashboard.php' : (($_SESSION['rol'] === 'Vendedor') ? '../Interfaz_vendedor/vendedor_dashboard.php' : '../bodega/bodega_lotes.php'); ?>" style="color: #f59e0b !important;">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                    <span>Volver al Panel</span>
-                </a>
-            <?php endif; ?>
-            <a class="nav-link-custom active" id="btn-modulo-caja">
-                <span class="material-symbols-outlined">payments</span>
-                <span>Pedidos por Cobrar</span>
-            </a>
-            <a class="nav-link-custom" id="btn-historial">
-                <span class="material-symbols-outlined">receipt_long</span>
-                <span>Historial Cobros</span>
-            </a>
-            <?php if ($_SESSION['rol'] === 'Cajero'): ?>
-            <a class="nav-link-custom" id="btn-arqueo">
-                <span class="material-symbols-outlined">account_balance_wallet</span>
-                <span>Arqueo de Caja</span>
-            </a>
-            <?php endif; ?>
-        </nav>
-
-        <div class="sidebar-footer">
-            <a class="nav-link-custom text-error-custom" href="../../controllers/auth/logout.php">
-                <span class="material-symbols-outlined">logout</span>
-                <span>Cerrar Sesión</span>
-            </a>
-        </div>
-    </aside>
+    <?php include_once __DIR__ . '/../sidebar.php'; ?>
 
     <!-- ÁREA DE CONTENIDO -->
     <div class="main-content">

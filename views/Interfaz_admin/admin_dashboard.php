@@ -38,59 +38,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
 <div class="app-container">
     
     <!-- BEGIN: Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div>
-                <img src="../../assets/img/logo.png" alt="Logo SISTEMA SIF" style="width: 50px; height: 50px; object-fit: contain;">
-            </div>
-            <div>
-                <h1 class="sidebar-brand">SISTEMA SIF</h1>
-                <p class="sidebar-subtitle mb-0">Panel Admin</p>
-            </div>
-        </div>
-        
-        <nav class="sidebar-menu custom-scrollbar">
-            <a class="nav-link-custom active" id="btn-inicio">
-                <span class="material-symbols-outlined">dashboard</span>
-                <span>Dashboard</span>
-            </a>
-            <a class="nav-link-custom" id="btn-usuarios">
-                <span class="material-symbols-outlined">group</span>
-                <span>Gestión Usuarios</span>
-            </a>
-            <a class="nav-link-custom" id="btn-productos">
-                <span class="material-symbols-outlined">inventory_2</span>
-                <span>Catálogo Productos</span>
-            </a>
-            <a class="nav-link-custom" id="btn-bodega" href="../bodega/bodega_lotes.php">
-                <span class="material-symbols-outlined">warehouse</span>
-                <span>Bodega y Lotes</span>
-            </a>
-            <a class="nav-link-custom" id="btn-caja" href="../Interfaz_caja/cajero_dashboard.php">
-                <span class="material-symbols-outlined">point_of_sale</span>
-                <span>Módulo de Caja</span>
-            </a>
-            <a class="nav-link-custom" id="btn-ventas" href="../Interfaz_vendedor/vendedor_dashboard.php">
-                <span class="material-symbols-outlined">storefront</span>
-                <span>Módulo de Ventas</span>
-            </a>
-            <a class="nav-link-custom" id="btn-compras">
-                <span class="material-symbols-outlined">receipt_long</span>
-                <span>Auditoría de Ingresos</span>
-            </a>
-            <a class="nav-link-custom" id="btn-reportes">
-                <span class="material-symbols-outlined">analytics</span>
-                <span>Reportes Diarios</span>
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <a class="nav-link-custom text-error-custom" href="../../controllers/auth/logout.php">
-                <span class="material-symbols-outlined">logout</span>
-                <span>Cerrar Sesión</span>
-            </a>
-        </div>
-    </aside>
+    <?php include_once __DIR__ . '/../sidebar.php'; ?>
     <!-- END: Sidebar -->
 
     <!-- Main Content Area -->
@@ -99,9 +47,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         <!-- BEGIN: TopHeader -->
         <header class="top-header">
             <h2 class="header-title">Panel de Administración</h2>
-            
+
             <div class="d-flex align-items-center gap-4">
-                
+                <!--Perfil del usuario logueado -->
                 <div class="profile-container d-flex align-items-center gap-3 border-start border-secondary-subtle ps-4">
                     <div class="text-end d-none d-sm-block">
                         <p class="mb-0 font-bold text-light" style="font-size: 14px; font-weight: 700;"><?php echo $nombre_usuario; ?></p>
@@ -249,7 +197,6 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
     const btnUsuarios = document.getElementById('btn-usuarios');
     const btnProductos = document.getElementById('btn-productos');
     const btnBodega = document.getElementById('btn-bodega');
-    const btnCompras = document.getElementById('btn-compras');
     const btnReportes = document.getElementById('btn-reportes');
 
     // Almacenar el HTML inicial limpio para restaurarlo
@@ -400,14 +347,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         window.location.href = '../bodega/bodega_lotes.php';
     });
 
-    btnCompras.addEventListener('click', (e) => {
-        e.preventDefault();
-        manejarCarga('botones_menu/Auditoria_ingresos.php', btnCompras, 'Auditoría de Ingresos');
-    });
-
     btnReportes.addEventListener('click', (e) => {
         e.preventDefault();
-        manejarCarga('botones_menu/Reportes_diarios.php', btnReportes, 'Reportes Diarios');
+        manejarCarga('botones_menu/Reportes.php', btnReportes, 'Reportes Contables');
     });
 
     // Enrutamiento basado en parámetros de consulta de la URL (Query Parameters)
@@ -417,10 +359,8 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         manejarCarga('botones_menu/Gestion_usuarios.php', btnUsuarios, 'Gestión de Usuarios');
     } else if (page === 'productos') {
         manejarCarga('../productos/catalogo.php', btnProductos, 'Catálogo de Productos');
-    } else if (page === 'auditoria') {
-        manejarCarga('botones_menu/Auditoria_ingresos.php', btnCompras, 'Auditoría de Ingresos');
     } else if (page === 'reportes') {
-        manejarCarga('botones_menu/Reportes_diarios.php', btnReportes, 'Reportes Diarios');
+        manejarCarga('botones_menu/Reportes.php', btnReportes, 'Reportes Contables');
     } else {
         // Cargar métricas del dashboard por defecto si no hay página seleccionada
         cargarDatosDashboard();

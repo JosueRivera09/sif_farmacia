@@ -8,7 +8,7 @@
 class Lote {
 
     public static function obtenerStockTotal(mysqli $conexion) {
-        $query = "SELECT SUM(cantidad_recibida) as total_stock FROM lotes";
+        $query = "SELECT SUM(cantidad_unidades_recibidas) as total_stock FROM lotes";
         $resultado = mysqli_query($conexion, $query);
         if ($resultado && $fila = mysqli_fetch_assoc($resultado)) {
             return intval($fila['total_stock']);
@@ -35,7 +35,7 @@ class Lote {
     }
 
     public static function contarBodegasActivas(mysqli $conexion) {
-        $query = "SELECT COUNT(DISTINCT bodega) as total_bodegas FROM lotes WHERE cantidad_recibida > 0 AND bodega IS NOT NULL AND bodega != ''";
+        $query = "SELECT COUNT(DISTINCT bodega) as total_bodegas FROM lotes WHERE cantidad_unidades_recibidas > 0 AND bodega IS NOT NULL AND bodega != ''";
         $resultado = mysqli_query($conexion, $query);
         if ($resultado && $fila = mysqli_fetch_assoc($resultado)) {
             return intval($fila['total_bodegas']);
@@ -45,7 +45,7 @@ class Lote {
 
     public static function obtenerLotesPaginados(mysqli $conexion, int $limit, int $offset) {
         $lotes = [];
-        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, c.nombre_categoria, l.cantidad_recibida, l.fecha_vencimiento, l.fecha_creacion, p.unidad_medida, la.nombre_laboratorio
+        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, c.nombre_categoria, l.cantidad_unidades_recibidas, l.fecha_vencimiento, l.fecha_creacion, p.unidad_minima, la.nombre_laboratorio
                   FROM lotes l
                   JOIN productos p ON l.id_producto = p.id_producto
                   JOIN categorias c ON p.id_categoria = c.id_categoria
@@ -64,7 +64,7 @@ class Lote {
 
     public static function obtenerTodosLosLotes(mysqli $conexion) {
         $lotes = [];
-        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, c.nombre_categoria, l.cantidad_recibida, l.fecha_vencimiento, l.fecha_creacion, p.unidad_medida, la.nombre_laboratorio
+        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, c.nombre_categoria, l.cantidad_unidades_recibidas, l.fecha_vencimiento, l.fecha_creacion, p.unidad_minima, la.nombre_laboratorio
                   FROM lotes l
                   JOIN productos p ON l.id_producto = p.id_producto
                   JOIN categorias c ON p.id_categoria = c.id_categoria
@@ -82,7 +82,7 @@ class Lote {
 
     public static function obtenerLotesVencidos(mysqli $conexion) {
         $lotes = [];
-        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, l.cantidad_recibida, l.fecha_vencimiento, p.unidad_medida
+        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, l.cantidad_unidades_recibidas, l.fecha_vencimiento, p.unidad_minima
                   FROM lotes l
                   JOIN productos p ON l.id_producto = p.id_producto
                   WHERE l.fecha_vencimiento < CURDATE()

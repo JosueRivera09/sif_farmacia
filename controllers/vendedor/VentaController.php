@@ -106,27 +106,50 @@ elseif ($action === 'vender') {
 
     try {
         $total_venta = 0.0;
-        foreach ($data['items'] as $item) {
+        foreach ($data['items'] as &$item) { // Note the & for reference to modify the item in place if needed, though we can just read
             $id_producto = intval($item['id_producto']);
             $cantidad = intval($item['cantidad']);
-
+            $nivel = isset($item['nivel_empaque']) ? $item['nivel_empaque'] : 'Principal';
+            
             if ($cantidad <= 0) {
                 throw new Exception('Cantidad inválida');
             }
 
-            // Consultar producto para comprobar stock
-            $query = "SELECT stock_actual, precio_venta_actual, nombre_commercial FROM productos WHERE id_producto = $id_producto LIMIT 1";
+            // Consultar producto para comprobar stock y factores
+            $query = "SELECT stock_actual, precio_empaque_principal, precio_empaque_medio, precio_unidad_minima, nombre_commercial,
+                             unidades_totales_por_empaque_principal, unidades_por_empaque_medio 
+                      FROM productos WHERE id_producto = $id_producto LIMIT 1";
             $res = mysqli_query($conexion, $query);
             if (!$res || mysqli_num_rows($res) === 0) {
                 throw new Exception('Producto no encontrado');
             }
 
             $prod = mysqli_fetch_assoc($res);
-            if (intval($prod['stock_actual']) < $cantidad) {
+            
+            // Determinar factor y precio basado en el nivel de empaque
+            $factor = 1;
+            $precio = 0.0;
+            
+            if ($nivel === 'Principal') {
+                $factor = intval($prod['unidades_totales_por_empaque_principal']);
+                $precio = floatval($prod['precio_empaque_principal']);
+            } elseif ($nivel === 'Medio') {
+                $factor = intval($prod['unidades_por_empaque_medio']);
+                $precio = floatval($prod['precio_empaque_medio']);
+            } else {
+                $precio = floatval($prod['precio_unidad_minima']);
+            }
+            
+            // Guardar el precio real determinado por backend para evitar manipulación
+            $item['precio'] = $precio;
+            
+            $unidades_a_descontar = $cantidad * $factor;
+            
+            if (intval($prod['stock_actual']) < $unidades_a_descontar) {
                 throw new Exception("Stock insuficiente para: " . $prod['nombre_commercial']);
             }
 
-            $total_venta += floatval($prod['precio_venta_actual']) * $cantidad;
+            $total_venta += $precio * $cantidad;
         }
           // lo que edite
         // === RESTA DE STOCK AL GENERAR TICKET ===

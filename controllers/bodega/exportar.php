@@ -80,8 +80,8 @@ if ($format === 'excel') {
             $lote['nombre_commercial'],
             $lote['nombre_categoria'],
             $lote['nombre_laboratorio'] ?? 'No asignado',
-            $lote['cantidad_recibida'],
-            $lote['unidad_medida'],
+            $lote['cantidad_unidades_recibidas'],
+            $lote['unidad_minima'],
             $lote['bodega'],
             date('d/m/Y', strtotime($lote['fecha_creacion'])),
             date('d/m/Y', strtotime($lote['fecha_vencimiento'])),
@@ -238,7 +238,7 @@ if ($format === 'excel') {
         $pdf->Cell($anchos['laboratorio'], 7, utf8_decode($labName), 1, 0, 'L', true);
         
         // 4. Cantidad
-        $cantStr = $lote['cantidad_recibida'] . ' ' . ($lote['unidad_medida'] === 'Unidades' ? 'Und' : ($lote['unidad_medida'] === 'Frascos' ? 'Frs' : ($lote['unidad_medida'] === 'Cajas' ? 'Cjs' : 'Amp')));
+        $cantStr = $lote['cantidad_unidades_recibidas'] . ' ' . $lote['unidad_minima'];
         $pdf->Cell($anchos['cantidad'], 7, utf8_decode($cantStr), 1, 0, 'C', true);
         
         // 5. Bodega

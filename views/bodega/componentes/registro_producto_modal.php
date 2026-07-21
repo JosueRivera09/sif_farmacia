@@ -123,21 +123,52 @@ $laboratories_list = isset($laboratories_list) ? $laboratories_list : [];
                             </div>
                             <div class="row g-3">
                                 <div class="col-12 col-md-4 mb-3">
-                                    <label for="unidad_medida" class="filter-label">Unidad de Medida</label>
-                                    <select class="filter-input" name="unidad_medida" id="unidad_medida">
-                                        <option value="Cajas">Cajas</option>
-                                        <option value="Frascos">Frascos</option>
-                                        <option value="Ampollas">Ampollas</option>
-                                        <option value="Unidades">Unidades</option>
-                                    </select>
+                                    <label for="empaque_principal" class="filter-label">Empaque Principal</label>
+                                    <input type="text" class="filter-input" name="empaque_principal" id="empaque_principal" placeholder="Ej: Caja, Bote" required />
                                 </div>
                                 <div class="col-12 col-md-4 mb-3">
-                                    <label for="precio_venta_actual" class="filter-label">Precio de Venta</label>
-                                    <input type="number" step="0.01" min="0" class="filter-input" name="precio_venta_actual" id="precio_venta_actual" placeholder="Ej: 15.50" />
+                                    <label for="empaque_medio" class="filter-label">Empaque Medio (Opcional)</label>
+                                    <input type="text" class="filter-input" name="empaque_medio" id="empaque_medio" placeholder="Ej: Blister, Sobre" />
                                 </div>
                                 <div class="col-12 col-md-4 mb-3">
-                                    <label for="stock_minimo" class="filter-label">Stock Mínimo</label>
-                                    <input type="number" min="0" class="filter-input" name="stock_minimo" id="stock_minimo" placeholder="Ej: 10" value="0" />
+                                    <label for="unidad_minima" class="filter-label">Unidad Mínima</label>
+                                    <input type="text" class="filter-input" name="unidad_minima" id="unidad_minima" placeholder="Ej: Tableta, Cápsula" required />
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="unidades_totales_por_empaque_principal" class="filter-label">Unidades Totales por Empaque Principal</label>
+                                    <input type="number" min="1" class="filter-input" name="unidades_totales_por_empaque_principal" id="unidades_totales_por_empaque_principal" placeholder="Ej: 100" required />
+                                </div>
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="unidades_por_empaque_medio" class="filter-label">Unidades por Empaque Medio</label>
+                                    <input type="number" min="1" class="filter-input" name="unidades_por_empaque_medio" id="unidades_por_empaque_medio" placeholder="Ej: 10 (Si usa blister)" value="1" required />
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label for="precio_empaque_principal" class="filter-label">Precio Empaque Principal</label>
+                                    <input type="number" step="0.01" min="0" class="filter-input" name="precio_empaque_principal" id="precio_empaque_principal" placeholder="Ej: 500.00" required />
+                                </div>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label for="precio_empaque_medio" class="filter-label">Precio Empaque Medio</label>
+                                    <input type="number" step="0.01" min="0" class="filter-input" name="precio_empaque_medio" id="precio_empaque_medio" placeholder="Ej: 50.00" />
+                                </div>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label for="precio_unidad_minima" class="filter-label">Precio Unidad Mínima</label>
+                                    <input type="number" step="0.01" min="0" class="filter-input" name="precio_unidad_minima" id="precio_unidad_minima" placeholder="Ej: 5.00" required />
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="stock_minimo" class="filter-label">Stock Mínimo (En unidades mínimas)</label>
+                                    <input type="number" min="0" class="filter-input" name="stock_minimo" id="stock_minimo" placeholder="Ej: 50" value="0" />
+                                </div>
+                                <div class="col-12 col-md-6 mb-3 d-flex align-items-end pb-2">
+                                    <div class="form-check d-flex align-items-center gap-2">
+                                        <input type="checkbox" class="form-check-input m-0" name="es_fraccionable" id="es_fraccionable" value="1">
+                                        <label class="form-check-label filter-label m-0" for="es_fraccionable" style="text-transform:none; font-size:14px; color: #f8fafc;">¿Se puede fraccionar/vender suelto?</label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row g-3">
@@ -163,13 +194,20 @@ $laboratories_list = isset($laboratories_list) ? $laboratories_list : [];
                             <h6 class="mb-0 filter-label" style="font-size: 13px; color: #10b981;">Paso 3 · Datos del lote</h6>
                         </div>
                         <div class="row g-3">
-                            <div class="col-12 col-md-6 mb-3">
+                            <div class="col-12 col-md-4 mb-3">
                                 <label for="numero_lote" class="filter-label">Número de Lote</label>
                                 <input type="text" class="filter-input" name="numero_lote" id="numero_lote" placeholder="Ej: LOT-55291" required />
                             </div>
-                            <div class="col-12 col-md-6 mb-3">
-                                <label for="cantidad_recibida" class="filter-label">Cantidad Recibida</label>
-                                <input type="number" min="1" class="filter-input" name="cantidad_recibida" id="cantidad_recibida" placeholder="Ej: 100" required />
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="empaque_ingreso" class="filter-label">Empaque de Ingreso</label>
+                                <select class="filter-input" name="empaque_ingreso" id="empaque_ingreso" required>
+                                    <option value="Principal">Empaque Principal (Caja, etc)</option>
+                                    <option value="Medio">Empaque Medio (Blíster, etc)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="cantidad_empaques_recibidos" class="filter-label">Cantidad de Empaques Recibidos</label>
+                                <input type="number" min="1" class="filter-input" name="cantidad_empaques_recibidos" id="cantidad_empaques_recibidos" placeholder="Ej: 100" required />
                             </div>
                         </div>
                         <div class="row g-3">

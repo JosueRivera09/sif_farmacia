@@ -27,14 +27,21 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
             </div>
 
             <form id="form-agregar-item" class="row g-3 align-items-end mb-4">
-                <div class="col-md-7">
+                <div class="col-md-5">
                     <label for="select-producto" class="form-label text-light">Seleccionar Producto</label>
                     <select id="select-producto" class="form-select form-control-sif bg-slate text-light" required>
                         <option value="" disabled selected>Cargando productos...</option>
                     </select>
                 </div>
-
+                
                 <div class="col-md-3">
+                    <label for="select-nivel-empaque" class="form-label text-light">Nivel de Empaque</label>
+                    <select id="select-nivel-empaque" class="form-select form-control-sif bg-slate text-light" required disabled>
+                        <option value="" disabled selected>Seleccione producto...</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
                     <label for="input-cantidad" class="form-label text-light">Cantidad</label>
                     <input type="number" id="input-cantidad" class="form-control form-control-sif text-light" min="1" value="1" required>
                 </div>
@@ -51,6 +58,7 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                     <thead>
                         <tr>
                             <th>Producto</th>
+                            <th style="width: 120px; text-align: center;">Empaque</th>
                             <th style="width: 100px; text-align: right;">Precio</th>
                             <th style="width: 80px; text-align: center;">Cant.</th>
                             <th style="width: 120px; text-align: right;">Subtotal</th>
@@ -59,7 +67,7 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                     </thead>
                     <tbody id="cart-table-body">
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No hay productos agregados al pedido.</td>
+                            <td colspan="6" class="text-center text-muted py-4">No hay productos agregados al pedido.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -207,6 +215,7 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
         let cart = [];
 
         const selectEl = document.getElementById('select-producto');
+        const selectNivelEl = document.getElementById('select-nivel-empaque');
         const cantidadEl = document.getElementById('input-cantidad');
         const formEl = document.getElementById('form-agregar-item');
         const tbodyEl = document.getElementById('cart-table-body');
@@ -257,10 +266,61 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                 const recetaTag = p.requiere_receta ? ' [RECETA]' : '';
                 const option = document.createElement('option');
                 option.value = p.id_producto;
-                option.text = `${p.nombre_commercial} (Stock: ${p.stock_actual})${recetaTag} - C$ ${p.precio_venta_actual.toFixed(2)}`;
+                option.text = `${p.nombre_commercial} (Stock Min: ${p.stock_actual})${recetaTag}`;
                 selectEl.appendChild(option);
             });
         }
+        
+        // Actualizar opciones de empaque cuando se selecciona un producto
+        selectEl.addEventListener('change', function() {
+            const id_producto = parseInt(selectEl.value);
+            const product = allProducts.find(p => p.id_producto == id_producto);
+            
+            selectNivelEl.innerHTML = '';
+            
+            if (!product) {
+                selectNivelEl.disabled = true;
+                selectNivelEl.innerHTML = '<option value="" disabled selected>Seleccione producto...</option>';
+                return;
+            }
+            
+            selectNivelEl.disabled = false;
+            
+            // Empaque Principal
+            if (product.precio_empaque_principal > 0) {
+                const optPrinc = document.createElement('option');
+                optPrinc.value = 'Principal';
+                optPrinc.dataset.nombre = product.empaque_principal;
+                optPrinc.dataset.precio = product.precio_empaque_principal;
+                optPrinc.text = `${product.empaque_principal} - C$ ${product.precio_empaque_principal.toFixed(2)}`;
+                selectNivelEl.appendChild(optPrinc);
+            }
+            
+            // Empaque Medio
+            if (product.empaque_medio && product.precio_empaque_medio !== null && product.precio_empaque_medio > 0) {
+                const optMedio = document.createElement('option');
+                optMedio.value = 'Medio';
+                optMedio.dataset.nombre = product.empaque_medio;
+                optMedio.dataset.precio = product.precio_empaque_medio;
+                optMedio.text = `${product.empaque_medio} - C$ ${product.precio_empaque_medio.toFixed(2)}`;
+                selectNivelEl.appendChild(optMedio);
+            }
+            
+            // Unidad Mínima (Sólo si es fraccionable)
+            if (product.es_fraccionable && product.precio_unidad_minima > 0) {
+                const optMinimo = document.createElement('option');
+                optMinimo.value = 'Minimo';
+                optMinimo.dataset.nombre = product.unidad_minima;
+                optMinimo.dataset.precio = product.precio_unidad_minima;
+                optMinimo.text = `${product.unidad_minima} - C$ ${product.precio_unidad_minima.toFixed(2)}`;
+                selectNivelEl.appendChild(optMinimo);
+            }
+            
+            if (selectNivelEl.options.length === 0) {
+                selectNivelEl.disabled = true;
+                selectNivelEl.innerHTML = '<option value="" disabled selected>Sin empaques válidos...</option>';
+            }
+        });
 
         // Filtrar dropdown al escribir en el buscador
         searchFilterInput.addEventListener('input', function() {
@@ -281,9 +341,15 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
             e.preventDefault();
             const id_producto = parseInt(selectEl.value);
             const cantidad = parseInt(cantidadEl.value);
+            const nivelEmpaque = selectNivelEl.value;
+            const selectedOption = selectNivelEl.options[selectNivelEl.selectedIndex];
 
             if (isNaN(id_producto)) {
                 alert("Por favor, selecciona un producto de la lista.");
+                return;
+            }
+            if (!nivelEmpaque) {
+                alert("Por favor, selecciona un nivel de empaque.");
                 return;
             }
             if (cantidad <= 0) {
@@ -297,17 +363,32 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                 return;
             }
 
-            if (product.stock_actual < cantidad) {
-                alert(`Stock insuficiente para ${product.nombre_commercial}. Máximo disponible: ${product.stock_actual}`);
+            const nombreEmpaque = selectedOption.dataset.nombre;
+            const precioEmpaque = parseFloat(selectedOption.dataset.precio);
+            
+            // Factor de conversión
+            let factor = 1;
+            if (nivelEmpaque === 'Principal') {
+                factor = parseInt(product.unidades_totales_por_empaque_principal);
+            } else if (nivelEmpaque === 'Medio') {
+                factor = parseInt(product.unidades_por_empaque_medio);
+            }
+            
+            const unidadesRequeridas = cantidad * factor;
+
+            if (product.stock_actual < unidadesRequeridas) {
+                alert(`Stock insuficiente para vender ${cantidad} ${nombreEmpaque}. Equivalen a ${unidadesRequeridas} unidades mínimas y sólo hay ${product.stock_actual} disponibles.`);
                 return;
             }
 
             // Revisar si ya existe en el carrito
-            const existingItemIndex = cart.findIndex(item => item.id_producto === id_producto);
+            const existingItemIndex = cart.findIndex(item => item.id_producto === id_producto && item.nivel_empaque === nivelEmpaque);
             if (existingItemIndex > -1) {
                 const nuevaCantidad = cart[existingItemIndex].cantidad + cantidad;
-                if (product.stock_actual < nuevaCantidad) {
-                    alert(`Stock insuficiente para ${product.nombre_commercial}. Ya tienes ${cart[existingItemIndex].cantidad} en el carrito y el máximo es ${product.stock_actual}`);
+                const nuevasUnidadesRequeridas = nuevaCantidad * factor;
+                
+                if (product.stock_actual < nuevasUnidadesRequeridas) {
+                    alert(`Stock insuficiente. Ya tienes ${cart[existingItemIndex].cantidad} ${nombreEmpaque} en el carrito.`);
                     return;
                 }
                 cart[existingItemIndex].cantidad = nuevaCantidad;
@@ -315,8 +396,10 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                 cart.push({
                     id_producto: product.id_producto,
                     nombre: product.nombre_commercial,
-                    precio: product.precio_venta_actual,
-                    cantidad: cantidad
+                    precio: precioEmpaque,
+                    cantidad: cantidad,
+                    nivel_empaque: nivelEmpaque,
+                    nombre_empaque: nombreEmpaque
                 });
             }
 
@@ -324,6 +407,11 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
             selectEl.selectedIndex = 0;
             searchFilterInput.value = '';
             renderProductDropdown(allProducts);
+            
+            // Reset dropdown de nivel
+            selectNivelEl.innerHTML = '<option value="" disabled selected>Seleccione producto...</option>';
+            selectNivelEl.disabled = true;
+            
             renderCart();
         });
 
@@ -498,7 +586,7 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
         // Renderizar carrito
         function renderCart() {
             if (cart.length === 0) {
-                tbodyEl.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No hay productos agregados al pedido.</td></tr>';
+                tbodyEl.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No hay productos agregados al pedido.</td></tr>';
                 subtotalEl.innerText = 'C$ 0.00';
                 ivaEl.innerText = 'C$ 0.00';
                 totalEl.innerText = 'C$ 0.00';
@@ -515,6 +603,7 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                 html += `
                 <tr>
                     <td class="text-light">${item.nombre}</td>
+                    <td class="text-center text-light">${item.nombre_empaque}</td>
                     <td class="text-end text-light">C$ ${item.precio.toFixed(2)}</td>
                     <td class="text-center text-light">${item.cantidad}</td>
                     <td class="text-end text-light">C$ ${itemSubtotal.toFixed(2)}</td>

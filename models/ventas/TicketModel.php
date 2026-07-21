@@ -52,9 +52,11 @@ function crearTicket(mysqli $conexion, int $id_vendedor, array $items, float $to
             $id_producto = intval($item['id_producto']);
             $cantidad = intval($item['cantidad']);
             $precio = floatval($item['precio']);
+            $nivel_empaque = isset($item['nivel_empaque']) ? mysqli_real_escape_string($conexion, $item['nivel_empaque']) : 'Principal';
+            $nombre_empaque = isset($item['nombre_empaque']) ? mysqli_real_escape_string($conexion, $item['nombre_empaque']) : 'Caja';
             
-            $queryDetalle = "INSERT INTO ticket_detalles (id_ticket, id_producto, cantidad, precio_unitario) 
-                             VALUES ($id_ticket, $id_producto, $cantidad, $precio)";
+            $queryDetalle = "INSERT INTO ticket_detalles (id_ticket, id_producto, cantidad, precio_unitario, nivel_empaque, nombre_empaque) 
+                             VALUES ($id_ticket, $id_producto, $cantidad, $precio, '$nivel_empaque', '$nombre_empaque')";
             mysqli_query($conexion, $queryDetalle);
         }
         
@@ -101,34 +103,52 @@ function procesarPagoTicket(mysqli $conexion, int $id_ticket) {
     $id_ticket = intval($id_ticket);
 
     // Obtener items para verificar stock
-    $queryItems = "SELECT id_producto, cantidad FROM ticket_detalles WHERE id_ticket = $id_ticket";
+    $queryItems = "SELECT id_producto, cantidad, nivel_empaque FROM ticket_detalles WHERE id_ticket = $id_ticket";
     $resItems = mysqli_query($conexion, $queryItems);
     
     if (!$resItems) return false;
 
-    // Verificar existencias
+    $deducciones = [];
+
+    // Verificar existencias calculando unidades reales
     while ($row = mysqli_fetch_assoc($resItems)) {
         $id_prod = intval($row['id_producto']);
         $cant = intval($row['cantidad']);
+        $nivel = $row['nivel_empaque'];
         
-        $resStock = mysqli_query($conexion, "SELECT stock_actual, nombre_commercial FROM productos WHERE id_producto = $id_prod LIMIT 1");
+        $resStock = mysqli_query($conexion, "SELECT stock_actual, nombre_commercial, unidades_totales_por_empaque_principal, unidades_por_empaque_medio FROM productos WHERE id_producto = $id_prod LIMIT 1");
         if ($resStock && mysqli_num_rows($resStock) > 0) {
             $prod = mysqli_fetch_assoc($resStock);
-            if (intval($prod['stock_actual']) < $cant) {
+            
+            // Calcular factor de conversión a unidades mínimas
+            $factor = 1;
+            if ($nivel === 'Principal') {
+                $factor = intval($prod['unidades_totales_por_empaque_principal']);
+            } elseif ($nivel === 'Medio') {
+                $factor = intval($prod['unidades_por_empaque_medio']);
+            }
+            
+            $unidades_a_descontar = $cant * $factor;
+            
+            if (intval($prod['stock_actual']) < $unidades_a_descontar) {
                 throw new Exception("Stock insuficiente en caja para: " . $prod['nombre_commercial']);
             }
+            
+            $deducciones[] = [
+                'id_producto' => $id_prod,
+                'unidades' => $unidades_a_descontar
+            ];
         } else {
             throw new Exception("Producto no encontrado durante el cobro.");
         }
     }
 
     // Descontar stock real e ir marcando
-    mysqli_data_seek($resItems, 0);
-    while ($row = mysqli_fetch_assoc($resItems)) {
-        $id_prod = intval($row['id_producto']);
-        $cant = intval($row['cantidad']);
+    foreach ($deducciones as $deduccion) {
+        $id_prod = $deduccion['id_producto'];
+        $unidades = $deduccion['unidades'];
         
-        $updateStock = "UPDATE productos SET stock_actual = stock_actual - $cant WHERE id_producto = $id_prod";
+        $updateStock = "UPDATE productos SET stock_actual = stock_actual - $unidades WHERE id_producto = $id_prod";
         if (!mysqli_query($conexion, $updateStock)) {
             throw new Exception("Error al actualizar existencias de producto.");
         }
