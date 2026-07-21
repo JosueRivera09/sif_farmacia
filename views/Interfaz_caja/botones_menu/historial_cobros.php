@@ -1,9 +1,8 @@
 <div class="custom-card mb-4 p-4">
     <div class="border-bottom border-secondary pb-2 mb-3">
-<<<<<<< HEAD
         <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cobros (Hoy)</h6>
     </div>
-    
+
     <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
         <table class="table table-custom">
             <thead>
@@ -21,79 +20,45 @@
                     <td colspan="6" class="text-center py-5 text-muted">
                         <div class="spinner-border text-success mb-3" role="status"></div><br>
                         Cargando historial de cobros...
-=======
-        <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Filtro de Cobros Realizados</h6>
-    </div>
-    <div class="d-flex gap-3">
-        <input type="text" class="input-sif-dark flex-grow-1" placeholder="Buscar por nombre del cliente o N° factura cobrada...">
-        <button class="btn btn-secondary d-flex align-items-center gap-2 px-4" style="background-color: #334155; border:none; border-radius: 8px; font-weight: 600;">
-            <span class="material-symbols-outlined">filter_list</span> Filtrar
-        </button>
-    </div>
-</div>
-
-<div class="custom-card p-4">
-    <div class="border-bottom border-secondary pb-2 mb-3">
-        <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Bitácora de Ventas del Turno</h6>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-custom">
-            <thead>
-                <tr>
-                    <th style="color: #94a3b8;">Hora Cobro</th>
-                    <th style="color: #94a3b8;">N° Factura</th>
-                    <th style="color: #94a3b8;">Cliente</th>
-                    <th style="color: #94a3b8;">Monto</th>
-                    <th style="color: #94a3b8;">Estado</th>
-                    <th style="color: #94a3b8;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="6" class="text-center py-5" style="color: #94a3b8; font-size: 14px;">
-                        <span class="material-symbols-outlined d-block fs-1 mb-2" style="opacity: 0.4; color: #94a3b8;">tray</span>
-                        No se encontraron transacciones registradas en el turno actual.
->>>>>>> 36edfc4bd8dd25d523b51724c11940cbe022b152
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-<<<<<<< HEAD
 </div>
 
 <script>
-{
-    const tbodyHistorial = document.getElementById('historial-cobros-tbody');
+    {
+        const tbodyHistorial = document.getElementById('historial-cobros-tbody');
 
-    function cargarHistorialCobros() {
-        fetch('../../controllers/caja/CajaController.php?action=listar_pagados')
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === 'success') {
-                    renderHistorial(response.data);
-                } else {
-                    tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Error: ${response.message}</td></tr>`;
-                }
-            })
-            .catch(err => {
-                console.error("Error al cargar historial de cobros:", err);
-                tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Ocurrió un error al cargar los datos.</td></tr>`;
-            });
-    }
-
-    function renderHistorial(tickets) {
-        if (tickets.length === 0) {
-            tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5"><span class="material-symbols-outlined d-block fs-1 mb-2" style="opacity: 0.4;">receipt_long</span>No hay cobros registrados el día de hoy.</td></tr>`;
-            return;
+        function cargarHistorialCobros() {
+            fetch('../../controllers/caja/CajaController.php?action=listar_pagados')
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success') {
+                        renderHistorial(response.data);
+                    } else {
+                        tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Error: ${response.message}</td></tr>`;
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al cargar historial de cobros:", err);
+                    tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Ocurrió un error al cargar los datos.</td></tr>`;
+                });
         }
 
-        let html = '';
-        tickets.forEach(t => {
-            const hora = new Date(t.fecha_creacion).toLocaleTimeString();
-            const cliente = t.nombre_cliente ? t.nombre_cliente : 'Cliente Ocasional';
-            
-            html += `
+        function renderHistorial(tickets) {
+            if (tickets.length === 0) {
+                tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5"><span class="material-symbols-outlined d-block fs-1 mb-2" style="opacity: 0.4;">receipt_long</span>No hay cobros registrados el día de hoy.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            tickets.forEach(t => {
+                const hora = new Date(t.fecha_creacion).toLocaleTimeString();
+                const cliente = t.nombre_cliente ? t.nombre_cliente : 'Cliente Ocasional';
+
+                html += `
                 <tr>
                     <td class="text-light">${hora}</td>
                     <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
@@ -105,14 +70,11 @@
                     </td>
                 </tr>
             `;
-        });
-        tbodyHistorial.innerHTML = html;
-    }
+            });
+            tbodyHistorial.innerHTML = html;
+        }
 
-    // Inicializar carga
-    cargarHistorialCobros();
-}
+        // Inicializar carga
+        cargarHistorialCobros();
+    }
 </script>
-=======
-</div>
->>>>>>> 36edfc4bd8dd25d523b51724c11940cbe022b152
