@@ -67,6 +67,16 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                         <i class="fa-solid fa-circle-check me-2"></i><strong>¡Éxito!</strong> Lote registrado e inventario del producto actualizado correctamente.
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                <?php elseif (isset($_GET['success_edit'])): ?>
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background-color: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981;">
+                        <i class="fa-solid fa-circle-check me-2"></i><strong>¡Éxito!</strong> Información del producto editada y guardada correctamente.
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php elseif (isset($_GET['error']) && $_GET['error'] === 'fallo_edit'): ?>
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background-color: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444;">
+                        <i class="fa-solid fa-circle-xmark me-2"></i><strong>¡Error!</strong> No se pudo actualizar la información del producto. Por favor, intente de nuevo.
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 <?php elseif (isset($_GET['error'])): ?>
                     <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background-color: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444;">
                         <i class="fa-solid fa-circle-xmark me-2"></i><strong>¡Error!</strong> No se pudo registrar el lote. Por favor, intente de nuevo.
@@ -181,6 +191,10 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                         <span class="material-symbols-outlined" style="font-size: 18px;">add_circle</span>
                                         NUEVO INGRESO
                                     </button>
+                                    <button class="btn btn-info text-white flex-grow-1 flex-md-grow-0 justify-content-center" data-bs-toggle="modal" data-bs-target="#editarProductoModal">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">edit</span>
+                                        EDITAR PRODUCTO
+                                    </button>
                                     <div class="dropdown d-flex flex-grow-1 flex-md-grow-0">
                                         <button class="btn btn-secondary dropdown-toggle w-100 justify-content-center" type="button" id="dropdownExportar" data-bs-toggle="dropdown" aria-expanded="false">
                                             <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
@@ -215,7 +229,6 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                             <th>Fecha Ingreso</th>
                                             <th>Vencimiento</th>
                                             <th class="text-center">Estado</th>
-                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -254,14 +267,11 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                                     <td class="text-center">
                                                         <span class="badge-status <?php echo $badge_class; ?>"><?php echo $estado; ?></span>
                                                     </td>
-                                                    <td class="text-end">
-                                                        <button class="btn btn-link text-muted p-0"><span class="material-symbols-outlined">more_vert</span></button>
-                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <tr>
-                                                <td colspan="8" class="text-center text-muted py-4">No hay lotes registrados en bodega.</td>
+                                                <td colspan="7" class="text-center text-muted py-4">No hay lotes registrados en bodega.</td>
                                             </tr>
                                         <?php endif; ?>
                                     </tbody>
@@ -554,6 +564,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
     </script>
 
     <?php include __DIR__ . '/componentes/registro_producto_modal.php'; ?>
+    <?php include __DIR__ . '/componentes/editar_producto_modal.php'; ?>
 </body>
 
 </html>
