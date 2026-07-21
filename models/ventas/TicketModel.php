@@ -205,4 +205,22 @@ function obtenerTicketsPendientesHoy(mysqli $conexion) {
     }
     return $tickets;
 }
+
+function obtenerTicketsPorVendedor(mysqli $conexion, int $id_vendedor) {
+    inicializarTablasTickets($conexion);
+    $id_vendedor = intval($id_vendedor);
+    $query = "SELECT codigo_ticket, total, estado, fecha_creacion 
+              FROM tickets 
+              WHERE id_vendedor = $id_vendedor 
+              ORDER BY id_ticket DESC 
+              LIMIT 20";
+    $res = mysqli_query($conexion, $query);
+    $tickets = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $tickets[] = $row;
+        }
+    }
+    return $tickets;
+}
 ?>

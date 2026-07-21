@@ -4,17 +4,20 @@
  * Propósito: Proveer datos y métricas para el panel principal del Administrador.
  */
 
-class DashboardModel {
+class DashboardModel
+{
     /**
      * Obtiene las métricas generales del día (recaudación, facturas, ingresos bodega, stock crítico)
      */
-    public static function obtenerMetricasGenerales(mysqli $conexion) {
+    public static function obtenerMetricasGenerales(mysqli $conexion)
+    {
         $metricas = [
             'recaudacion_hoy' => 0.00,
             'facturas_hoy' => 0,
             'stock_critico' => 0,
             'ingresos_bodega_hoy' => 0
         ];
+
 
         // 1. Recaudación y Facturas Hoy
         $queryTickets = "SELECT SUM(total) as recaudacion, COUNT(id_ticket) as facturas 
@@ -50,7 +53,8 @@ class DashboardModel {
     /**
      * Obtiene el historial de las últimas 10 ventas pagadas
      */
-    public static function obtenerHistorialVentas(mysqli $conexion) {
+    public static function obtenerHistorialVentas(mysqli $conexion)
+    {
         $ventas = [];
         $query = "SELECT t.codigo_ticket, t.total, t.fecha_creacion, c.nombre_completo as cliente
                   FROM tickets t
@@ -70,7 +74,8 @@ class DashboardModel {
     /**
      * Obtiene la lista de usuarios activos en el sistema
      */
-    public static function obtenerUsuarios(mysqli $conexion) {
+    public static function obtenerUsuarios(mysqli $conexion)
+    {
         $usuarios = [];
         $query = "SELECT nombre_usuario, rol, fecha_creacion FROM usuarios ORDER BY rol, nombre_usuario";
         $res = mysqli_query($conexion, $query);
@@ -85,7 +90,8 @@ class DashboardModel {
     /**
      * Obtiene los productos que están en stock bajo (crítico)
      */
-    public static function obtenerAlertasStock(mysqli $conexion) {
+    public static function obtenerAlertasStock(mysqli $conexion)
+    {
         $alertas = [];
         $query = "SELECT nombre_commercial, stock_actual, stock_minimo 
                   FROM productos 
@@ -101,4 +107,3 @@ class DashboardModel {
         return $alertas;
     }
 }
-?>

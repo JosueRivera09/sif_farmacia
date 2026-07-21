@@ -39,4 +39,3 @@ if ($action === 'todo') {
     echo json_encode(['status' => 'error', 'message' => 'Acción no válida.']);
     exit;
 }
-?>

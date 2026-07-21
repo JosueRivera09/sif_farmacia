@@ -81,6 +81,32 @@
     </div>
 </div>
 
+<div class="custom-card mt-4">
+    <div class="border-bottom border-secondary pb-2 mb-3">
+        <h6 class="card-title-custom mb-0">Mis Tickets de Venta (Últimos 20)</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th style="color: #94a3b8;">N° Ticket</th>
+                    <th style="color: #94a3b8;">Fecha y Hora</th>
+                    <th style="color: #94a3b8; text-align: right;">Total</th>
+                    <th style="color: #94a3b8; text-align: center;">Estado</th>
+                </tr>
+            </thead>
+            <tbody id="vendedor-tickets-tbody">
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">
+                        <div class="spinner-border text-success spinner-border-sm mb-2" role="status"></div><br>
+                        Cargando tickets...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script>
 {
     function cargarMetricasResumen() {
@@ -98,6 +124,52 @@
             .catch(err => console.error("Error al cargar métricas de resumen:", err));
     }
 
+    function cargarMisTickets() {
+        fetch('../../controllers/vendedor/VentaController.php?action=mis_tickets')
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    const tickets = response.data;
+                    const tbody = document.getElementById('vendedor-tickets-tbody');
+                    if (tickets.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">No has generado tickets de venta.</td></tr>`;
+                        return;
+                    }
+                    
+                    let html = '';
+                    tickets.forEach(t => {
+                        const dateObj = new Date(t.fecha_creacion);
+                        const fecha = dateObj.toLocaleDateString();
+                        const hora = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        let badgeClass = 'bg-warning-box text-warning';
+                        let estadoTexto = 'Pendiente';
+                        if (t.estado === 'Pagado') {
+                            badgeClass = 'bg-success-box text-success';
+                            estadoTexto = 'Pagado';
+                        }
+                        
+                        html += `
+                            <tr>
+                                <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
+                                <td class="text-light">${fecha} ${hora}</td>
+                                <td class="text-end font-monospace text-success fw-bold">C$ ${parseFloat(t.total).toFixed(2)}</td>
+                                <td class="text-center">
+                                    <span class="badge ${badgeClass} px-3 py-1">${estadoTexto}</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                }
+            })
+            .catch(err => {
+                console.error("Error al cargar tickets del vendedor:", err);
+                document.getElementById('vendedor-tickets-tbody').innerHTML = `<tr><td colspan="4" class="text-center text-danger py-4">Error al cargar tickets</td></tr>`;
+            });
+    }
+
     cargarMetricasResumen();
+    cargarMisTickets();
 }
 </script>

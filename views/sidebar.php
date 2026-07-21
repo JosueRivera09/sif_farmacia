@@ -280,7 +280,7 @@ function obtenerLinkVolver($rol)
                     <!-- CONFIGURACIÓN DE WHATSAPP: 
                          Cambia el número de teléfono en href (ejemplo: '50499999999' por tu número con código de área) 
                          y personaliza el texto después de '?text=' -->
-                    <a href="https://www.google.com/search?q=google&oq=google&gs_lcrp=EgZjaHJvbWUqEAgAEAAYgwEY4wIYsQMYgAQyEAgAEAAYgwEY4wIYsQMYgAQyEwgBEC4YgwEYxwEYsQMY0QMYgAQyCggCEAAYsQMYgAQyCggDEAAYsQMYgAQyCggEEAAYsQMYgAQyBwgFEAAYgAQyCggGEAAYsQMYgAQyCggHEAAYsQMYgAQyCggIEAAYsQMYgAQyDQgJEAAYgwEYsQMYgATSAQkyNjI2ajBqMTWoAgiwAgHxBZ3dzljSEGjt&sourceid=chrome&source=chrome.rb&ie=UTF-8" target="_blank" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none transition-all" style="background-color: #0f172a; border: 1px solid #1e293b; color: #f8fafc; transition: all 0.2s ease-in-out;" onmouseover="this.style.borderColor='#22c55e'; this.style.backgroundColor='#14532d'" onmouseout="this.style.borderColor='#1e293b'; this.style.backgroundColor='#0f172a'">
+                    <a href="https://api.whatsapp.com/send/?phone=%2B50584961780&text&type=phone_number&app_absent=0" target="_blank" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none transition-all" style="background-color: #0f172a; border: 1px solid #1e293b; color: #f8fafc; transition: all 0.2s ease-in-out;" onmouseover="this.style.borderColor='#22c55e'; this.style.backgroundColor='#14532d'" onmouseout="this.style.borderColor='#1e293b'; this.style.backgroundColor='#0f172a'">
                         <span class="fa-brands fa-whatsapp text-success fs-3"></span>
                         <div>
                             <h6 class="mb-0 fw-bold" style="font-size: 14px; font-family: 'Inter', sans-serif;">WhatsApp Soporte</h6>
@@ -315,7 +315,7 @@ function obtenerLinkVolver($rol)
                         <span class="material-symbols-outlined text-warning fs-3">phone_in_talk</span>
                         <div>
                             <h6 class="mb-0 fw-bold" style="font-size: 14px; font-family: 'Inter', sans-serif;">Línea Telefónica Interna</h6>
-                            <small style="color: #94a3b8; font-size: 12px;">Ext. 104 (Administración de TI)</small>
+                            <small style="color: #94a3b8; font-size: 12px;">+505 8496-1780 (Administración de TI)</small>
                         </div>
                     </div>
                 </div>

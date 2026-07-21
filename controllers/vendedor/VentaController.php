@@ -197,6 +197,18 @@ elseif ($action === 'vender') {
     exit;
 }
 
+elseif ($action === 'mis_tickets') {
+    $id_vendedor = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    if ($id_vendedor <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Vendedor no identificado']);
+        exit;
+    }
+
+    $tickets = obtenerTicketsPorVendedor($conexion, $id_vendedor);
+    echo json_encode(['status' => 'success', 'data' => $tickets]);
+    exit;
+}
+
 else {
     echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
     exit;
