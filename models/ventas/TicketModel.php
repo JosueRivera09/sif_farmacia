@@ -65,6 +65,40 @@ function crearTicket(mysqli $conexion, int $id_vendedor, array $items, float $to
     return false;
 }
 
+function obtenerTicketDetallePorCodigo(mysqli $conexion, string $codigo) {
+    inicializarTablasTickets($conexion);
+    $codigo = mysqli_real_escape_string($conexion, trim($codigo));
+
+    $query = "SELECT t.*, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente, c.cedula as cedula_cliente, c.telefono as telefono_cliente 
+              FROM tickets t 
+              LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
+              LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
+              WHERE t.codigo_ticket = '$codigo' LIMIT 1";
+    $res = mysqli_query($conexion, $query);
+
+    if ($res && mysqli_num_rows($res) > 0) {
+        $ticket = mysqli_fetch_assoc($res);
+        $id_ticket = intval($ticket['id_ticket']);
+        
+        // Obtener detalles del ticket
+        $queryDetalles = "SELECT td.*, p.nombre_commercial, p.codigo_barras 
+                          FROM ticket_detalles td 
+                          LEFT JOIN productos p ON td.id_producto = p.id_producto 
+                          WHERE td.id_ticket = $id_ticket";
+        $resDetalles = mysqli_query($conexion, $queryDetalles);
+        
+        $detalles = [];
+        if ($resDetalles) {
+            while ($row = mysqli_fetch_assoc($resDetalles)) {
+                $detalles[] = $row;
+            }
+        }
+        $ticket['items'] = $detalles;
+        return $ticket;
+    }
+    return null;
+}
+
 function obtenerTicketPorCodigo(mysqli $conexion, string $codigo) {
     inicializarTablasTickets($conexion);
     $codigo = mysqli_real_escape_string($conexion, trim($codigo));

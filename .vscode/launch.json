@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Ejecutar con F5(Abrir en Navegador)",
+            "name": "Abrir en Navegador",
             "type": "chrome",
             "request": "launch",
             "url": "http://localhost/sistema_sif/",

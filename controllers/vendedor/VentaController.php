@@ -209,6 +209,22 @@ elseif ($action === 'mis_tickets') {
     exit;
 }
 
+elseif ($action === 'ver_ticket') {
+    $codigo = isset($_GET['codigo']) ? trim($_GET['codigo']) : '';
+    if (empty($codigo)) {
+        echo json_encode(['status' => 'error', 'message' => 'Código de ticket requerido']);
+        exit;
+    }
+
+    $ticket = obtenerTicketDetallePorCodigo($conexion, $codigo);
+    if ($ticket) {
+        echo json_encode(['status' => 'success', 'data' => $ticket]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Ticket no encontrado']);
+    }
+    exit;
+}
+
 else {
     echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
     exit;

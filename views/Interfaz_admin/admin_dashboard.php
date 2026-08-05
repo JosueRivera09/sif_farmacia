@@ -68,7 +68,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
             
             <!-- Metrics Section -->
             <div class="row g-4 mb-4">
-                <div class="col-12 col-md-6 col-xl-3">
+                <div class="col-12 col-md-4 col-xl-4">
                     <div class="metric-card card-primary">
                         <div>
                             <p class="metric-title">Recaudación</p>
@@ -80,7 +80,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     </div>
                 </div>
                 
-                <div class="col-12 col-md-6 col-xl-3">
+                <div class="col-12 col-md-4 col-xl-4">
                     <div class="metric-card card-secondary">
                         <div>
                             <p class="metric-title">Facturas de Hoy</p>
@@ -92,19 +92,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     </div>
                 </div>
                 
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="metric-card card-danger">
-                        <div>
-                            <p class="metric-title">Stock Crítico</p>
-                            <h3 class="metric-value" id="admin-metric-critico">0</h3>
-                        </div>
-                        <div class="metric-icon-box bg-danger-box">
-                            <span class="material-symbols-outlined">error</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-12 col-md-6 col-xl-3">
+                <div class="col-12 col-md-4 col-xl-4">
                     <div class="metric-card card-purple">
                         <div>
                             <p class="metric-title">Ingresos Bodega de Hoy</p>
@@ -210,10 +198,10 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     const data = response.data;
                     
                     // Métricas
-                    document.getElementById('admin-metric-recaudacion').innerText = 'C$ ' + data.metricas.recaudacion_hoy.toFixed(2);
-                    document.getElementById('admin-metric-facturas').innerText = data.metricas.facturas_hoy + ' Tickets';
-                    document.getElementById('admin-metric-critico').innerText = data.metricas.stock_critico;
-                    document.getElementById('admin-metric-bodega').innerText = data.metricas.ingresos_bodega_hoy + ' Lotes';
+                    if (document.getElementById('admin-metric-recaudacion')) document.getElementById('admin-metric-recaudacion').innerText = 'C$ ' + data.metricas.recaudacion_hoy.toFixed(2);
+                    if (document.getElementById('admin-metric-facturas')) document.getElementById('admin-metric-facturas').innerText = data.metricas.facturas_hoy + ' Tickets';
+                    if (document.getElementById('admin-metric-critico')) document.getElementById('admin-metric-critico').innerText = data.metricas.stock_critico;
+                    if (document.getElementById('admin-metric-bodega')) document.getElementById('admin-metric-bodega').innerText = data.metricas.ingresos_bodega_hoy + ' Lotes';
 
                     // Ventas
                     const tbodyVentas = document.getElementById('admin-table-ventas');

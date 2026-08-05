@@ -93,11 +93,12 @@
                     <th style="color: #94a3b8;">Fecha y Hora</th>
                     <th style="color: #94a3b8; text-align: right;">Total</th>
                     <th style="color: #94a3b8; text-align: center;">Estado</th>
+                    <th style="color: #94a3b8; text-align: center;">Acción</th>
                 </tr>
             </thead>
             <tbody id="vendedor-tickets-tbody">
                 <tr>
-                    <td colspan="4" class="text-center py-4 text-muted">
+                    <td colspan="5" class="text-center py-4 text-muted">
                         <div class="spinner-border text-success spinner-border-sm mb-2" role="status"></div><br>
                         Cargando tickets...
                     </td>
@@ -107,8 +108,77 @@
     </div>
 </div>
 
+<!-- Modal / Vista de Ticket Impreso en Resumen -->
+<div id="ticket-modal-resumen-overlay" class="d-none" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(15, 23, 42, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 20px;">
+    <div class="bg-white text-dark p-4 shadow" style="border-radius: 12px; width: 100%; max-width: 400px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5;">
+        <div class="text-center mb-3">
+            <h5 class="m-0 font-bold" style="color: #061e33;">SISTEMA SIF - FARMACIA</h5>
+            <p class="text-muted m-0" style="font-size: 11px;">DETALLE DE TICKET / FACTURA</p>
+            <p class="m-0 text-dark font-bold mt-2" style="font-size: 18px;" id="ticket-resumen-code">TK-XXXXXX</p>
+        </div>
+        <hr style="border-top: 1px dashed #333;" class="my-2">
+
+        <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+            <span>Fecha:</span>
+            <span id="ticket-resumen-date">09/07/2026</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+            <span>Vendedor:</span>
+            <span id="ticket-resumen-vendedor">--</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1" style="font-size: 11px;" id="ticket-resumen-client-row">
+            <span>Cliente:</span>
+            <span id="ticket-resumen-client-name">Cliente Final</span>
+        </div>
+        <hr style="border-top: 1px dashed #333;" class="my-2">
+
+        <div id="ticket-resumen-items-list" style="max-height: 150px; overflow-y: auto; font-size: 11px;">
+            <!-- Lista de productos -->
+        </div>
+
+        <hr style="border-top: 1px dashed #333;" class="my-2">
+        <div class="d-flex justify-content-between font-bold" style="font-size: 14px; color: #000;">
+            <span>TOTAL:</span>
+            <span id="ticket-resumen-total">C$ 0.00</span>
+        </div>
+        <hr style="border-top: 1px dashed #333;" class="my-3">
+
+        <div class="text-center mb-3 py-3" style="font-size: 11px; border: 1px dashed #333; border-radius: 6px; background-color: #f8fafc;">
+            <p class="mb-4 text-muted" style="font-size: 10px;">ESPACIO PARA SELLO / FIRMA DE CAJA</p>
+            <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
+            <p class="m-0 mt-1 text-dark font-bold" style="font-size: 9px;">CAJERO AUTORIZADO</p>
+        </div>
+
+        <!-- Selector de Impresora -->
+        <div class="mb-3">
+            <label for="select-impresora-resumen" class="form-label fw-bold text-dark mb-1" style="font-size: 11px;">
+                <span class="material-symbols-outlined align-middle" style="font-size: 16px;">print</span> Seleccionar Impresora:
+            </label>
+            <select id="select-impresora-resumen" class="form-select form-select-sm text-dark bg-light border-secondary">
+                <option value="predeterminada" selected>Impresora Predeterminada del Sistema</option>
+                <option value="pos80">Impresora Térmica POS (80mm)</option>
+                <option value="pos58">Impresora Térmica POS (58mm)</option>
+                <option value="laser">Impresora Láser / Inyección (Página Completa)</option>
+            </select>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-success flex-grow-1 py-2 font-bold d-flex align-items-center justify-content-center gap-1" id="btn-imprimir-ticket-resumen" style="border-radius: 8px;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">print</span> Imprimir Factura
+            </button>
+            <button class="btn btn-dark py-2 font-bold" id="btn-close-ticket-resumen-modal" style="border-radius: 8px;">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <script>
 {
+    const modalResumen = document.getElementById('ticket-modal-resumen-overlay');
+    const btnCloseModalResumen = document.getElementById('btn-close-ticket-resumen-modal');
+    const btnPrintModalResumen = document.getElementById('btn-imprimir-ticket-resumen');
+
+    let ticketActualDatos = null;
+
     function cargarMetricasResumen() {
         fetch('../../controllers/vendedor/VentaController.php?action=metricas')
             .then(res => res.json())
@@ -132,7 +202,7 @@
                     const tickets = response.data;
                     const tbody = document.getElementById('vendedor-tickets-tbody');
                     if (tickets.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">No has generado tickets de venta.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No has generado tickets de venta.</td></tr>`;
                         return;
                     }
                     
@@ -157,6 +227,11 @@
                                 <td class="text-center">
                                     <span class="badge ${badgeClass} px-3 py-1">${estadoTexto}</span>
                                 </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-success p-1 px-2 d-inline-flex align-items-center gap-1" onclick="window.verTicketResumen('${t.codigo_ticket}')">
+                                        <span class="material-symbols-outlined" style="font-size:16px;">print</span> Ver / Imprimir
+                                    </button>
+                                </td>
                             </tr>
                         `;
                     });
@@ -165,8 +240,132 @@
             })
             .catch(err => {
                 console.error("Error al cargar tickets del vendedor:", err);
-                document.getElementById('vendedor-tickets-tbody').innerHTML = `<tr><td colspan="4" class="text-center text-danger py-4">Error al cargar tickets</td></tr>`;
+                document.getElementById('vendedor-tickets-tbody').innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Error al cargar tickets</td></tr>`;
             });
+    }
+
+    window.verTicketResumen = function(codigo) {
+        fetch(`../../controllers/vendedor/VentaController.php?action=ver_ticket&codigo=${codigo}`)
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    const data = response.data;
+                    ticketActualDatos = data;
+
+                    document.getElementById('ticket-resumen-code').innerText = data.codigo_ticket;
+                    document.getElementById('ticket-resumen-date').innerText = new Date(data.fecha_creacion).toLocaleString();
+                    document.getElementById('ticket-resumen-vendedor').innerText = data.nombre_vendedor || 'Vendedor';
+                    document.getElementById('ticket-resumen-client-name').innerText = data.nombre_cliente ? data.nombre_cliente : 'Cliente Final';
+                    document.getElementById('ticket-resumen-total').innerText = 'C$ ' + parseFloat(data.total).toFixed(2);
+
+                    let itemsHtml = '';
+                    if (data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            const subt = parseFloat(item.precio_unitario) * parseInt(item.cantidad);
+                            itemsHtml += `
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>${item.nombre_commercial || 'Producto'} x${item.cantidad} (${item.nombre_empaque || 'Caja'})</span>
+                                    <span>C$ ${subt.toFixed(2)}</span>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        itemsHtml = '<div class="text-muted text-center py-2">Sin detalles registrados</div>';
+                    }
+                    document.getElementById('ticket-resumen-items-list').innerHTML = itemsHtml;
+
+                    modalResumen.classList.remove('d-none');
+                    modalResumen.style.setProperty('display', 'flex', 'important');
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error al ver ticket:", err);
+                alert("Error al cargar los datos del ticket.");
+            });
+    };
+
+    if (btnCloseModalResumen) {
+        btnCloseModalResumen.addEventListener('click', function() {
+            modalResumen.classList.add('d-none');
+            modalResumen.style.setProperty('display', 'none', 'important');
+        });
+    }
+
+    if (btnPrintModalResumen) {
+        btnPrintModalResumen.addEventListener('click', function() {
+            if (!ticketActualDatos) return;
+
+            const tipoImpresora = document.getElementById('select-impresora-resumen').value;
+            const codigoTicket = ticketActualDatos.codigo_ticket;
+            const fechaTicket = new Date(ticketActualDatos.fecha_creacion).toLocaleString();
+            const totalTicket = 'C$ ' + parseFloat(ticketActualDatos.total).toFixed(2);
+            const vendedorTicket = ticketActualDatos.nombre_vendedor || 'Vendedor';
+            const clienteTicket = ticketActualDatos.nombre_cliente ? ticketActualDatos.nombre_cliente : 'Cliente Final';
+            const itemsHtml = document.getElementById('ticket-resumen-items-list').innerHTML;
+
+            let widthCss = '80mm';
+            if (tipoImpresora === 'pos58') widthCss = '58mm';
+            if (tipoImpresora === 'laser') widthCss = '100%';
+
+            const win = window.open('', '_blank', 'width=600,height=700');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Factura Ticket - ${codigoTicket}</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <style>
+                        body { font-family: monospace; font-size: 12px; margin: 0 auto; padding: 15px; max-width: ${widthCss}; }
+                        hr { border-top: 1px dashed #000; }
+                        @media print {
+                            body { max-width: ${widthCss}; padding: 0; }
+                            button { display: none !important; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="text-center mb-2">
+                        <h5 class="m-0 fw-bold">SISTEMA SIF - FARMACIA</h5>
+                        <p class="text-muted m-0" style="font-size: 10px;">PRE-VENTA / FACTURA</p>
+                        <h4 class="m-0 fw-bold mt-1">${codigoTicket}</h4>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                        <span>Fecha:</span> <span>${fechaTicket}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                        <span>Vendedor:</span> <span>${vendedorTicket}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                        <span>Cliente:</span> <span>${clienteTicket}</span>
+                    </div>
+                    <hr>
+                    <div style="font-size: 11px;">
+                        ${itemsHtml}
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold fs-6">
+                        <span>TOTAL:</span> <span>${totalTicket}</span>
+                    </div>
+                    <hr class="my-3">
+                    <div class="text-center py-2" style="font-size: 10px; border: 1px dashed #333; border-radius: 4px;">
+                        <p class="mb-3 text-muted">SELLO / FIRMA DE CAJA</p>
+                        <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
+                        <p class="m-0 mt-1 text-dark fw-bold" style="font-size: 9px;">CAJERO AUTORIZADO</p>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function(){ window.close(); }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        });
     }
 
     cargarMetricasResumen();

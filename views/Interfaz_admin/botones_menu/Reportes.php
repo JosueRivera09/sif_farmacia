@@ -30,10 +30,14 @@
                     <input type="date" id="reporte-fecha-fin" class="report-input-date">
                 </div>
                 
-                <div class="col-12 col-md-3 ms-md-auto">
-                    <button type="submit" class="btn-report-generate d-flex align-items-center justify-content-center gap-2">
+                <div class="col-12 col-md-4 ms-md-auto d-flex gap-2">
+                    <button type="submit" class="btn-report-generate flex-grow-1 d-flex align-items-center justify-content-center gap-2">
                         <span class="material-symbols-outlined" style="font-size: 20px;">analytics</span>
                         Generar Reporte
+                    </button>
+                    <button type="button" id="btn-exportar-pdf" class="btn btn-danger d-flex align-items-center justify-content-center gap-2 px-3 fw-bold" style="border-radius: 8px;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">picture_as_pdf</span>
+                        Imprimir PDF
                     </button>
                 </div>
             </div>
@@ -149,6 +153,22 @@
         e.preventDefault();
         cargarDatosReporte();
     });
+
+    // Imprimir o Exportar a PDF
+    const btnExportarPdf = document.getElementById('btn-exportar-pdf');
+    if (btnExportarPdf) {
+        btnExportarPdf.addEventListener('click', () => {
+            const periodo = selectPeriodo.value;
+            const fechaInicio = document.getElementById('reporte-fecha-inicio').value;
+            const fechaFin = document.getElementById('reporte-fecha-fin').value;
+
+            let url = `../../controllers/admin/GenerarReportePDF.php?periodo=${periodo}`;
+            if (periodo === 'personalizado') {
+                url += `&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+            }
+            window.open(url, '_blank');
+        });
+    }
 
     function cargarDatosReporte() {
         const periodo = selectPeriodo.value;
