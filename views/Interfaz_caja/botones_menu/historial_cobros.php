@@ -33,7 +33,7 @@
 
 <div class="custom-card mb-4 p-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
-        <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cierres de Caja (Tabla cierres_caja)</h6>
+        <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cierres de Caja</h6>
         <span class="badge bg-slate border border-secondary text-secondary">Últimos Arqueos Registrados</span>
     </div>
 
@@ -112,7 +112,10 @@
 
             let html = '';
             cierres.forEach(c => {
-                const fecha = new Date(c.fecha_cierre).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+                const fecha = new Date(c.fecha_cierre).toLocaleString([], {
+                    dateStyle: 'short',
+                    timeStyle: 'short'
+                });
                 const inicial = parseFloat(c.monto_inicial || 0).toFixed(2);
                 const esperado = parseFloat(c.monto_esperado || 0).toFixed(2);
                 const fisico = parseFloat(c.monto_final || 0).toFixed(2);
@@ -165,7 +168,10 @@
 
             let html = '';
             tickets.forEach(v => {
-                const hora = new Date(v.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const hora = new Date(v.fecha_creacion).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
                 html += `
                     <tr>
                         <td class="text-light font-monospace" style="font-size:12px;">${hora}</td>
@@ -197,7 +203,7 @@
 
                 let tituloReporte = "Lista de Ventas Realizadas por Usuario";
                 let alcanceReporte = `Ventas procesadas por el usuario: ${usuarioActual}`;
-                
+
                 if (esAdmin) {
                     tituloReporte = "Lista General de Todo lo Vendido en el Sistema";
                     alcanceReporte = "Consolidado total de ventas realizadas por todos los usuarios";
@@ -206,7 +212,10 @@
                 let totalMonto = 0;
                 let filasHTML = '';
                 ventasAImprimir.forEach(v => {
-                    const hora = new Date(v.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const hora = new Date(v.fecha_creacion).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
                     const monto = parseFloat(v.total);
                     totalMonto += monto;
                     filasHTML += `

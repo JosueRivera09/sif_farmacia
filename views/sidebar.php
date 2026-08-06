@@ -186,52 +186,68 @@ function obtenerLinkVolver($rol)
         <?php endif; ?>
 
         <?php
-        // Si no es Administrador, mostrar accesos directos a otros módulos a los que tenga permiso
+        // Si no es Administrador, mostrar accesos directos a todos los botones de otros módulos a los que tenga permiso extra
         if ($user_role !== 'Administrador'):
-            $has_caja = ($user_role === 'Cajero' || in_array('caja', $permisos_extra));
-            $has_ventas = ($user_role === 'Vendedor' || in_array('ventas', $permisos_extra));
+            $has_caja = ($user_role === 'Cajero' || in_array('caja', $permisos_extra) || in_array('cajero', $permisos_extra));
+            $has_ventas = ($user_role === 'Vendedor' || in_array('ventas', $permisos_extra) || in_array('vendedor', $permisos_extra));
             $has_bodega = ($user_role === 'Bodega' || in_array('bodega', $permisos_extra));
 
-            // Solo renderizar si tiene acceso a más de un módulo
-            $modulos_accesibles = 0;
-            if ($has_caja) $modulos_accesibles++;
-            if ($has_ventas) $modulos_accesibles++;
-            if ($has_bodega) $modulos_accesibles++;
-
-            if ($modulos_accesibles > 1):
-                echo '<div class="border-top border-secondary my-2 pt-2"><span class="sidebar-subtitle px-3" style="font-size: 9px; opacity: 0.6;">Otros Módulos</span>';
-
-                if ($has_caja && $panel_context !== 'caja'):
-                    $href_caja = ($current_dir === 'Interfaz_caja') ? 'cajero_dashboard.php' : '../Interfaz_caja/cajero_dashboard.php';
+            // Si tiene acceso a Caja como permiso extra (y no estamos en panel caja)
+            if ($has_caja && $panel_context !== 'caja'):
+                $href_caja = ($current_dir === 'Interfaz_caja') ? 'cajero_dashboard.php' : '../Interfaz_caja/cajero_dashboard.php';
         ?>
-                    <a class="nav-link-custom" href="<?php echo $href_caja; ?>" style="color: #60a5fa !important;">
-                        <span class="material-symbols-outlined">point_of_sale</span>
-                        <span>Módulo de Caja</span>
+                <div class="border-top border-secondary my-2 pt-2">
+                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #60a5fa !important; font-weight: 700; text-transform: uppercase;">Módulo de Caja (Permiso Extra)</span>
+                    <a class="nav-link-custom ms-2" href="<?php echo $href_caja; ?>?sub=cobrar" style="color: #93c5fd !important; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">payments</span>
+                        <span>Pedidos por Cobrar</span>
                     </a>
-                <?php
-                endif;
-
-                if ($has_ventas && $panel_context !== 'ventas'):
-                    $href_ventas = ($current_dir === 'Interfaz_vendedor') ? 'vendedor_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php';
-                ?>
-                    <a class="nav-link-custom" href="<?php echo $href_ventas; ?>" style="color: #fca5a5 !important;">
-                        <span class="material-symbols-outlined">storefront</span>
-                        <span>Módulo de Ventas</span>
+                    <a class="nav-link-custom ms-2" href="<?php echo $href_caja; ?>?sub=historial" style="color: #93c5fd !important; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">receipt_long</span>
+                        <span>Historial Cobros</span>
                     </a>
-                <?php
-                endif;
+                    <a class="nav-link-custom ms-2" href="<?php echo $href_caja; ?>?sub=arqueo" style="color: #93c5fd !important; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">account_balance_wallet</span>
+                        <span>Arqueo de Caja</span>
+                    </a>
+                </div>
+        <?php
+            endif;
 
-                if ($has_bodega && $panel_context !== 'bodega'):
-                    $href_bodega = ($current_dir === 'bodega') ? 'bodega_lotes.php' : '../bodega/bodega_lotes.php';
-                ?>
-                    <a class="nav-link-custom" href="<?php echo $href_bodega; ?>" style="color: #34d399 !important;">
-                        <span class="material-symbols-outlined">warehouse</span>
+            // Si tiene acceso a Ventas como permiso extra (y no estamos en panel ventas)
+            if ($has_ventas && $panel_context !== 'ventas'):
+                $href_ventas = ($current_dir === 'Interfaz_vendedor') ? 'vendedor_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php';
+        ?>
+                <div class="border-top border-secondary my-2 pt-2">
+                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #fca5a5 !important; font-weight: 700; text-transform: uppercase;">Módulo de Ventas (Permiso Extra)</span>
+                    <a class="nav-link-custom ms-2" href="<?php echo $href_ventas; ?>?sub=resumen" style="color: #fca5a5 !important; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">dashboard</span>
+                        <span>Resumen Ventas</span>
+                    </a>
+                    <a class="nav-link-custom ms-2" href="<?php echo $href_ventas; ?>?sub=nueva_venta" style="color: #fca5a5 !important; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">point_of_sale</span>
+                        <span>Nueva Venta</span>
+                    </a>
+                    <a class="nav-link-custom ms-2" href="<?php echo $href_ventas; ?>?sub=inventario" style="color: #fca5a5 !important; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
+                        <span>Catálogo Inventario</span>
+                    </a>
+                </div>
+        <?php
+            endif;
+
+            // Si tiene acceso a Bodega como permiso extra (y no estamos en panel bodega)
+            if ($has_bodega && $panel_context !== 'bodega'):
+                $base_bodega = ($current_dir === 'bodega') ? 'bodega_lotes.php' : '../bodega/bodega_lotes.php';
+        ?>
+                <div class="border-top border-secondary my-2 pt-2">
+                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #34d399 !important; font-weight: 700; text-transform: uppercase;">Módulo de Bodega (Permiso Extra)</span>
+                    <a class="nav-link-custom ms-2" href="<?php echo $base_bodega; ?>" style="color: #6ee7b7 !important; font-size: 13px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">warehouse</span>
                         <span>Bodega y Lotes</span>
                     </a>
+                </div>
         <?php
-                endif;
-
-                echo '</div>';
             endif;
         endif;
         ?>

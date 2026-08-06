@@ -156,8 +156,17 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
         });
     }
 
-    // Carga inicial por defecto: Pedidos por cobrar
-    manejarCarga('botones_menu/procesar_caja.php', btnModuloCaja, 'Pedidos por Cobrar');
+    // Carga inicial según parámetro en URL (?sub=historial, ?sub=arqueo, etc.)
+    const urlParams = new URLSearchParams(window.location.search);
+    const subParam = urlParams.get('sub');
+
+    if (subParam === 'historial' && btnHistorial) {
+        manejarCarga('botones_menu/historial_cobros.php', btnHistorial, 'Historial de Cobros');
+    } else if (subParam === 'arqueo' && btnArqueo) {
+        manejarCarga('botones_menu/arqueo_caja.php', btnArqueo, 'Arqueo de Caja y Turno');
+    } else {
+        manejarCarga('botones_menu/procesar_caja.php', btnModuloCaja, 'Pedidos por Cobrar');
+    }
 
     const profileContainer = document.querySelector('.profile-container');
     if (profileContainer) {

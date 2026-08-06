@@ -141,8 +141,17 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
             manejarCarga('../productos/catalogo.php', btnInventario, 'Catálogo de Inventario');
         };
 
-        // Carga inicial por defecto
-        manejarCarga('botones_menu/resumen.php', btnInicio, 'Resumen de Ventas');
+        // Carga inicial según parámetro en URL (?sub=nueva_venta, ?sub=inventario, etc.)
+        const urlParams = new URLSearchParams(window.location.search);
+        const subParam = urlParams.get('sub');
+
+        if (subParam === 'nueva_venta' && btnNuevaVenta) {
+            manejarCarga('botones_menu/nueva_venta.php', btnNuevaVenta, 'Registrar Nueva Venta');
+        } else if (subParam === 'inventario' && btnInventario) {
+            manejarCarga('../productos/catalogo.php', btnInventario, 'Catálogo de Inventario');
+        } else {
+            manejarCarga('botones_menu/resumen.php', btnInicio, 'Resumen de Ventas');
+        }
 
         const profileContainer = document.querySelector('.profile-container');
         if (profileContainer) {
