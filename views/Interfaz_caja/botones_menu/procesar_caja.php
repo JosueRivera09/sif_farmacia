@@ -109,27 +109,27 @@
     <div class="col-12 col-lg-4">
         <div class="custom-card p-4">
             <div class="border-bottom border-secondary pb-2 mb-4">
-                <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Detalle de Liquidación</h6>
+                <h6 class="card-title-custom mb-0" style="color: #000000; font-weight: 700;">Detalle de Liquidación</h6>
             </div>
             
             <div class="d-flex justify-content-between mb-3 align-items-center">
-                <span style="color: #94a3b8; font-size: 13.5px; font-weight: 500;">Estado del Ticket:</span>
-                <span class="badge px-2.5 py-1.5 font-monospace" id="caja-estado-badge" style="background-color: #475569 !important; color: #ffffff;">Ninguno</span>
+                <span style="color: #000000; font-size: 13.5px; font-weight: 600;">Estado del Ticket:</span>
+                <span class="badge px-2.5 py-1.5 font-monospace" id="caja-estado-badge" style="background-color: #f1f5f9 !important; color: #000000 !important; border: 1px solid #cbd5e1;">Ninguno</span>
             </div>
             <div class="d-flex justify-content-between mb-3">
-                <span style="color: #94a3b8; font-size: 13.5px; font-weight: 500;">Vendedor:</span>
-                <span class="fw-semibold" id="caja-vendedor" style="color: #f1f5f9;">--</span>
+                <span style="color: #000000; font-size: 13.5px; font-weight: 600;">Vendedor:</span>
+                <span class="fw-semibold" id="caja-vendedor" style="color: #000000;">--</span>
             </div>
 
             <hr class="border-secondary my-4">
 
             <div class="d-flex justify-content-between mb-2.5">
-                <span style="color: #94a3b8; font-size: 13.5px;">Monto Gravado:</span>
-                <span class="font-monospace" id="caja-subtotal" style="color: #f1f5f9;">C$ 0.00</span>
+                <span style="color: #000000; font-size: 13.5px; font-weight: 600;">Monto Gravado:</span>
+                <span class="font-monospace fw-bold" id="caja-subtotal" style="color: #000000;">C$ 0.00</span>
             </div>
             <div class="d-flex justify-content-between mb-3">
-                <span style="color: #94a3b8; font-size: 13.5px;">I.V.A (15%):</span>
-                <span class="font-monospace" id="caja-iva" style="color: #f1f5f9;">C$ 0.00</span>
+                <span style="color: #000000; font-size: 13.5px; font-weight: 600;">I.V.A (15%):</span>
+                <span class="font-monospace fw-bold" id="caja-iva" style="color: #000000;">C$ 0.00</span>
             </div>
             
             <div class="d-flex justify-content-between mb-4 pt-3 border-top border-secondary border-dashed align-items-center">
@@ -138,7 +138,7 @@
             </div>
 
             <div class="mb-4">
-                <label class="d-block mb-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #cbd5e1;">Paga Con (C$):</label>
+                <label class="d-block mb-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #000000;">Paga Con (C$):</label>
                 <input type="number" id="input-paga-con" class="form-control form-control-sif w-100 text-end fw-bold fs-5 text-success font-monospace" placeholder="0.00" disabled>
             </div>
 
