@@ -55,10 +55,13 @@ if (!function_exists('obtenerLinkVolver')) {
         width: 0 !important;
         height: 0 !important;
     }
+
     .sidebar-menu,
     .custom-scrollbar {
-        -ms-overflow-style: none !important;  /* IE y Edge */
-        scrollbar-width: none !important;     /* Firefox */
+        -ms-overflow-style: none !important;
+        /* IE y Edge */
+        scrollbar-width: none !important;
+        /* Firefox */
     }
 </style>
 
@@ -75,7 +78,7 @@ if (!function_exists('obtenerLinkVolver')) {
 
     <nav class="sidebar-menu custom-scrollbar">
         <?php
-        // Caso 1: Administrador (acceso total a todos los módulos y sub-botones del sistema)
+
         if ($user_role === 'Administrador'):
             $page = isset($_GET['page']) ? $_GET['page'] : '';
             $subParam = isset($_GET['sub']) ? $_GET['sub'] : '';
@@ -119,20 +122,20 @@ if (!function_exists('obtenerLinkVolver')) {
             <div class="border-top border-secondary pt-2 mb-2">
                 <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #60a5fa !important; font-weight: 700; text-transform: uppercase;">Módulo de Caja</span>
                 <a class="nav-link-custom <?php echo ($panel_context === 'caja' && (empty($subParam) || $subParam === 'cobrar')) ? 'active' : ''; ?>"
-                   id="btn-modulo-caja"
-                   href="<?php echo ($panel_context === 'caja' && (empty($subParam) || $subParam === 'cobrar')) ? '#' : $href_caja . '?sub=cobrar'; ?>">
+                    id="btn-modulo-caja"
+                    href="<?php echo ($panel_context === 'caja' && (empty($subParam) || $subParam === 'cobrar')) ? '#' : $href_caja . '?sub=cobrar'; ?>">
                     <span class="material-symbols-outlined">payments</span>
                     <span>Pedidos por Cobrar</span>
                 </a>
                 <a class="nav-link-custom <?php echo ($panel_context === 'caja' && $subParam === 'historial') ? 'active' : ''; ?>"
-                   id="btn-historial"
-                   href="<?php echo ($panel_context === 'caja' && $subParam === 'historial') ? '#' : $href_caja . '?sub=historial'; ?>">
+                    id="btn-historial"
+                    href="<?php echo ($panel_context === 'caja' && $subParam === 'historial') ? '#' : $href_caja . '?sub=historial'; ?>">
                     <span class="material-symbols-outlined">receipt_long</span>
                     <span>Historial Cobros</span>
                 </a>
                 <a class="nav-link-custom <?php echo ($panel_context === 'caja' && $subParam === 'arqueo') ? 'active' : ''; ?>"
-                   id="btn-arqueo"
-                   href="<?php echo ($panel_context === 'caja' && $subParam === 'arqueo') ? '#' : $href_caja . '?sub=arqueo'; ?>">
+                    id="btn-arqueo"
+                    href="<?php echo ($panel_context === 'caja' && $subParam === 'arqueo') ? '#' : $href_caja . '?sub=arqueo'; ?>">
                     <span class="material-symbols-outlined">account_balance_wallet</span>
                     <span>Arqueo de Caja</span>
                 </a>
@@ -142,20 +145,20 @@ if (!function_exists('obtenerLinkVolver')) {
             <div class="border-top border-secondary pt-2 mb-2">
                 <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #fca5a5 !important; font-weight: 700; text-transform: uppercase;">Módulo de Ventas</span>
                 <a class="nav-link-custom <?php echo ($panel_context === 'ventas' && (empty($subParam) || $subParam === 'resumen')) ? 'active' : ''; ?>"
-                   id="btn-inicio-ventas"
-                   href="<?php echo ($panel_context === 'ventas' && (empty($subParam) || $subParam === 'resumen')) ? '#' : $href_ventas . '?sub=resumen'; ?>">
+                    id="btn-inicio-ventas"
+                    href="<?php echo ($panel_context === 'ventas' && (empty($subParam) || $subParam === 'resumen')) ? '#' : $href_ventas . '?sub=resumen'; ?>">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>Resumen Ventas</span>
                 </a>
                 <a class="nav-link-custom <?php echo ($panel_context === 'ventas' && $subParam === 'nueva_venta') ? 'active' : ''; ?>"
-                   id="btn-nueva-venta"
-                   href="<?php echo ($panel_context === 'ventas' && $subParam === 'nueva_venta') ? '#' : $href_ventas . '?sub=nueva_venta'; ?>">
+                    id="btn-nueva-venta"
+                    href="<?php echo ($panel_context === 'ventas' && $subParam === 'nueva_venta') ? '#' : $href_ventas . '?sub=nueva_venta'; ?>">
                     <span class="material-symbols-outlined">point_of_sale</span>
                     <span>Nueva Venta</span>
                 </a>
                 <a class="nav-link-custom <?php echo ($panel_context === 'ventas' && $subParam === 'inventario') ? 'active' : ''; ?>"
-                   id="btn-inventario"
-                   href="<?php echo ($panel_context === 'ventas' && $subParam === 'inventario') ? '#' : $href_ventas . '?sub=inventario'; ?>">
+                    id="btn-inventario"
+                    href="<?php echo ($panel_context === 'ventas' && $subParam === 'inventario') ? '#' : $href_ventas . '?sub=inventario'; ?>">
                     <span class="material-symbols-outlined">search</span>
                     <span>Catálogo Inventario</span>
                 </a>
@@ -165,14 +168,14 @@ if (!function_exists('obtenerLinkVolver')) {
             <div class="border-top border-secondary pt-2 mb-2">
                 <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #34d399 !important; font-weight: 700; text-transform: uppercase;">Módulo de Bodega</span>
                 <a class="nav-link-custom <?php echo ($panel_context === 'bodega') ? 'active' : ''; ?>"
-                   id="btn-bodega"
-                   href="<?php echo ($panel_context === 'bodega') ? '#' : $href_bodega; ?>">
+                    id="btn-bodega"
+                    href="<?php echo ($panel_context === 'bodega') ? '#' : $href_bodega; ?>">
                     <span class="material-symbols-outlined">warehouse</span>
                     <span>Bodega y Lotes</span>
                 </a>
             </div>
 
-        <?php
+            <?php
         // Caso 2: Usuarios no Administradores (Cajero, Vendedor, Bodega con o sin permisos extra)
         // Se renderizan los módulos con un ORDEN ESTÁTICO FIJO para evitar desplazamientos al hacer clic
         else:
@@ -186,79 +189,79 @@ if (!function_exists('obtenerLinkVolver')) {
             if ($has_caja):
                 $is_caja_active = ($panel_context === 'caja');
                 $href_caja_base = ($current_dir === 'Interfaz_caja') ? 'cajero_dashboard.php' : '../Interfaz_caja/cajero_dashboard.php';
-        ?>
+            ?>
                 <div class="mb-2">
                     <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #60a5fa !important; font-weight: 700; text-transform: uppercase;">Módulo de Caja</span>
-                    
+
                     <a class="nav-link-custom <?php echo ($is_caja_active && (empty($subParam) || $subParam === 'cobrar')) ? 'active' : ''; ?>"
-                       id="btn-modulo-caja"
-                       href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=cobrar'; ?>">
+                        id="btn-modulo-caja"
+                        href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=cobrar'; ?>">
                         <span class="material-symbols-outlined">payments</span>
                         <span>Pedidos por Cobrar</span>
                     </a>
-                    
+
                     <a class="nav-link-custom <?php echo ($is_caja_active && $subParam === 'historial') ? 'active' : ''; ?>"
-                       id="btn-historial"
-                       href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=historial'; ?>">
+                        id="btn-historial"
+                        href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=historial'; ?>">
                         <span class="material-symbols-outlined">receipt_long</span>
                         <span>Historial Cobros</span>
                     </a>
-                    
+
                     <?php if ($user_role === 'Cajero' || $user_role === 'Administrador' || in_array('caja', $permisos_extra)): ?>
                         <a class="nav-link-custom <?php echo ($is_caja_active && $subParam === 'arqueo') ? 'active' : ''; ?>"
-                           id="btn-arqueo"
-                           href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=arqueo'; ?>">
+                            id="btn-arqueo"
+                            href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=arqueo'; ?>">
                             <span class="material-symbols-outlined">account_balance_wallet</span>
                             <span>Arqueo de Caja</span>
                         </a>
                     <?php endif; ?>
                 </div>
-        <?php
+            <?php
             endif;
 
             // 2. BLOQUE MÓDULO DE VENTAS
             if ($has_ventas):
                 $is_ventas_active = ($panel_context === 'ventas');
                 $href_ventas_base = ($current_dir === 'Interfaz_vendedor') ? 'vendedor_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php';
-        ?>
+            ?>
                 <div class="border-top border-secondary pt-2 mb-2">
                     <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #fca5a5 !important; font-weight: 700; text-transform: uppercase;">Módulo de Ventas</span>
-                    
+
                     <a class="nav-link-custom <?php echo ($is_ventas_active && (empty($subParam) || $subParam === 'resumen')) ? 'active' : ''; ?>"
-                       id="btn-inicio"
-                       href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=resumen'; ?>">
+                        id="btn-inicio"
+                        href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=resumen'; ?>">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Resumen Ventas</span>
                     </a>
-                    
+
                     <a class="nav-link-custom <?php echo ($is_ventas_active && $subParam === 'nueva_venta') ? 'active' : ''; ?>"
-                       id="btn-nueva-venta"
-                       href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=nueva_venta'; ?>">
+                        id="btn-nueva-venta"
+                        href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=nueva_venta'; ?>">
                         <span class="material-symbols-outlined">point_of_sale</span>
                         <span>Nueva Venta</span>
                     </a>
-                    
+
                     <a class="nav-link-custom <?php echo ($is_ventas_active && $subParam === 'inventario') ? 'active' : ''; ?>"
-                       id="btn-inventario"
-                       href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=inventario'; ?>">
+                        id="btn-inventario"
+                        href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=inventario'; ?>">
                         <span class="material-symbols-outlined">search</span>
                         <span>Catálogo Inventario</span>
                     </a>
                 </div>
-        <?php
+            <?php
             endif;
 
             // 3. BLOQUE MÓDULO DE BODEGA
             if ($has_bodega):
                 $is_bodega_active = ($panel_context === 'bodega');
                 $href_bodega_base = ($current_dir === 'bodega') ? 'bodega_lotes.php' : '../bodega/bodega_lotes.php';
-        ?>
+            ?>
                 <div class="border-top border-secondary pt-2 mb-2">
                     <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #34d399 !important; font-weight: 700; text-transform: uppercase;">Módulo de Bodega</span>
-                    
+
                     <a class="nav-link-custom <?php echo $is_bodega_active ? 'active' : ''; ?>"
-                       id="btn-sidebar-lotes"
-                       href="<?php echo $href_bodega_base; ?>">
+                        id="btn-sidebar-lotes"
+                        href="<?php echo $href_bodega_base; ?>">
                         <span class="material-symbols-outlined">warehouse</span>
                         <span>Bodega y Lotes</span>
                     </a>

@@ -256,10 +256,10 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                             ?>
                                                 <tr data-bodega="<?php echo htmlspecialchars($lote['bodega']); ?>" data-categoria="<?php echo htmlspecialchars($lote['nombre_categoria']); ?>" data-vencimiento="<?php echo htmlspecialchars($lote['fecha_vencimiento']); ?>">
                                                     <td class="font-mono-custom text-primary-custom"><?php echo htmlspecialchars($lote['numero_lote']); ?></td>
-                                                    <td>
-                                                        <p class="mb-0 font-semibold text-light" style="font-size: 14px; font-weight: 600;"><?php echo htmlspecialchars($lote['nombre_commercial']); ?></p>
-                                                        <p class="mb-0 text-muted" style="font-size: 11px;">Medicamentos / <?php echo htmlspecialchars($lote['nombre_categoria']); ?> | <?php echo htmlspecialchars($lote['bodega']); ?></p>
-                                                    </td>
+                                                     <td>
+                                                         <span class="font-semibold text-light" style="font-size: 14px; font-weight: 600;"><?php echo htmlspecialchars($lote['nombre_commercial']); ?></span>
+                                                         <span class="badge bg-slate border border-secondary text-secondary ms-1" style="font-size: 10px; font-weight: 500;"><?php echo htmlspecialchars($lote['nombre_categoria']); ?></span>
+                                                     </td>
                                                     <td class="text-light" style="font-size: 14px;"><?php echo htmlspecialchars($lote['nombre_laboratorio'] ?? 'No asignado'); ?></td>
                                                     <td class="text-light font-semibold"><?php echo htmlspecialchars($lote['cantidad_unidades_recibidas']) . ' ' . htmlspecialchars($lote['unidad_minima']); ?></td>
                                                     <td class="text-light" style="font-size: 14px;"><?php echo $fecha_ingreso_formateada; ?></td>
