@@ -29,19 +29,21 @@ if ($current_dir === 'Interfaz_admin' || $current_file === 'admin_dashboard.php'
 }
 
 // Función auxiliar para obtener el enlace de regreso según el rol
-function obtenerLinkVolver(string $rol)
-{
-    switch ($rol) {
-        case 'Administrador':
-            return '../Interfaz_admin/admin_dashboard.php';
-        case 'Cajero':
-            return '../Interfaz_caja/cajero_dashboard.php';
-        case 'Vendedor':
-            return '../Interfaz_vendedor/vendedor_dashboard.php';
-        case 'Bodega':
-            return '../bodega/bodega_lotes.php';
-        default:
-            return '#';
+if (!function_exists('obtenerLinkVolver')) {
+    function obtenerLinkVolver(string $rol)
+    {
+        switch ($rol) {
+            case 'Administrador':
+                return '../Interfaz_admin/admin_dashboard.php';
+            case 'Cajero':
+                return '../Interfaz_caja/cajero_dashboard.php';
+            case 'Vendedor':
+                return '../Interfaz_vendedor/vendedor_dashboard.php';
+            case 'Bodega':
+                return '../bodega/bodega_lotes.php';
+            default:
+                return '#';
+        }
     }
 }
 ?>
