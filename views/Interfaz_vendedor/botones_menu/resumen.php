@@ -152,19 +152,6 @@
             <p class="m-0 mt-1 text-dark font-bold" style="font-size: 9px;">CAJERO AUTORIZADO</p>
         </div>
 
-        <!-- Selector de Impresora -->
-        <div class="mb-3">
-            <label for="select-impresora-resumen" class="form-label fw-bold text-dark mb-1" style="font-size: 11px;">
-                <span class="material-symbols-outlined align-middle" style="font-size: 16px;">print</span> Seleccionar Impresora:
-            </label>
-            <select id="select-impresora-resumen" class="form-select form-select-sm text-dark bg-light border-secondary">
-                <option value="predeterminada" selected>Impresora Predeterminada del Sistema</option>
-                <option value="pos80">Impresora Térmica POS (80mm)</option>
-                <option value="pos58">Impresora Térmica POS (58mm)</option>
-                <option value="laser">Impresora Láser / Inyección (Página Completa)</option>
-            </select>
-        </div>
-
         <div class="d-flex gap-2">
             <button class="btn btn-success flex-grow-1 py-2 font-bold d-flex align-items-center justify-content-center gap-1" id="btn-imprimir-ticket-resumen" style="border-radius: 8px;">
                 <span class="material-symbols-outlined" style="font-size: 18px;">print</span> Imprimir Factura
