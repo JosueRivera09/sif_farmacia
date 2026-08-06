@@ -45,6 +45,20 @@ function obtenerLinkVolver(string $rol)
     }
 }
 ?>
+<style>
+    /* Ocultar visualmente la barra de scroll vertical manteniendo la navegabilidad */
+    .sidebar-menu::-webkit-scrollbar,
+    .custom-scrollbar::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+    .sidebar-menu,
+    .custom-scrollbar {
+        -ms-overflow-style: none !important;  /* IE y Edge */
+        scrollbar-width: none !important;     /* Firefox */
+    }
+</style>
 
 <aside class="sidebar">
     <div class="sidebar-header">
