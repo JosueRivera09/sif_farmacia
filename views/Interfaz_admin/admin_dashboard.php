@@ -337,12 +337,12 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                                 let badgeBg = a.tipo === 'warning' ? 'bg-warning text-dark' : 'bg-danger text-white';
                                 
                                 htmlAlertas += `
-                                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background-color: #1e293b; border-left: 4px solid ${borderColor};">
+                                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 shadow-sm" style="background-color: #ffffff; border: 1px solid ${borderColor}; border-left: 5px solid ${borderColor}; border-radius: 8px;">
                                         <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%;">
-                                            <span class="d-block text-light fw-bold" style="font-size: 13px;">${a.nombre_commercial}</span>
-                                            <span class="text-muted" style="font-size: 11px;">${a.detalle}</span>
+                                            <span class="d-block fw-bold" style="font-size: 13px; color: #0f172a;">${a.nombre_commercial}</span>
+                                            <span class="d-block text-truncate" style="font-size: 11px; color: #64748b; font-weight: 500;">${a.detalle}</span>
                                         </div>
-                                        <span class="badge ${badgeBg} rounded-pill px-2 py-1 ms-1" style="font-size: 10px;">${a.etiqueta}</span>
+                                        <span class="badge ${badgeBg} rounded-pill px-2 py-1 ms-1 fw-bold" style="font-size: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.08);">${a.etiqueta}</span>
                                     </div>
                                 `;
                             });
