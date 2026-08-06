@@ -8,8 +8,18 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Verificar sesión y rol
-if (!isset($_SESSION['id_usuario']) || $_SESSION['rol'] !== 'Administrador') {
+// Verificar sesión, rol y permisos extra
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso_admin = (
+    isset($_SESSION['rol']) && (
+        $_SESSION['rol'] === 'Administrador' ||
+        in_array('admin', $permisos_extra) ||
+        in_array('administrador', $permisos_extra) ||
+        in_array('dashboard', $permisos_extra)
+    )
+);
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso_admin) {
     header('Content-Type: application/json; charset=utf-8');
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Acceso denegado. No autorizado.']);

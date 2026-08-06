@@ -321,34 +321,50 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
 
                     // Alertas
                     const listAlertas = document.getElementById('admin-list-alertas');
-                    if (!data.alertas || data.alertas.length === 0) {
-                        listAlertas.innerHTML = `
-                            <span class="material-symbols-outlined text-success fs-1 mb-2">check_circle</span>
-                            <span class="text-wait-custom d-block">Sin alertas de inventario</span>
-                            <span class="text-sub-wait mt-1">Todo el stock y vencimientos están estables</span>
-                        `;
-                    } else {
-                        let htmlAlertas = '<div class="w-100 text-start px-1 mt-1" style="max-height: 280px; overflow-y: auto;">';
-                        data.alertas.forEach(a => {
-                            let borderColor = a.tipo === 'warning' ? '#f59e0b' : '#ef4444';
-                            let badgeBg = a.tipo === 'warning' ? 'bg-warning text-dark' : 'bg-danger text-white';
-                            
-                            htmlAlertas += `
-                                <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background-color: #1e293b; border-left: 4px solid ${borderColor};">
-                                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%;">
-                                        <span class="d-block text-light fw-bold" style="font-size: 13px;">${a.nombre_commercial}</span>
-                                        <span class="text-muted" style="font-size: 11px;">${a.detalle}</span>
-                                    </div>
-                                    <span class="badge ${badgeBg} rounded-pill px-2 py-1 ms-1" style="font-size: 10px;">${a.etiqueta}</span>
+                    if (listAlertas) {
+                        if (!data.alertas || data.alertas.length === 0) {
+                            listAlertas.innerHTML = `
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-4">
+                                    <span class="material-symbols-outlined text-success fs-1 mb-2">check_circle</span>
+                                    <span class="text-wait-custom d-block fw-bold" style="color: #cbd5e1;">Sin alertas del sistema</span>
+                                    <span class="text-sub-wait mt-1" style="font-size: 11px; color: #94a3b8;">Todo el stock y los vencimientos están estables</span>
                                 </div>
                             `;
-                        });
-                        htmlAlertas += '</div>';
-                        listAlertas.innerHTML = htmlAlertas;
+                        } else {
+                            let htmlAlertas = '<div class="w-100 text-start px-1 mt-1" style="max-height: 280px; overflow-y: auto;">';
+                            data.alertas.forEach(a => {
+                                let borderColor = a.tipo === 'warning' ? '#f59e0b' : '#ef4444';
+                                let badgeBg = a.tipo === 'warning' ? 'bg-warning text-dark' : 'bg-danger text-white';
+                                
+                                htmlAlertas += `
+                                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background-color: #1e293b; border-left: 4px solid ${borderColor};">
+                                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%;">
+                                            <span class="d-block text-light fw-bold" style="font-size: 13px;">${a.nombre_commercial}</span>
+                                            <span class="text-muted" style="font-size: 11px;">${a.detalle}</span>
+                                        </div>
+                                        <span class="badge ${badgeBg} rounded-pill px-2 py-1 ms-1" style="font-size: 10px;">${a.etiqueta}</span>
+                                    </div>
+                                `;
+                            });
+                            htmlAlertas += '</div>';
+                            listAlertas.innerHTML = htmlAlertas;
+                        }
                     }
                 }
             })
-            .catch(err => console.error("Error al cargar datos del dashboard:", err));
+            .catch(err => {
+                console.error("Error al cargar datos del dashboard:", err);
+                const listAlertas = document.getElementById('admin-list-alertas');
+                if (listAlertas) {
+                    listAlertas.innerHTML = `
+                        <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-4">
+                            <span class="material-symbols-outlined text-success fs-1 mb-2">check_circle</span>
+                            <span class="text-wait-custom d-block fw-bold" style="color: #cbd5e1;">Sin alertas del sistema</span>
+                            <span class="text-sub-wait mt-1" style="font-size: 11px; color: #94a3b8;">Todo el stock y los vencimientos están estables</span>
+                        </div>
+                    `;
+                }
+            });
     }
 
     // Event listeners para el botón de filtrado y el scroll del contenedor de ventas
