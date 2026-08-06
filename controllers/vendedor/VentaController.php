@@ -161,6 +161,9 @@ elseif ($action === 'vender') {
 
             $total_venta += $precio * $cantidad;
         }
+
+        // Aplicar el 15% de I.V.A para que el total guardado en el ticket incluya el impuesto
+        $total_venta = $total_venta * 1.15;
           // lo que edite
         // === RESTA DE STOCK AL GENERAR TICKET ===
         // Se resta aquí calculando las unidades mínimas reales para que el inventario se actualice de inmediato
