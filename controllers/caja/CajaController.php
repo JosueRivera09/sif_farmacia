@@ -72,6 +72,35 @@ elseif ($action === 'cobrar') {
     exit;
 } 
 
+elseif ($action === 'cancelar_ticket') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
+        exit;
+    }
+
+    $id_ticket = isset($_POST['id_ticket']) ? intval($_POST['id_ticket']) : 0;
+    if ($id_ticket <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'ID de ticket inválido']);
+        exit;
+    }
+
+    mysqli_begin_transaction($conexion);
+
+    try {
+        $exito = cancelarTicket($conexion, $id_ticket);
+        if ($exito) {
+            mysqli_commit($conexion);
+            echo json_encode(['status' => 'success', 'message' => 'Ticket borrado exitosamente. Los productos fueron devueltos al stock del inventario.']);
+        } else {
+            throw new Exception("Error al borrar el ticket.");
+        }
+    } catch (Exception $e) {
+        mysqli_rollback($conexion);
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+    exit;
+}
+
 elseif ($action === 'metricas') {
     $metricas = obtenerMetricasCajaReal($conexion);
     echo json_encode(['status' => 'success', 'data' => $metricas]);

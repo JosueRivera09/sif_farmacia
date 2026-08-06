@@ -163,13 +163,27 @@ elseif ($action === 'vender') {
         }
           // lo que edite
         // === RESTA DE STOCK AL GENERAR TICKET ===
-        // Se resta aquí para que el inventario se actualice inmediatamente
+        // Se resta aquí calculando las unidades mínimas reales para que el inventario se actualice de inmediato
         foreach ($data['items'] as $item) {
             $id_producto = intval($item['id_producto']);
             $cantidad = intval($item['cantidad']);
+            $nivel = isset($item['nivel_empaque']) ? $item['nivel_empaque'] : 'Principal';
+
+            $resStock = mysqli_query($conexion, "SELECT unidades_totales_por_empaque_principal, unidades_por_empaque_medio FROM productos WHERE id_producto = $id_producto LIMIT 1");
+            $factor = 1;
+            if ($resStock && mysqli_num_rows($resStock) > 0) {
+                $prod = mysqli_fetch_assoc($resStock);
+                if ($nivel === 'Principal') {
+                    $factor = intval($prod['unidades_totales_por_empaque_principal']);
+                } elseif ($nivel === 'Medio') {
+                    $factor = intval($prod['unidades_por_empaque_medio']);
+                }
+                if ($factor <= 0) $factor = 1;
+            }
+            $unidades_a_descontar = $cantidad * $factor;
 
             $updateStock = "UPDATE productos 
-                           SET stock_actual = stock_actual - $cantidad 
+                           SET stock_actual = stock_actual - $unidades_a_descontar 
                            WHERE id_producto = $id_producto";
 
             if (!mysqli_query($conexion, $updateStock)) {

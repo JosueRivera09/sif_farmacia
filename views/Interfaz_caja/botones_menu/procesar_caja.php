@@ -218,9 +218,14 @@
                     <td class="text-light">${t.nombre_vendedor}</td>
                     <td class="text-end text-light font-monospace">C$ ${parseFloat(t.total).toFixed(2)}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-success py-1 px-3 d-inline-flex align-items-center gap-1" style="font-size: 11px; background-color: #10b981; border: none; border-radius: 4px; font-weight:600;" onclick="event.stopPropagation(); window.cobrarTicketDesdeLista('${t.codigo_ticket}')">
-                            <span class="material-symbols-outlined" style="font-size:13px;">point_of_sale</span> Cobrar
-                        </button>
+                        <div class="d-flex justify-content-center gap-1">
+                            <button class="btn btn-sm btn-success py-1 px-2 d-inline-flex align-items-center gap-1" style="font-size: 11px; background-color: #10b981; border: none; border-radius: 4px; font-weight:600;" onclick="event.stopPropagation(); window.cobrarTicketDesdeLista('${t.codigo_ticket}')" title="Cobrar Ticket">
+                                <span class="material-symbols-outlined" style="font-size:13px;">point_of_sale</span> Cobrar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger py-1 px-2 d-inline-flex align-items-center gap-1" style="font-size: 11px; border-radius: 4px; font-weight:600;" onclick="event.stopPropagation(); window.cancelarTicketDesdeLista(${t.id_ticket}, '${t.codigo_ticket}')" title="Borrar ticket no pagado y devolver stock">
+                                <span class="material-symbols-outlined" style="font-size:13px;">delete</span> Borrar
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -232,6 +237,37 @@
         inputBuscar.value = codigo;
         // Lanzar consulta de búsqueda
         buscarTicketPorCodigo(codigo);
+    };
+
+    window.cancelarTicketDesdeLista = function(idTicket, codigoTicket) {
+        if (!confirm(`¿Está seguro de borrar el ticket ${codigoTicket}?\n\nLos productos no cobrados volverán automáticamente al stock disponible en el inventario.`)) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('id_ticket', idTicket);
+
+        fetch('../../controllers/caja/CajaController.php?action=cancelar_ticket', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(response => {
+            if (response.status === 'success') {
+                alert(response.message);
+                if (loadedTicket && loadedTicket.id_ticket == idTicket) {
+                    resetDetallesCaja();
+                }
+                cargarMetricasCaja();
+                cargarTicketsPendientesListado();
+            } else {
+                alert('Error: ' + response.message);
+            }
+        })
+        .catch(err => {
+            console.error("Error al borrar ticket:", err);
+            alert("Ocurrió un error al intentar borrar el ticket.");
+        });
     };
 
     formBuscar.addEventListener('submit', function(e) {

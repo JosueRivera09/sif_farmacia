@@ -136,61 +136,67 @@ function obtenerTicketPorCodigo(mysqli $conexion, string $codigo) {
 function procesarPagoTicket(mysqli $conexion, int $id_ticket) {
     $id_ticket = intval($id_ticket);
 
-    // Obtener items para verificar stock
-    $queryItems = "SELECT id_producto, cantidad, nivel_empaque FROM ticket_detalles WHERE id_ticket = $id_ticket";
-    $resItems = mysqli_query($conexion, $queryItems);
-    
-    if (!$resItems) return false;
-
-    $deducciones = [];
-
-    // Verificar existencias calculando unidades reales
-    while ($row = mysqli_fetch_assoc($resItems)) {
-        $id_prod = intval($row['id_producto']);
-        $cant = intval($row['cantidad']);
-        $nivel = $row['nivel_empaque'];
-        
-        $resStock = mysqli_query($conexion, "SELECT stock_actual, nombre_commercial, unidades_totales_por_empaque_principal, unidades_por_empaque_medio FROM productos WHERE id_producto = $id_prod LIMIT 1");
-        if ($resStock && mysqli_num_rows($resStock) > 0) {
-            $prod = mysqli_fetch_assoc($resStock);
-            
-            // Calcular factor de conversión a unidades mínimas
-            $factor = 1;
-            if ($nivel === 'Principal') {
-                $factor = intval($prod['unidades_totales_por_empaque_principal']);
-            } elseif ($nivel === 'Medio') {
-                $factor = intval($prod['unidades_por_empaque_medio']);
-            }
-            
-            $unidades_a_descontar = $cant * $factor;
-            
-            if (intval($prod['stock_actual']) < $unidades_a_descontar) {
-                throw new Exception("Stock insuficiente en caja para: " . $prod['nombre_commercial']);
-            }
-            
-            $deducciones[] = [
-                'id_producto' => $id_prod,
-                'unidades' => $unidades_a_descontar
-            ];
-        } else {
-            throw new Exception("Producto no encontrado durante el cobro.");
-        }
+    // Verificar que el ticket exista y esté pendiente
+    $resCheck = mysqli_query($conexion, "SELECT id_ticket FROM tickets WHERE id_ticket = $id_ticket AND estado = 'Pendiente' LIMIT 1");
+    if (!$resCheck || mysqli_num_rows($resCheck) === 0) {
+        throw new Exception("El ticket no se encuentra pendiente de cobro.");
     }
 
-    // Descontar stock real e ir marcando
-    foreach ($deducciones as $deduccion) {
-        $id_prod = $deduccion['id_producto'];
-        $unidades = $deduccion['unidades'];
-        
-        $updateStock = "UPDATE productos SET stock_actual = stock_actual - $unidades WHERE id_producto = $id_prod";
-        if (!mysqli_query($conexion, $updateStock)) {
-            throw new Exception("Error al actualizar existencias de producto.");
-        }
-    }
-
-    // Marcar ticket como pagado
+    // Marcar ticket como pagado (el stock ya fue reservado/descontado al generar la venta)
     $updateTicket = "UPDATE tickets SET estado = 'Pagado' WHERE id_ticket = $id_ticket";
     return mysqli_query($conexion, $updateTicket);
+}
+
+function cancelarTicket(mysqli $conexion, int $id_ticket) {
+    $id_ticket = intval($id_ticket);
+
+    // Verificar que el ticket existe
+    $resCheck = mysqli_query($conexion, "SELECT id_ticket, estado FROM tickets WHERE id_ticket = $id_ticket LIMIT 1");
+    if (!$resCheck || mysqli_num_rows($resCheck) === 0) {
+        throw new Exception("Ticket no encontrado.");
+    }
+    $ticket = mysqli_fetch_assoc($resCheck);
+    if ($ticket['estado'] === 'Pagado') {
+        throw new Exception("No es posible borrar un ticket que ya fue cobrado y pagado.");
+    }
+
+    // Obtener detalles del ticket para devolver las unidades al stock
+    if ($ticket['estado'] === 'Pendiente') {
+        $queryItems = "SELECT id_producto, cantidad, nivel_empaque FROM ticket_detalles WHERE id_ticket = $id_ticket";
+        $resItems = mysqli_query($conexion, $queryItems);
+
+        if ($resItems) {
+            while ($row = mysqli_fetch_assoc($resItems)) {
+                $id_prod = intval($row['id_producto']);
+                $cant = intval($row['cantidad']);
+                $nivel = $row['nivel_empaque'];
+
+                $resStock = mysqli_query($conexion, "SELECT unidades_totales_por_empaque_principal, unidades_por_empaque_medio FROM productos WHERE id_producto = $id_prod LIMIT 1");
+                if ($resStock && mysqli_num_rows($resStock) > 0) {
+                    $prod = mysqli_fetch_assoc($resStock);
+                    $factor = 1;
+                    if ($nivel === 'Principal') {
+                        $factor = intval($prod['unidades_totales_por_empaque_principal']);
+                    } elseif ($nivel === 'Medio') {
+                        $factor = intval($prod['unidades_por_empaque_medio']);
+                    }
+                    if ($factor <= 0) $factor = 1;
+
+                    $unidades_a_devolver = $cant * $factor;
+
+                    // Restablecer el stock sumando las unidades de vuelta
+                    $updateStock = "UPDATE productos SET stock_actual = stock_actual + $unidades_a_devolver WHERE id_producto = $id_prod";
+                    if (!mysqli_query($conexion, $updateStock)) {
+                        throw new Exception("Error al devolver existencias al inventario.");
+                    }
+                }
+            }
+        }
+    }
+
+    // Eliminar ticket
+    $deleteTicket = "DELETE FROM tickets WHERE id_ticket = $id_ticket";
+    return mysqli_query($conexion, $deleteTicket);
 }
 
 function obtenerMetricasCajaReal(mysqli $conexion) {
