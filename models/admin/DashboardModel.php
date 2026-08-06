@@ -41,7 +41,7 @@ class DashboardModel
         // 3. Ingresos Bodega Hoy
         $queryBodega = "SELECT COUNT(id_lote) as lotes 
                         FROM lotes 
-                        WHERE DATE(fecha_ingreso) = CURDATE()";
+                        WHERE DATE(fecha_creacion) = CURDATE()";
         $resBodega = mysqli_query($conexion, $queryBodega);
         if ($resBodega && $row = mysqli_fetch_assoc($resBodega)) {
             $metricas['ingresos_bodega_hoy'] = intval($row['lotes']);
