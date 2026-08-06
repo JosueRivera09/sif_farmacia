@@ -172,9 +172,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
 
                 <div class="col-12 col-lg-4">
                     <div class="custom-card height-alertas">
-                        <div class="border-bottom border-danger pb-2 mb-3">
-                            <h6 class="card-title-custom text-danger mb-0">
-                                Alertas de Stock Bajo <span class="fw-normal lowercase text-muted">(urgente)</span>
+                        <div class="border-bottom border-warning pb-2 mb-3">
+                            <h6 class="card-title-custom text-warning mb-0 d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined text-warning" style="font-size: 18px;">notifications_active</span> Alertas
                             </h6>
                         </div>
                         
@@ -321,22 +321,25 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
 
                     // Alertas
                     const listAlertas = document.getElementById('admin-list-alertas');
-                    if (data.alertas.length === 0) {
+                    if (!data.alertas || data.alertas.length === 0) {
                         listAlertas.innerHTML = `
-                            <span class="material-symbols-outlined text-secondary fs-1 mb-2">inventory_2</span>
+                            <span class="material-symbols-outlined text-success fs-1 mb-2">check_circle</span>
                             <span class="text-wait-custom d-block">Sin alertas de inventario</span>
-                            <span class="text-sub-wait mt-1">Todo el stock se encuentra estable</span>
+                            <span class="text-sub-wait mt-1">Todo el stock y vencimientos están estables</span>
                         `;
                     } else {
-                        let htmlAlertas = '<div class="w-100 text-start px-2 mt-2" style="max-height: 200px; overflow-y: auto;">';
+                        let htmlAlertas = '<div class="w-100 text-start px-1 mt-1" style="max-height: 280px; overflow-y: auto;">';
                         data.alertas.forEach(a => {
+                            let borderColor = a.tipo === 'warning' ? '#f59e0b' : '#ef4444';
+                            let badgeBg = a.tipo === 'warning' ? 'bg-warning text-dark' : 'bg-danger text-white';
+                            
                             htmlAlertas += `
-                                <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background-color: #1e293b; border-left: 3px solid #ef4444;">
-                                    <div>
+                                <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background-color: #1e293b; border-left: 4px solid ${borderColor};">
+                                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%;">
                                         <span class="d-block text-light fw-bold" style="font-size: 13px;">${a.nombre_commercial}</span>
-                                        <span class="text-muted" style="font-size: 11px;">Mín: ${a.stock_minimo}</span>
+                                        <span class="text-muted" style="font-size: 11px;">${a.detalle}</span>
                                     </div>
-                                    <span class="badge bg-danger rounded-pill px-2 py-1">${a.stock_actual} en stock</span>
+                                    <span class="badge ${badgeBg} rounded-pill px-2 py-1 ms-1" style="font-size: 10px;">${a.etiqueta}</span>
                                 </div>
                             `;
                         });
