@@ -19,9 +19,8 @@ class Producto {
                               WHERE l_valid.id_producto = p.id_producto 
                                 AND l_valid.fecha_vencimiento > CURDATE()), 
                              p.stock_actual
-                         ) AS stock_actual, 
-                         p.empaque_principal, p.empaque_medio, p.unidad_minima,
-                         p.unidades_por_empaque_medio, p.unidades_totales_por_empaque_principal, p.es_fraccionable,
+                         ) AS stock_actual,                          p.empaque_principal, p.empaque_medio, p.unidad_minima, p.stock_minimo,
+                          p.unidades_por_empaque_medio, p.unidades_totales_por_empaque_principal, p.es_fraccionable,
                          p.precio_empaque_principal, p.precio_empaque_medio, p.precio_unidad_minima,
                          p.requiere_receta, p.miligramos, c.nombre_categoria, l.nombre_laboratorio 
                   FROM productos p 

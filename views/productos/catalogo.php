@@ -110,6 +110,58 @@ $es_admin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador';
             });
     }
 
+    function formatStockDesglosado(p) {
+        const totalUnidades = parseInt(p.stock_actual) || 0;
+        const stockMinimo = parseInt(p.stock_minimo) || 10;
+        const factorPrincipal = parseInt(p.unidades_totales_por_empaque_principal) || 1;
+        const factorMedio = parseInt(p.unidades_por_empaque_medio) || 1;
+
+        if (totalUnidades <= 0) {
+            return `
+                <div>
+                    <span class="badge bg-danger-subtle text-danger border border-danger px-2 py-0.5 font-bold mb-1" style="font-size: 10px;">Agotado</span>
+                    <div class="text-danger font-bold" style="font-size: 13px;">0 ${p.unidad_minima}s</div>
+                </div>
+            `;
+        }
+
+        let partes = [];
+        let resto = totalUnidades;
+
+        if (factorPrincipal > 1 && p.empaque_principal) {
+            const cajas = Math.floor(resto / factorPrincipal);
+            if (cajas > 0) {
+                partes.push(`<strong>${cajas}</strong> ${p.empaque_principal}${cajas > 1 ? 's' : ''}`);
+                resto = resto % factorPrincipal;
+            }
+        }
+
+        if (p.empaque_medio && factorMedio > 1 && factorMedio < factorPrincipal) {
+            const medio = Math.floor(resto / factorMedio);
+            if (medio > 0) {
+                partes.push(`<strong>${medio}</strong> ${p.empaque_medio}${medio > 1 ? 's' : ''}`);
+                resto = resto % factorMedio;
+            }
+        }
+
+        if (resto > 0 || partes.length === 0) {
+            partes.push(`<strong>${resto}</strong> ${p.unidad_minima}${resto > 1 ? 's' : ''}`);
+        }
+
+        const textoDesglose = partes.join(', ');
+        const isCritical = totalUnidades <= stockMinimo;
+        const badgeClass = isCritical ? 'bg-danger-subtle text-danger border border-danger' : 'bg-success-subtle text-success border border-success';
+        const estadoTexto = isCritical ? 'Crítico' : 'Disponible';
+
+        return `
+            <div>
+                <span class="badge ${badgeClass} px-2 py-0.5 font-bold mb-1" style="font-size: 10px;">${estadoTexto}</span>
+                <div class="text-light font-bold" style="font-size: 13px;">${textoDesglose}</div>
+                <small class="text-muted font-monospace" style="font-size: 11px;">(${totalUnidades.toLocaleString()} ${p.unidad_minima}s tot.)</small>
+            </div>
+        `;
+    }
+
     function renderInventory(products) {
         if (products.length === 0) {
             tbody.innerHTML = `<tr><td colspan="${esAdmin ? 7 : 6}" class="text-center text-muted py-4">No se encontraron productos coincidentes.</td></tr>`;
@@ -122,8 +174,7 @@ $es_admin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador';
                 ? '<span class="badge bg-danger-subtle text-danger px-2 py-1 font-bold" style="font-size: 10px;">Requiere Receta</span>' 
                 : '<span class="badge bg-success-subtle text-success px-2 py-1 font-bold" style="font-size: 10px;">Libre Venta</span>';
             
-            const stockClass = p.stock_actual <= 10 ? 'text-danger font-bold' : 'text-light';
-            const stockLabel = p.stock_actual <= 10 ? `${p.stock_actual} ${p.unidad_minima} (Crítico)` : `${p.stock_actual} ${p.unidad_minima}`;
+            const stockHtml = formatStockDesglosado(p);
 
             let actionColumn = '';
             if (esAdmin) {
@@ -157,7 +208,7 @@ $es_admin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador';
                     <td class="text-light">${p.nombre_categoria} <small class="text-muted d-block">${p.nombre_laboratorio}</small></td>
                     <td class="text-center">${recetaBadge}</td>
                     <td class="text-end text-light" style="font-size: 12.5px;">${preciosHtml}</td>
-                    <td class="text-center ${stockClass}">${stockLabel}</td>
+                    <td class="text-center">${stockHtml}</td>
                     ${actionColumn}
                 </tr>
             `;
