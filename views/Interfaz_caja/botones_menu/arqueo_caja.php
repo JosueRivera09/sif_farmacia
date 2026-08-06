@@ -97,16 +97,16 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
                 </div>
 
                 <div class="d-flex justify-content-between mb-2.5">
-                    <span class="text-muted">Apertura de Caja:</span>
-                    <span class="font-monospace text-light">C$ <?php echo number_format($aperturaCaja, 2); ?></span>
+                    <span style="color: #000000 !important; font-weight: 600;">Apertura de Caja:</span>
+                    <span class="font-monospace" style="color: #000000 !important; font-weight: 700;">C$ <?php echo number_format($aperturaCaja, 2); ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2.5">
-                    <span class="text-muted">Ventas Recaudadas (Hoy):</span>
-                    <span class="font-monospace text-light">C$ <?php echo number_format($totalVentasHoy, 2); ?></span>
+                    <span style="color: #000000 !important; font-weight: 600;">Ventas Recaudadas (Hoy):</span>
+                    <span class="font-monospace" style="color: #000000 !important; font-weight: 700;">C$ <?php echo number_format($totalVentasHoy, 2); ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-3 align-items-center">
-                    <span class="text-muted" style="font-weight: 600;">Total Esperado en Caja:</span>
-                    <span class="font-monospace text-light" style="font-weight: 700;">C$ <?php echo number_format($totalEsperado, 2); ?></span>
+                    <span style="color: #000000 !important; font-weight: 700;">Total Esperado en Caja:</span>
+                    <span class="font-monospace" style="color: #000000 !important; font-weight: 700;">C$ <?php echo number_format($totalEsperado, 2); ?></span>
                 </div>
 
                 <hr class="border-secondary my-4">
@@ -117,7 +117,7 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
                 </div>
 
                 <div class="d-flex justify-content-between mb-4 align-items-center p-3 rounded bg-slate border border-secondary">
-                    <span class="fw-semibold text-light" style="font-size: 13.5px;">Diferencia (Cuadre):</span>
+                    <span class="fw-semibold" style="color: #000000 !important; font-size: 13.5px; font-weight: 700;">Diferencia (Cuadre):</span>
                     <span class="fw-bold fs-5 font-monospace text-warning" id="arqueo-diferencia">C$ <?php echo number_format(-$totalEsperado, 2); ?></span>
                 </div>
             </div>
