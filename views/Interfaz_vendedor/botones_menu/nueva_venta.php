@@ -206,8 +206,8 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
         </div>
 
         <div class="d-flex gap-2">
-            <button class="btn btn-success flex-grow-1 py-2 font-bold d-flex align-items-center justify-content-center gap-1" id="btn-imprimir-ticket-modal" style="border-radius: 8px;">
-                <span class="material-symbols-outlined" style="font-size: 18px;">print</span> Imprimir Factura
+            <button class="btn btn-danger flex-grow-1 py-2 font-bold d-flex align-items-center justify-content-center gap-1" id="btn-guardar-pdf-ticket-modal" style="border-radius: 8px;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">picture_as_pdf</span> Guardar (PDF)
             </button>
             <button class="btn btn-dark py-2 font-bold" id="btn-close-ticket-modal" style="border-radius: 8px;">Cerrar</button>
         </div>
@@ -791,9 +791,9 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
             ticketOverlay.style.setProperty('display', 'none', 'important');
         });
 
-        const btnImprimirTicket = document.getElementById('btn-imprimir-ticket-modal');
-        if (btnImprimirTicket) {
-            btnImprimirTicket.addEventListener('click', ejecutarImpresionDirectaTicket);
+        const btnGuardarPDFTicket = document.getElementById('btn-guardar-pdf-ticket-modal');
+        if (btnGuardarPDFTicket) {
+            btnGuardarPDFTicket.addEventListener('click', ejecutarImpresionDirectaTicket);
         }
 
         cargarProductosParaVenta();
