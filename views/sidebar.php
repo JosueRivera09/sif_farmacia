@@ -60,7 +60,6 @@ function obtenerLinkVolver($rol)
     <nav class="sidebar-menu custom-scrollbar">
         <?php
         // Caso 1: Administrador viendo el panel de Administración O el panel de Bodega
-        // (El administrador tiene el menú completo de navegación en ambos lugares)
         if ($user_role === 'Administrador' && ($panel_context === 'admin' || $panel_context === 'bodega')):
             $page = isset($_GET['page']) ? $_GET['page'] : '';
             $in_admin_page = ($panel_context === 'admin');
@@ -109,141 +108,94 @@ function obtenerLinkVolver($rol)
                 <span>Reportes</span>
             </a>
 
-            <?php
-        // Caso 2: Módulo de Caja (para Cajero nativo o cualquier rol con acceso extra)
-        elseif ($panel_context === 'caja'):
-            // Si no es el rol nativo del panel, mostrar botón para volver a su panel correspondiente
-            if ($user_role !== 'Cajero'):
-            ?>
-                <a class="nav-link-custom text-warning" href="<?php echo obtenerLinkVolver($user_role); ?>" style="color: #f59e0b !important;">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                    <span>Volver al Panel</span>
-                </a>
-            <?php endif; ?>
-
-            <a class="nav-link-custom active" id="btn-modulo-caja">
-                <span class="material-symbols-outlined">payments</span>
-                <span>Pedidos por Cobrar</span>
-            </a>
-            <a class="nav-link-custom" id="btn-historial">
-                <span class="material-symbols-outlined">receipt_long</span>
-                <span>Historial Cobros</span>
-            </a>
-            <?php if ($user_role === 'Cajero'): ?>
-                <a class="nav-link-custom" id="btn-arqueo">
-                    <span class="material-symbols-outlined">account_balance_wallet</span>
-                    <span>Arqueo de Caja</span>
-                </a>
-            <?php endif; ?>
-
-            <?php
-        // Caso 3: Módulo de Ventas (para Vendedor nativo o cualquier rol con acceso extra)
-        elseif ($panel_context === 'ventas'):
-            // Si no es el rol nativo del panel, mostrar botón para volver a su panel correspondiente
-            if ($user_role !== 'Vendedor'):
-            ?>
-                <a class="nav-link-custom text-warning" href="<?php echo obtenerLinkVolver($user_role); ?>" style="color: #f59e0b !important;">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                    <span>Volver al Panel</span>
-                </a>
-            <?php endif; ?>
-
-            <a class="nav-link-custom active" id="btn-inicio">
-                <span class="material-symbols-outlined">dashboard</span>
-                <span>Resumen</span>
-            </a>
-            <a class="nav-link-custom" id="btn-nueva-venta">
-                <span class="material-symbols-outlined">point_of_sale</span>
-                <span>Nueva Venta</span>
-            </a>
-            <a class="nav-link-custom" id="btn-inventario">
-                <span class="material-symbols-outlined">search</span>
-                <span>Catálogo Inventario</span>
-            </a>
-
-            <?php
-        // Caso 4: Módulo de Bodega (para Bodega nativo o roles con permisos extra que NO son Administrador)
-        elseif ($panel_context === 'bodega'):
-            // Si no es el rol nativo del panel, mostrar botón para volver a su panel correspondiente
-            if ($user_role !== 'Bodega'):
-            ?>
-                <a class="nav-link-custom text-warning" href="<?php echo obtenerLinkVolver($user_role); ?>" style="color: #f59e0b !important;">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                    <span>Volver al Panel</span>
-                </a>
-            <?php endif; ?>
-
-            <a class="nav-link-custom active" id="btn-sidebar-lotes" href="bodega_lotes.php">
-                <span class="material-symbols-outlined">warehouse</span>
-                <span>Bodega y Lotes</span>
-            </a>
-            <?php if ($user_role === 'Bodega'): ?>
-                <a class="nav-link-custom" id="btn-sidebar-reportes" href="#">
-                    <span class="material-symbols-outlined">analytics</span>
-                    <span>Mis Reportes</span>
-                </a>
-            <?php endif; ?>
-        <?php endif; ?>
-
         <?php
-        // Si no es Administrador, mostrar accesos directos a todos los botones de otros módulos a los que tenga permiso extra
-        if ($user_role !== 'Administrador'):
+        // Caso 2: Usuarios no Administradores (Cajero, Vendedor, Bodega con o sin permisos extra)
+        // Se renderizan los módulos con un ORDEN ESTÁTICO FIJO para evitar desplazamientos al hacer clic
+        else:
             $has_caja = ($user_role === 'Cajero' || in_array('caja', $permisos_extra) || in_array('cajero', $permisos_extra));
             $has_ventas = ($user_role === 'Vendedor' || in_array('ventas', $permisos_extra) || in_array('vendedor', $permisos_extra));
             $has_bodega = ($user_role === 'Bodega' || in_array('bodega', $permisos_extra));
 
-            // Si tiene acceso a Caja como permiso extra (y no estamos en panel caja)
-            if ($has_caja && $panel_context !== 'caja'):
-                $href_caja = ($current_dir === 'Interfaz_caja') ? 'cajero_dashboard.php' : '../Interfaz_caja/cajero_dashboard.php';
+            $subParam = isset($_GET['sub']) ? $_GET['sub'] : '';
+
+            // 1. BLOQUE MÓDULO DE CAJA
+            if ($has_caja):
+                $is_caja_active = ($panel_context === 'caja');
+                $href_caja_base = ($current_dir === 'Interfaz_caja') ? 'cajero_dashboard.php' : '../Interfaz_caja/cajero_dashboard.php';
         ?>
-                <div class="border-top border-secondary my-2 pt-2">
-                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #60a5fa !important; font-weight: 700; text-transform: uppercase;">Módulo de Caja (Permiso Extra)</span>
-                    <a class="nav-link-custom ms-2" href="<?php echo $href_caja; ?>?sub=cobrar" style="color: #93c5fd !important; font-size: 13px;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">payments</span>
+                <div class="mb-2">
+                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #60a5fa !important; font-weight: 700; text-transform: uppercase;">Módulo de Caja</span>
+                    
+                    <a class="nav-link-custom <?php echo ($is_caja_active && (empty($subParam) || $subParam === 'cobrar')) ? 'active' : ''; ?>"
+                       id="btn-modulo-caja"
+                       href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=cobrar'; ?>">
+                        <span class="material-symbols-outlined">payments</span>
                         <span>Pedidos por Cobrar</span>
                     </a>
-                    <a class="nav-link-custom ms-2" href="<?php echo $href_caja; ?>?sub=historial" style="color: #93c5fd !important; font-size: 13px;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">receipt_long</span>
+                    
+                    <a class="nav-link-custom <?php echo ($is_caja_active && $subParam === 'historial') ? 'active' : ''; ?>"
+                       id="btn-historial"
+                       href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=historial'; ?>">
+                        <span class="material-symbols-outlined">receipt_long</span>
                         <span>Historial Cobros</span>
                     </a>
-                    <a class="nav-link-custom ms-2" href="<?php echo $href_caja; ?>?sub=arqueo" style="color: #93c5fd !important; font-size: 13px;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">account_balance_wallet</span>
-                        <span>Arqueo de Caja</span>
-                    </a>
+                    
+                    <?php if ($user_role === 'Cajero' || $user_role === 'Administrador' || in_array('caja', $permisos_extra)): ?>
+                        <a class="nav-link-custom <?php echo ($is_caja_active && $subParam === 'arqueo') ? 'active' : ''; ?>"
+                           id="btn-arqueo"
+                           href="<?php echo $is_caja_active ? '#' : $href_caja_base . '?sub=arqueo'; ?>">
+                            <span class="material-symbols-outlined">account_balance_wallet</span>
+                            <span>Arqueo de Caja</span>
+                        </a>
+                    <?php endif; ?>
                 </div>
         <?php
             endif;
 
-            // Si tiene acceso a Ventas como permiso extra (y no estamos en panel ventas)
-            if ($has_ventas && $panel_context !== 'ventas'):
-                $href_ventas = ($current_dir === 'Interfaz_vendedor') ? 'vendedor_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php';
+            // 2. BLOQUE MÓDULO DE VENTAS
+            if ($has_ventas):
+                $is_ventas_active = ($panel_context === 'ventas');
+                $href_ventas_base = ($current_dir === 'Interfaz_vendedor') ? 'vendedor_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php';
         ?>
-                <div class="border-top border-secondary my-2 pt-2">
-                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #fca5a5 !important; font-weight: 700; text-transform: uppercase;">Módulo de Ventas (Permiso Extra)</span>
-                    <a class="nav-link-custom ms-2" href="<?php echo $href_ventas; ?>?sub=resumen" style="color: #fca5a5 !important; font-size: 13px;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">dashboard</span>
+                <div class="border-top border-secondary pt-2 mb-2">
+                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #fca5a5 !important; font-weight: 700; text-transform: uppercase;">Módulo de Ventas</span>
+                    
+                    <a class="nav-link-custom <?php echo ($is_ventas_active && (empty($subParam) || $subParam === 'resumen')) ? 'active' : ''; ?>"
+                       id="btn-inicio"
+                       href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=resumen'; ?>">
+                        <span class="material-symbols-outlined">dashboard</span>
                         <span>Resumen Ventas</span>
                     </a>
-                    <a class="nav-link-custom ms-2" href="<?php echo $href_ventas; ?>?sub=nueva_venta" style="color: #fca5a5 !important; font-size: 13px;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">point_of_sale</span>
+                    
+                    <a class="nav-link-custom <?php echo ($is_ventas_active && $subParam === 'nueva_venta') ? 'active' : ''; ?>"
+                       id="btn-nueva-venta"
+                       href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=nueva_venta'; ?>">
+                        <span class="material-symbols-outlined">point_of_sale</span>
                         <span>Nueva Venta</span>
                     </a>
-                    <a class="nav-link-custom ms-2" href="<?php echo $href_ventas; ?>?sub=inventario" style="color: #fca5a5 !important; font-size: 13px;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
+                    
+                    <a class="nav-link-custom <?php echo ($is_ventas_active && $subParam === 'inventario') ? 'active' : ''; ?>"
+                       id="btn-inventario"
+                       href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=inventario'; ?>">
+                        <span class="material-symbols-outlined">search</span>
                         <span>Catálogo Inventario</span>
                     </a>
                 </div>
         <?php
             endif;
 
-            // Si tiene acceso a Bodega como permiso extra (y no estamos en panel bodega)
-            if ($has_bodega && $panel_context !== 'bodega'):
-                $base_bodega = ($current_dir === 'bodega') ? 'bodega_lotes.php' : '../bodega/bodega_lotes.php';
+            // 3. BLOQUE MÓDULO DE BODEGA
+            if ($has_bodega):
+                $is_bodega_active = ($panel_context === 'bodega');
+                $href_bodega_base = ($current_dir === 'bodega') ? 'bodega_lotes.php' : '../bodega/bodega_lotes.php';
         ?>
-                <div class="border-top border-secondary my-2 pt-2">
-                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #34d399 !important; font-weight: 700; text-transform: uppercase;">Módulo de Bodega (Permiso Extra)</span>
-                    <a class="nav-link-custom ms-2" href="<?php echo $base_bodega; ?>" style="color: #6ee7b7 !important; font-size: 13px;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">warehouse</span>
+                <div class="border-top border-secondary pt-2 mb-2">
+                    <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #34d399 !important; font-weight: 700; text-transform: uppercase;">Módulo de Bodega</span>
+                    
+                    <a class="nav-link-custom <?php echo $is_bodega_active ? 'active' : ''; ?>"
+                       id="btn-sidebar-lotes"
+                       href="<?php echo $href_bodega_base; ?>">
+                        <span class="material-symbols-outlined">warehouse</span>
                         <span>Bodega y Lotes</span>
                     </a>
                 </div>
