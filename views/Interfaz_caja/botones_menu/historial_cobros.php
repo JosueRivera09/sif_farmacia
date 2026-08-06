@@ -31,9 +31,42 @@
     </div>
 </div>
 
+<div class="custom-card mb-4 p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
+        <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cierres de Caja (Tabla cierres_caja)</h6>
+        <span class="badge bg-slate border border-secondary text-secondary">Últimos Arqueos Registrados</span>
+    </div>
+
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-custom align-middle">
+            <thead>
+                <tr>
+                    <th style="color: #94a3b8;">ID</th>
+                    <th style="color: #94a3b8;">Cajero</th>
+                    <th style="color: #94a3b8;">Fecha Cierre</th>
+                    <th style="color: #94a3b8; text-align: right;">Fondo Inicial</th>
+                    <th style="color: #94a3b8; text-align: right;">Esperado</th>
+                    <th style="color: #94a3b8; text-align: right;">Físico Arqueado</th>
+                    <th style="color: #94a3b8; text-align: right;">Diferencia</th>
+                    <th style="color: #94a3b8; text-align: center;">Estado</th>
+                </tr>
+            </thead>
+            <tbody id="historial-cierres-tbody">
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        <div class="spinner-border text-success spinner-border-sm mb-2" role="status"></div><br>
+                        Cargando registros de cierres_caja...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script>
     {
         const tbodyHistorial = document.getElementById('historial-cobros-tbody');
+        const tbodyCierres = document.getElementById('historial-cierres-tbody');
         const btnImprimirReporte = document.getElementById('btn-imprimir-reporte-cobros');
 
         let datosHistorialRaw = null;
@@ -55,6 +88,59 @@
                 });
         }
 
+        function cargarHistorialCierres() {
+            fetch('../../controllers/caja/CajaController.php?action=listar_cierres')
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success' && response.data) {
+                        renderCierres(response.data);
+                    } else {
+                        tbodyCierres.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">No fue posible cargar los registros de cierre.</td></tr>`;
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al cargar cierres:", err);
+                    tbodyCierres.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-3">Error al consultar cierres_caja.</td></tr>`;
+                });
+        }
+
+        function renderCierres(cierres) {
+            if (cierres.length === 0) {
+                tbodyCierres.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">No hay cierres de caja registrados en la tabla.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            cierres.forEach(c => {
+                const fecha = new Date(c.fecha_cierre).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+                const inicial = parseFloat(c.monto_inicial || 0).toFixed(2);
+                const esperado = parseFloat(c.monto_esperado || 0).toFixed(2);
+                const fisico = parseFloat(c.monto_final || 0).toFixed(2);
+                const diff = parseFloat(c.diferencia || 0);
+
+                let diffBadge = `<span class="badge bg-success font-monospace">C$ 0.00</span>`;
+                if (diff < 0) {
+                    diffBadge = `<span class="badge bg-danger font-monospace">C$ ${diff.toFixed(2)} (Faltante)</span>`;
+                } else if (diff > 0) {
+                    diffBadge = `<span class="badge bg-warning text-dark font-monospace">C$ +${diff.toFixed(2)} (Sobrante)</span>`;
+                }
+
+                html += `
+                    <tr>
+                        <td><code class="text-success font-bold">#${c.id_cierre}</code></td>
+                        <td class="text-light"><strong>${c.nombre_usuario || 'Cajero'}</strong></td>
+                        <td class="text-light font-monospace" style="font-size:12px;">${fecha}</td>
+                        <td class="text-end text-light font-monospace">C$ ${inicial}</td>
+                        <td class="text-end text-light font-monospace">C$ ${esperado}</td>
+                        <td class="text-end text-light font-monospace fw-bold">C$ ${fisico}</td>
+                        <td class="text-end">${diffBadge}</td>
+                        <td class="text-center"><span class="badge bg-primary px-2 py-1">${c.estado}</span></td>
+                    </tr>
+                `;
+            });
+            tbodyCierres.innerHTML = html;
+        }
+
         function obtenerVentasSegunRol() {
             if (!datosHistorialRaw || !datosHistorialRaw.data) return [];
 
@@ -63,10 +149,8 @@
             const idUsuarioActual = datosHistorialRaw.id_usuario_actual;
 
             if (esAdmin) {
-                // Administrador ve y puede imprimir todo lo vendido por todos los usuarios
                 return tickets;
             } else {
-                // Rol diferente de administrador solo ve e imprime lo que él vendió
                 return tickets.filter(t => parseInt(t.id_vendedor) === parseInt(idUsuarioActual));
             }
         }
@@ -80,22 +164,18 @@
             }
 
             let html = '';
-            tickets.forEach(t => {
-                const hora = new Date(t.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const cliente = t.nombre_cliente ? t.nombre_cliente : 'Cliente Ocasional';
-
+            tickets.forEach(v => {
+                const hora = new Date(v.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 html += `
-                <tr>
-                    <td class="text-light">${hora}</td>
-                    <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
-                    <td class="text-light">${t.nombre_vendedor}</td>
-                    <td class="text-light">${cliente}</td>
-                    <td class="text-end font-monospace text-success fw-bold">C$ ${parseFloat(t.total).toFixed(2)}</td>
-                    <td class="text-center">
-                        <span class="badge bg-success-box text-success px-3 py-1">Pagado</span>
-                    </td>
-                </tr>
-            `;
+                    <tr>
+                        <td class="text-light font-monospace" style="font-size:12px;">${hora}</td>
+                        <td><code class="text-success font-bold" style="font-size:13px;">${v.codigo_ticket}</code></td>
+                        <td class="text-light">${v.nombre_vendedor || 'Vendedor'}</td>
+                        <td class="text-light">${v.nombre_cliente || 'Cliente Final'}</td>
+                        <td class="text-end text-light font-monospace font-bold">C$ ${parseFloat(v.total).toFixed(2)}</td>
+                        <td class="text-center"><span class="badge bg-success px-2 py-1">Pagado</span></td>
+                    </tr>
+                `;
             });
             tbodyHistorial.innerHTML = html;
         }
@@ -212,5 +292,6 @@
 
         // Inicializar carga
         cargarHistorialCobros();
+        cargarHistorialCierres();
     }
 </script>

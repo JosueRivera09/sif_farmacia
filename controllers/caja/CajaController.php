@@ -191,6 +191,23 @@ elseif ($action === 'obtener_arqueo_hoy') {
     exit;
 }
 
+elseif ($action === 'listar_cierres') {
+    inicializarTablaCierresCaja($conexion);
+    $query = "SELECT c.*, u.nombre_usuario 
+              FROM cierres_caja c 
+              LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario 
+              ORDER BY c.id_cierre DESC LIMIT 30";
+    $res = mysqli_query($conexion, $query);
+    $cierres = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $cierres[] = $row;
+        }
+    }
+    echo json_encode(['status' => 'success', 'data' => $cierres]);
+    exit;
+}
+
 else {
     echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
     exit;
