@@ -46,35 +46,35 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
                 
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 1,000.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="1000" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="1000" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 500.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="500" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="500" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 200.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="200" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="200" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 100.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="100" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="100" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 50.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="50" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="50" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 20.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="20" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="20" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 10.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="10" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="10" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 5.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="5" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="5" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
 
                 <!-- Monedas -->
@@ -82,11 +82,11 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
                 
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 5.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="5" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="5" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 1.00</label>
-                    <input type="number" class="form-control form-control-sif text-end input-denom" data-value="1" min="0" value="0" style="width: 120px;">
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="1" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
             </form>
         </div>

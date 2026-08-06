@@ -81,8 +81,8 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
                         Por favor ingrese el monto inicial en efectivo con el que iniciará la caja para este turno:
                     </p>
                     <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-slate border-secondary text-success fw-bold">C$</span>
-                        <input type="number" step="0.01" min="0" class="form-control bg-slate border-secondary text-light fw-bold font-monospace" id="input-monto-apertura-inicial" placeholder="1000.00" value="1000.00" required>
+                        <span class="input-group-text border-secondary text-success fw-bold" style="background-color: #f1f5f9;">C$</span>
+                        <input type="number" step="0.01" min="0" class="form-control border-secondary fw-bold font-monospace" id="input-monto-apertura-inicial" placeholder="1000.00" value="1000.00" required style="color: #000000 !important; background-color: #ffffff !important; font-size: 20px;">
                     </div>
                     <small class="text-muted mt-2 d-block" style="font-size: 11px;">
                         * Este monto será la base en efectivo utilizada para el cálculo del total esperado al realizar el arqueo final.
