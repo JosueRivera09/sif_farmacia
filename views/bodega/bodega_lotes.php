@@ -136,27 +136,27 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                 <div class="row g-4 align-items-start">
 
                     <!-- Filter Panel -->
-                    <div class="col-12 col-lg-3">
-                        <aside class="filter-panel">
-                            <div class="filter-title-section">
-                                <span class="material-symbols-outlined text-primary-custom">filter_list</span>
-                                <h4 class="metric-title mb-0">Filtros de Búsqueda</h4>
+                    <div class="col-12 col-xl-2 col-lg-3">
+                        <aside class="filter-panel p-3">
+                            <div class="filter-title-section mb-3">
+                                <span class="material-symbols-outlined text-primary-custom" style="font-size: 20px;">filter_list</span>
+                                <h4 class="metric-title mb-0" style="font-size: 11px;">Filtros de Búsqueda</h4>
                             </div>
 
-                            <form class="space-y-4" id="filterForm">
-                                <div class="mb-3">
-                                    <label class="filter-label">Bodega</label>
-                                    <select class="filter-input" id="filterBodega">
-                                        <option value="">Todas las bodegas</option>
+                            <form class="space-y-3" id="filterForm">
+                                <div class="mb-2">
+                                    <label class="filter-label mb-1" style="font-size: 10px;">Bodega</label>
+                                    <select class="filter-input py-1.5 px-2" id="filterBodega" style="font-size: 12px;">
+                                        <option value="">Todas</option>
                                         <option value="Bodega Principal - Managua">Bodega Principal - Managua</option>
                                         <option value="Depósito Norte">Depósito Norte</option>
                                         <option value="Bodega Externa C-4">Bodega Externa C-4</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="filter-label">Categoría</label>
-                                    <select class="filter-input" id="filterCategoria">
-                                        <option value="">Todas las categorías</option>
+                                <div class="mb-2">
+                                    <label class="filter-label mb-1" style="font-size: 10px;">Categoría</label>
+                                    <select class="filter-input py-1.5 px-2" id="filterCategoria" style="font-size: 12px;">
+                                        <option value="">Todas</option>
                                         <?php if (!empty($categories_list)): ?>
                                             <?php foreach ($categories_list as $cat): ?>
                                                 <option value="<?php echo htmlspecialchars($cat['nombre_categoria']); ?>">
@@ -166,19 +166,19 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                         <?php endif; ?>
                                     </select>
                                 </div>
-                                <div class="mb-4">
-                                    <label class="filter-label">Rango de Fechas</label>
-                                    <input class="filter-input mb-2" id="filterDesde" placeholder="Desde" type="date" />
-                                    <input class="filter-input" id="filterHasta" placeholder="Hasta" type="date" />
+                                <div class="mb-3">
+                                    <label class="filter-label mb-1" style="font-size: 10px;">Rango de Fechas</label>
+                                    <input class="filter-input py-1.5 px-2 mb-2" id="filterDesde" placeholder="Desde" type="date" style="font-size: 12px;" />
+                                    <input class="filter-input py-1.5 px-2" id="filterHasta" placeholder="Hasta" type="date" style="font-size: 12px;" />
                                 </div>
-                                <button type="button" class="btn btn-primary w-100 mb-2" id="btnApplyFilters">Aplicar Filtros</button>
-                                <button type="button" class="btn btn-outline-secondary w-100" id="btnClearFilters">Limpiar Búsqueda</button>
+                                <button type="button" class="btn btn-primary w-100 py-2 mb-2 font-semibold" id="btnApplyFilters" style="font-size: 12px;">Aplicar Filtros</button>
+                                <button type="button" class="btn btn-outline-secondary w-100 py-1.5" id="btnClearFilters" style="font-size: 11px;">Limpiar Búsqueda</button>
                             </form>
                         </aside>
                     </div>
 
                     <!-- Data Table Section -->
-                    <div class="col-12 col-lg-9">
+                    <div class="col-12 col-xl-10 col-lg-9">
                         <div class="data-section">
 
                             <div class="table-controls d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
