@@ -59,54 +59,102 @@ function obtenerLinkVolver(string $rol)
 
     <nav class="sidebar-menu custom-scrollbar">
         <?php
-        // Caso 1: Administrador (acceso completo a todos los paneles)
+        // Caso 1: Administrador (acceso total a todos los módulos y sub-botones del sistema)
         if ($user_role === 'Administrador'):
             $page = isset($_GET['page']) ? $_GET['page'] : '';
+            $subParam = isset($_GET['sub']) ? $_GET['sub'] : '';
             $in_admin_page = ($panel_context === 'admin');
-        ?>
-            <a class="nav-link-custom <?php echo ($in_admin_page && empty($page)) ? 'active' : ''; ?>"
-                id="btn-inicio"
-                href="<?php echo $in_admin_page ? '#' : '../Interfaz_admin/admin_dashboard.php'; ?>">
-                <span class="material-symbols-outlined">dashboard</span>
-                <span>Dashboard</span>
-            </a>
-            <a class="nav-link-custom <?php echo ($in_admin_page && $page === 'usuarios') ? 'active' : ''; ?>"
-                id="btn-usuarios"
-                href="<?php echo $in_admin_page ? '#' : '../Interfaz_admin/admin_dashboard.php?page=usuarios'; ?>">
-                <span class="material-symbols-outlined">group</span>
-                <span>Gestión Usuarios</span>
-            </a>
-            <a class="nav-link-custom <?php echo ($in_admin_page && $page === 'productos') ? 'active' : ''; ?>"
-                id="btn-productos"
-                href="<?php echo $in_admin_page ? '#' : '../Interfaz_admin/admin_dashboard.php?page=productos'; ?>">
-                <span class="material-symbols-outlined">inventory_2</span>
-                <span>Catálogo Productos</span>
-            </a>
-            <a class="nav-link-custom <?php echo ($panel_context === 'bodega') ? 'active' : ''; ?>"
-                id="btn-bodega"
-                href="<?php echo ($panel_context === 'bodega') ? 'bodega_lotes.php' : '../bodega/bodega_lotes.php'; ?>">
-                <span class="material-symbols-outlined">warehouse</span>
-                <span>Bodega y Lotes</span>
-            </a>
-            <a class="nav-link-custom"
-                id="btn-caja"
-                href="../Interfaz_caja/cajero_dashboard.php">
-                <span class="material-symbols-outlined">point_of_sale</span>
-                <span>Módulo de Caja</span>
-            </a>
-            <a class="nav-link-custom"
-                id="btn-ventas"
-                href="../Interfaz_vendedor/vendedor_dashboard.php">
-                <span class="material-symbols-outlined">storefront</span>
-                <span>Módulo de Ventas</span>
-            </a>
 
-            <a class="nav-link-custom <?php echo ($in_admin_page && $page === 'reportes') ? 'active' : ''; ?>"
-                id="btn-reportes"
-                href="<?php echo $in_admin_page ? '#' : '../Interfaz_admin/admin_dashboard.php?page=reportes'; ?>">
-                <span class="material-symbols-outlined">analytics</span>
-                <span>Reportes</span>
-            </a>
+            $href_admin = ($current_dir === 'Interfaz_admin') ? 'admin_dashboard.php' : '../Interfaz_admin/admin_dashboard.php';
+            $href_caja = ($current_dir === 'Interfaz_caja') ? 'cajero_dashboard.php' : '../Interfaz_caja/cajero_dashboard.php';
+            $href_ventas = ($current_dir === 'Interfaz_vendedor') ? 'vendedor_dashboard.php' : '../Interfaz_vendedor/vendedor_dashboard.php';
+            $href_bodega = ($current_dir === 'bodega') ? 'bodega_lotes.php' : '../bodega/bodega_lotes.php';
+        ?>
+            <!-- BLOQUE ADMINISTRACIÓN -->
+            <div class="mb-2">
+                <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #a855f7 !important; font-weight: 700; text-transform: uppercase;">Administración</span>
+                <a class="nav-link-custom <?php echo ($in_admin_page && empty($page)) ? 'active' : ''; ?>"
+                    id="btn-inicio"
+                    href="<?php echo ($in_admin_page && empty($page)) ? '#' : $href_admin; ?>">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link-custom <?php echo ($in_admin_page && $page === 'usuarios') ? 'active' : ''; ?>"
+                    id="btn-usuarios"
+                    href="<?php echo ($in_admin_page && $page === 'usuarios') ? '#' : $href_admin . '?page=usuarios'; ?>">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>Gestión Usuarios</span>
+                </a>
+                <a class="nav-link-custom <?php echo ($in_admin_page && $page === 'productos') ? 'active' : ''; ?>"
+                    id="btn-productos"
+                    href="<?php echo ($in_admin_page && $page === 'productos') ? '#' : $href_admin . '?page=productos'; ?>">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    <span>Catálogo Productos</span>
+                </a>
+                <a class="nav-link-custom <?php echo ($in_admin_page && $page === 'reportes') ? 'active' : ''; ?>"
+                    id="btn-reportes"
+                    href="<?php echo ($in_admin_page && $page === 'reportes') ? '#' : $href_admin . '?page=reportes'; ?>">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>Reportes</span>
+                </a>
+            </div>
+
+            <!-- BLOQUE MÓDULO DE CAJA -->
+            <div class="border-top border-secondary pt-2 mb-2">
+                <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #60a5fa !important; font-weight: 700; text-transform: uppercase;">Módulo de Caja</span>
+                <a class="nav-link-custom <?php echo ($panel_context === 'caja' && (empty($subParam) || $subParam === 'cobrar')) ? 'active' : ''; ?>"
+                   id="btn-modulo-caja"
+                   href="<?php echo ($panel_context === 'caja' && (empty($subParam) || $subParam === 'cobrar')) ? '#' : $href_caja . '?sub=cobrar'; ?>">
+                    <span class="material-symbols-outlined">payments</span>
+                    <span>Pedidos por Cobrar</span>
+                </a>
+                <a class="nav-link-custom <?php echo ($panel_context === 'caja' && $subParam === 'historial') ? 'active' : ''; ?>"
+                   id="btn-historial"
+                   href="<?php echo ($panel_context === 'caja' && $subParam === 'historial') ? '#' : $href_caja . '?sub=historial'; ?>">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Historial Cobros</span>
+                </a>
+                <a class="nav-link-custom <?php echo ($panel_context === 'caja' && $subParam === 'arqueo') ? 'active' : ''; ?>"
+                   id="btn-arqueo"
+                   href="<?php echo ($panel_context === 'caja' && $subParam === 'arqueo') ? '#' : $href_caja . '?sub=arqueo'; ?>">
+                    <span class="material-symbols-outlined">account_balance_wallet</span>
+                    <span>Arqueo de Caja</span>
+                </a>
+            </div>
+
+            <!-- BLOQUE MÓDULO DE VENTAS -->
+            <div class="border-top border-secondary pt-2 mb-2">
+                <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #fca5a5 !important; font-weight: 700; text-transform: uppercase;">Módulo de Ventas</span>
+                <a class="nav-link-custom <?php echo ($panel_context === 'ventas' && (empty($subParam) || $subParam === 'resumen')) ? 'active' : ''; ?>"
+                   id="btn-inicio-ventas"
+                   href="<?php echo ($panel_context === 'ventas' && (empty($subParam) || $subParam === 'resumen')) ? '#' : $href_ventas . '?sub=resumen'; ?>">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Resumen Ventas</span>
+                </a>
+                <a class="nav-link-custom <?php echo ($panel_context === 'ventas' && $subParam === 'nueva_venta') ? 'active' : ''; ?>"
+                   id="btn-nueva-venta"
+                   href="<?php echo ($panel_context === 'ventas' && $subParam === 'nueva_venta') ? '#' : $href_ventas . '?sub=nueva_venta'; ?>">
+                    <span class="material-symbols-outlined">point_of_sale</span>
+                    <span>Nueva Venta</span>
+                </a>
+                <a class="nav-link-custom <?php echo ($panel_context === 'ventas' && $subParam === 'inventario') ? 'active' : ''; ?>"
+                   id="btn-inventario"
+                   href="<?php echo ($panel_context === 'ventas' && $subParam === 'inventario') ? '#' : $href_ventas . '?sub=inventario'; ?>">
+                    <span class="material-symbols-outlined">search</span>
+                    <span>Catálogo Inventario</span>
+                </a>
+            </div>
+
+            <!-- BLOQUE MÓDULO DE BODEGA -->
+            <div class="border-top border-secondary pt-2 mb-2">
+                <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #34d399 !important; font-weight: 700; text-transform: uppercase;">Módulo de Bodega</span>
+                <a class="nav-link-custom <?php echo ($panel_context === 'bodega') ? 'active' : ''; ?>"
+                   id="btn-bodega"
+                   href="<?php echo ($panel_context === 'bodega') ? '#' : $href_bodega; ?>">
+                    <span class="material-symbols-outlined">warehouse</span>
+                    <span>Bodega y Lotes</span>
+                </a>
+            </div>
 
         <?php
         // Caso 2: Usuarios no Administradores (Cajero, Vendedor, Bodega con o sin permisos extra)
