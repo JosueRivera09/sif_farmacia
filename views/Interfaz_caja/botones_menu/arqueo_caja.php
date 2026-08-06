@@ -131,13 +131,29 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
     </div>
 </div>
 
+<div id="banner-arqueo-registrado" class="alert alert-success d-none mb-3 border-0 shadow-sm" style="background-color: #10b981; color: #ffffff;">
+    <div class="d-flex align-items-center gap-2">
+        <span class="material-symbols-outlined">check_circle</span>
+        <div>
+            <strong>Arqueo de caja ya registrado hoy</strong>
+            <div id="banner-arqueo-texto-detalle" style="font-size: 12px;">El cierre del turno fue guardado en la base de datos de caja.</div>
+        </div>
+    </div>
+</div>
+
 <script>
 {
     const totalEsperado = <?php echo $totalEsperado; ?>;
+    const aperturaCaja = <?php echo $aperturaCaja; ?>;
     const inputDenoms = document.querySelectorAll('.input-denom');
     const totalFisicoEl = document.getElementById('arqueo-total-fisico');
     const diferenciaEl = document.getElementById('arqueo-diferencia');
     const btnGuardar = document.getElementById('btn-guardar-arqueo');
+    const bannerRegistrado = document.getElementById('banner-arqueo-registrado');
+    const bannerDetalle = document.getElementById('banner-arqueo-texto-detalle');
+
+    let currentTotalFisico = 0.0;
+    let currentDiferencia = 0.0;
 
     function recalcularArqueo() {
         let totalFisico = 0.0;
@@ -148,9 +164,11 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
             totalFisico += denominacion * cantidad;
         });
 
+        currentTotalFisico = totalFisico;
         totalFisicoEl.innerText = 'C$ ' + totalFisico.toFixed(2);
 
         const diferencia = totalFisico - totalEsperado;
+        currentDiferencia = diferencia;
         
         if (Math.abs(diferencia) < 0.01) {
             diferenciaEl.innerText = 'C$ 0.00 (Caja Cuadrada)';
@@ -168,9 +186,76 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
         input.addEventListener('input', recalcularArqueo);
     });
 
+    // Cargar si ya se registro un arqueo hoy en la base de datos
+    fetch('../../controllers/caja/CajaController.php?action=obtener_arqueo_hoy')
+        .then(res => res.json())
+        .then(response => {
+            if (response.status === 'success' && response.registrado && response.data) {
+                const c = response.data;
+                if (bannerRegistrado) {
+                    bannerRegistrado.classList.remove('d-none');
+                    if (bannerDetalle) {
+                        bannerDetalle.innerText = `Cierre guardado el ${new Date(c.fecha_cierre).toLocaleString()} | Arqueado: C$ ${parseFloat(c.monto_final).toFixed(2)}`;
+                    }
+                }
+
+                if (c.denominaciones) {
+                    try {
+                        const denomsObj = JSON.parse(c.denominaciones);
+                        inputDenoms.forEach(input => {
+                            const valKey = input.getAttribute('data-value');
+                            if (denomsObj[valKey] !== undefined) {
+                                input.value = denomsObj[valKey];
+                            }
+                        });
+                        recalcularArqueo();
+                    } catch(e) {
+                        console.error("Error al parsear denominaciones:", e);
+                    }
+                }
+            }
+        })
+        .catch(err => console.error("Error al consultar arqueo guardado:", err));
+
     btnGuardar.addEventListener('click', function() {
-        alert("¡Arqueo Guardado con Éxito!\nEl turno de caja se ha cerrado correctamente.");
-        window.location.href = '../../controllers/auth/logout.php';
+        btnGuardar.disabled = true;
+        btnGuardar.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span> Guardando...`;
+
+        const denominacionesMap = {};
+        inputDenoms.forEach(input => {
+            const denom = input.getAttribute('data-value');
+            const cant = parseInt(input.value) || 0;
+            denominacionesMap[denom] = cant;
+        });
+
+        const formData = new FormData();
+        formData.append('monto_inicial', aperturaCaja);
+        formData.append('monto_esperado', totalEsperado);
+        formData.append('monto_fisico', currentTotalFisico);
+        formData.append('diferencia', currentDiferencia);
+        formData.append('denominaciones', JSON.stringify(denominacionesMap));
+
+        fetch('../../controllers/caja/CajaController.php?action=guardar_arqueo', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(response => {
+            if (response.status === 'success') {
+                alert("¡Arqueo Registrado y Guardado con Éxito!\nEl registro se guardó correctamente en la tabla de Cierres de Caja.");
+                window.location.href = '../../controllers/auth/logout.php';
+            } else {
+                alert('Error al guardar arqueo: ' + response.message);
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = `<span class="material-symbols-outlined">save</span> Registrar Arqueo de Caja`;
+            }
+        })
+        .catch(err => {
+            console.error("Error al registrar arqueo:", err);
+            alert("Ocurrió un error al intentar guardar el arqueo de caja.");
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = `<span class="material-symbols-outlined">save</span> Registrar Arqueo de Caja`;
+        });
     });
 
     recalcularArqueo();

@@ -282,4 +282,65 @@ function obtenerTodosLosTickets(mysqli $conexion) {
     }
     return $tickets;
 }
+
+function inicializarTablaCierresCaja(mysqli $conexion) {
+    $createTable = "CREATE TABLE IF NOT EXISTS `cierres_caja` (
+        `id_cierre` int(11) NOT NULL AUTO_INCREMENT,
+        `id_usuario` int(11) NOT NULL,
+        `fecha_apertura` timestamp NOT NULL DEFAULT current_timestamp(),
+        `fecha_cierre` timestamp NULL DEFAULT NULL,
+        `monto_inicial` decimal(10, 2) DEFAULT 0.00,
+        `monto_final` decimal(10, 2) DEFAULT NULL,
+        `monto_esperado` decimal(10, 2) DEFAULT 0.00,
+        `diferencia` decimal(10, 2) DEFAULT 0.00,
+        `denominaciones` text DEFAULT NULL,
+        `estado` varchar(20) DEFAULT 'Abierto',
+        PRIMARY KEY (`id_cierre`),
+        KEY `id_usuario` (`id_usuario`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    mysqli_query($conexion, $createTable);
+
+    $resCol = mysqli_query($conexion, "SHOW COLUMNS FROM `cierres_caja` LIKE 'monto_esperado'");
+    if ($resCol && mysqli_num_rows($resCol) === 0) {
+        mysqli_query($conexion, "ALTER TABLE `cierres_caja` ADD COLUMN `monto_esperado` decimal(10, 2) DEFAULT 0.00");
+    }
+    $resCol2 = mysqli_query($conexion, "SHOW COLUMNS FROM `cierres_caja` LIKE 'diferencia'");
+    if ($resCol2 && mysqli_num_rows($resCol2) === 0) {
+        mysqli_query($conexion, "ALTER TABLE `cierres_caja` ADD COLUMN `diferencia` decimal(10, 2) DEFAULT 0.00");
+    }
+    $resCol3 = mysqli_query($conexion, "SHOW COLUMNS FROM `cierres_caja` LIKE 'denominaciones'");
+    if ($resCol3 && mysqli_num_rows($resCol3) === 0) {
+        mysqli_query($conexion, "ALTER TABLE `cierres_caja` ADD COLUMN `denominaciones` text DEFAULT NULL");
+    }
+}
+
+function registrarCierreCaja(mysqli $conexion, int $id_usuario, float $monto_inicial, float $monto_final, float $monto_esperado, float $diferencia, array $denominaciones) {
+    inicializarTablaCierresCaja($conexion);
+    $id_usuario = intval($id_usuario);
+    $monto_inicial = floatval($monto_inicial);
+    $monto_final = floatval($monto_final);
+    $monto_esperado = floatval($monto_esperado);
+    $diferencia = floatval($diferencia);
+    $denom_json = mysqli_real_escape_string($conexion, json_encode($denominaciones));
+
+    $query = "INSERT INTO cierres_caja 
+                (id_usuario, fecha_apertura, fecha_cierre, monto_inicial, monto_final, monto_esperado, diferencia, denominaciones, estado) 
+              VALUES 
+                ($id_usuario, CURDATE(), NOW(), $monto_inicial, $monto_final, $monto_esperado, $diferencia, '$denom_json', 'Cerrado')";
+
+    return mysqli_query($conexion, $query);
+}
+
+function obtenerUltimoCierreCajaHoy(mysqli $conexion, int $id_usuario) {
+    inicializarTablaCierresCaja($conexion);
+    $id_usuario = intval($id_usuario);
+    $query = "SELECT * FROM cierres_caja 
+              WHERE id_usuario = $id_usuario AND DATE(fecha_cierre) = CURDATE() AND estado = 'Cerrado' 
+              ORDER BY id_cierre DESC LIMIT 1";
+    $res = mysqli_query($conexion, $query);
+    if ($res && $row = mysqli_fetch_assoc($res)) {
+        return $row;
+    }
+    return null;
+}
 ?>

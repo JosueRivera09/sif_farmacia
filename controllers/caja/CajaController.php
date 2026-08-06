@@ -154,6 +154,43 @@ elseif ($action === 'ver_ticket') {
     exit;
 }
 
+elseif ($action === 'guardar_arqueo') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
+        exit;
+    }
+
+    $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    $monto_inicial = isset($_POST['monto_inicial']) ? floatval($_POST['monto_inicial']) : 1000.00;
+    $monto_esperado = isset($_POST['monto_esperado']) ? floatval($_POST['monto_esperado']) : 0.0;
+    $monto_fisico = isset($_POST['monto_fisico']) ? floatval($_POST['monto_fisico']) : 0.0;
+    $diferencia = isset($_POST['diferencia']) ? floatval($_POST['diferencia']) : 0.0;
+    
+    $denominaciones_raw = isset($_POST['denominaciones']) ? $_POST['denominaciones'] : '{}';
+    $denominaciones = json_decode($denominaciones_raw, true);
+    if (!is_array($denominaciones)) $denominaciones = [];
+
+    $exito = registrarCierreCaja($conexion, $id_usuario, $monto_inicial, $monto_fisico, $monto_esperado, $diferencia, $denominaciones);
+
+    if ($exito) {
+        echo json_encode(['status' => 'success', 'message' => 'Arqueo de caja registrado correctamente en el sistema.']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Error al registrar el arqueo de caja en la base de datos.']);
+    }
+    exit;
+}
+
+elseif ($action === 'obtener_arqueo_hoy') {
+    $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    $cierre = obtenerUltimoCierreCajaHoy($conexion, $id_usuario);
+    if ($cierre) {
+        echo json_encode(['status' => 'success', 'registrado' => true, 'data' => $cierre]);
+    } else {
+        echo json_encode(['status' => 'success', 'registrado' => false]);
+    }
+    exit;
+}
+
 else {
     echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
     exit;
