@@ -8,10 +8,10 @@ require_once __DIR__ . '/../../../models/ventas/TicketModel.php';
 
 $id_usuario_actual = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
 $turnoAbierto = obtenerTurnoCajaAbierto($conexion, $id_usuario_actual);
-$aperturaCaja = ($turnoAbierto) ? floatval($turnoAbierto['monto_inicial']) : 1000.00;
+$aperturaCaja = (is_array($turnoAbierto) && isset($turnoAbierto['monto_inicial'])) ? floatval($turnoAbierto['monto_inicial']) : 1000.00;
 
 // Fecha de apertura del turno activo (para filtrar sólo ventas de este turno)
-$fechaAperturaShift = ($turnoAbierto && !empty($turnoAbierto['fecha_apertura'])) ? $turnoAbierto['fecha_apertura'] : date('Y-m-d 00:00:00');
+$fechaAperturaShift = (is_array($turnoAbierto) && !empty($turnoAbierto['fecha_apertura'])) ? $turnoAbierto['fecha_apertura'] : date('Y-m-d 00:00:00');
 
 // Ventas recaudadas ÚNICAMENTE en el turno actual (desde que se abrió la caja)
 $queryTurnoSales = "SELECT SUM(total) as total_ventas_turno, COUNT(*) as tickets_turno 
