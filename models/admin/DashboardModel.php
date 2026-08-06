@@ -112,14 +112,32 @@ class DashboardModel
     }
 
     /**
-     * Obtiene las alertas del sistema (productos vencidos, por vencer y bajo stock)
+     * Obtiene las alertas del sistema (productos bajo stock, vencidos y por vencer)
      */
     public static function obtenerAlertasStock(mysqli $conexion)
     {
         $alertas = [];
 
-        // 1. Lotes Vencidos (Urgente / Crítico)
-        $queryVencidos = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento, 'Vencido' as tipo_alerta
+        // 1. Productos Bajo Stock Mínimo (Prioridad Alta)
+        $queryStock = "SELECT nombre_commercial, stock_actual, stock_minimo, unidad_minima 
+                       FROM productos 
+                       WHERE stock_actual <= stock_minimo 
+                       ORDER BY stock_actual ASC 
+                       LIMIT 10";
+        $resS = mysqli_query($conexion, $queryStock);
+        if ($resS) {
+            while ($row = mysqli_fetch_assoc($resS)) {
+                $alertas[] = [
+                    'nombre_commercial' => $row['nombre_commercial'],
+                    'detalle' => 'Stock: ' . intval($row['stock_actual']) . ' ' . $row['unidad_minima'] . 's (Mín: ' . intval($row['stock_minimo']) . ')',
+                    'etiqueta' => 'Bajo Stock',
+                    'tipo' => 'danger'
+                ];
+            }
+        }
+
+        // 2. Lotes Vencidos (Urgente / Crítico)
+        $queryVencidos = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento
                           FROM lotes l
                           JOIN productos p ON l.id_producto = p.id_producto
                           WHERE l.fecha_vencimiento <= CURDATE()
@@ -137,8 +155,8 @@ class DashboardModel
             }
         }
 
-        // 2. Lotes Próximos a Vencer (< 30 días)
-        $queryPorVencer = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento, 'Por Vencer' as tipo_alerta
+        // 3. Lotes Próximos a Vencer (< 30 días)
+        $queryPorVencer = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento
                            FROM lotes l
                            JOIN productos p ON l.id_producto = p.id_producto
                            WHERE l.fecha_vencimiento > CURDATE() AND l.fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
@@ -152,24 +170,6 @@ class DashboardModel
                     'detalle' => 'Lote ' . $row['numero_lote'] . ' - Vence el ' . date('d/m/Y', strtotime($row['fecha_vencimiento'])),
                     'etiqueta' => 'Próximo a Vencer',
                     'tipo' => 'warning'
-                ];
-            }
-        }
-
-        // 3. Productos Bajo Stock Mínimo
-        $queryStock = "SELECT nombre_commercial, stock_actual, stock_minimo 
-                       FROM productos 
-                       WHERE stock_actual <= stock_minimo 
-                       ORDER BY stock_actual ASC 
-                       LIMIT 10";
-        $resS = mysqli_query($conexion, $queryStock);
-        if ($resS) {
-            while ($row = mysqli_fetch_assoc($resS)) {
-                $alertas[] = [
-                    'nombre_commercial' => $row['nombre_commercial'],
-                    'detalle' => 'Stock: ' . $row['stock_actual'] . ' (Mín: ' . $row['stock_minimo'] . ')',
-                    'etiqueta' => 'Bajo Stock',
-                    'tipo' => 'danger'
                 ];
             }
         }
