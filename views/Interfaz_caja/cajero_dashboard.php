@@ -65,6 +65,39 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
     </div>
 </div>
 
+<!-- Modal Apertura de Caja -->
+<div class="modal fade" id="modalAperturaCaja" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAperturaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #1e293b; color: #f8fafc; border: 1px solid #334155;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold text-success d-flex align-items-center gap-2" id="modalAperturaLabel">
+                    <span class="material-symbols-outlined">account_balance_wallet</span>
+                    Apertura de Turno de Caja (Fondo Inicial)
+                </h5>
+            </div>
+            <form id="form-apertura-caja">
+                <div class="modal-body py-4">
+                    <p class="text-light mb-3" style="font-size: 14px;">
+                        Por favor ingrese el monto inicial en efectivo con el que iniciará la caja para este turno:
+                    </p>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-slate border-secondary text-success fw-bold">C$</span>
+                        <input type="number" step="0.01" min="0" class="form-control bg-slate border-secondary text-light fw-bold font-monospace" id="input-monto-apertura-inicial" placeholder="1000.00" value="1000.00" required>
+                    </div>
+                    <small class="text-muted mt-2 d-block" style="font-size: 11px;">
+                        * Este monto será la base en efectivo utilizada para el cálculo del total esperado al realizar el arqueo final.
+                    </small>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="submit" class="btn btn-success w-100 py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2">
+                        <span class="material-symbols-outlined">play_circle</span> Iniciar Turno de Caja
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const contentArea = document.getElementById('main-content-area');
@@ -75,7 +108,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
 
     function manejarCarga(url, btnClicado, nombreModulo) {
         document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
-        btnClicado.classList.add('active');
+        if (btnClicado && btnClicado.classList) btnClicado.classList.add('active');
         headerTitulo.innerText = nombreModulo;
         
         contentArea.innerHTML = `
@@ -133,6 +166,54 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
             manejarCarga('../perfil/ver_perfil.php', { classList: { remove: () => {}, add: () => {} } }, 'Mi Perfil');
         });
     }
+
+    // Verificar si la caja requiere apertura al iniciar turno
+    function verificarAperturaCaja() {
+        fetch('../../controllers/caja/CajaController.php?action=consultar_apertura')
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success' && !response.tiene_apertura) {
+                    const modalEl = document.getElementById('modalAperturaCaja');
+                    if (modalEl) {
+                        const modalBs = new bootstrap.Modal(modalEl);
+                        modalBs.show();
+                    }
+                }
+            })
+            .catch(err => console.error("Error al consultar apertura:", err));
+    }
+
+    const formApertura = document.getElementById('form-apertura-caja');
+    if (formApertura) {
+        formApertura.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const monto = parseFloat(document.getElementById('input-monto-apertura-inicial').value) || 0;
+            
+            const formData = new FormData();
+            formData.append('monto_inicial', monto);
+
+            fetch('../../controllers/caja/CajaController.php?action=abrir_caja', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    const modalEl = document.getElementById('modalAperturaCaja');
+                    const modalBs = bootstrap.Modal.getInstance(modalEl);
+                    if (modalBs) modalBs.hide();
+                    // Refrescar modulo actual
+                    const activeLink = document.querySelector('.nav-link-custom.active');
+                    if (activeLink) activeLink.click();
+                } else {
+                    alert("Error al iniciar turno: " + response.message);
+                }
+            })
+            .catch(err => alert("Ocurrió un error al registrar la apertura de caja."));
+        });
+    }
+
+    verificarAperturaCaja();
 </script>
 </body>
 </html>

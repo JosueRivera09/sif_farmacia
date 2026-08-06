@@ -180,13 +180,73 @@ elseif ($action === 'guardar_arqueo') {
     exit;
 }
 
+elseif ($action === 'consultar_apertura') {
+    $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    $abierto = obtenerTurnoCajaAbierto($conexion, $id_usuario);
+    if ($abierto) {
+        echo json_encode([
+            'status' => 'success',
+            'tiene_apertura' => true,
+            'monto_inicial' => floatval($abierto['monto_inicial']),
+            'fecha_apertura' => $abierto['fecha_apertura']
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'success',
+            'tiene_apertura' => false
+        ]);
+    }
+    exit;
+}
+
+elseif ($action === 'abrir_caja') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
+        exit;
+    }
+
+    $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    $monto_inicial = isset($_POST['monto_inicial']) ? floatval($_POST['monto_inicial']) : 0.0;
+
+    if ($monto_inicial < 0) {
+        echo json_encode(['status' => 'error', 'message' => 'El monto de apertura no puede ser negativo']);
+        exit;
+    }
+
+    $id_cierre = abrirTurnoCaja($conexion, $id_usuario, $monto_inicial);
+    if ($id_cierre) {
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Apertura de caja iniciada con éxito',
+            'monto_inicial' => $monto_inicial
+        ]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Error al registrar la apertura de caja']);
+    }
+    exit;
+}
+
 elseif ($action === 'obtener_arqueo_hoy') {
     $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
-    $cierre = obtenerUltimoCierreCajaHoy($conexion, $id_usuario);
-    if ($cierre) {
-        echo json_encode(['status' => 'success', 'registrado' => true, 'data' => $cierre]);
+    $abierto = obtenerTurnoCajaAbierto($conexion, $id_usuario);
+    if ($abierto) {
+        echo json_encode([
+            'status' => 'success',
+            'registrado' => false,
+            'monto_inicial' => floatval($abierto['monto_inicial'])
+        ]);
     } else {
-        echo json_encode(['status' => 'success', 'registrado' => false]);
+        $cierre = obtenerUltimoCierreCajaHoy($conexion, $id_usuario);
+        if ($cierre) {
+            echo json_encode([
+                'status' => 'success',
+                'registrado' => true,
+                'data' => $cierre,
+                'monto_inicial' => floatval($cierre['monto_inicial'])
+            ]);
+        } else {
+            echo json_encode(['status' => 'success', 'registrado' => false, 'monto_inicial' => 1000.00]);
+        }
     }
     exit;
 }

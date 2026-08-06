@@ -314,6 +314,39 @@ function inicializarTablaCierresCaja(mysqli $conexion) {
     }
 }
 
+function obtenerTurnoCajaAbierto(mysqli $conexion, int $id_usuario) {
+    inicializarTablaCierresCaja($conexion);
+    $id_usuario = intval($id_usuario);
+    $query = "SELECT * FROM cierres_caja 
+              WHERE id_usuario = $id_usuario AND estado = 'Abierto' 
+              ORDER BY id_cierre DESC LIMIT 1";
+    $res = mysqli_query($conexion, $query);
+    if ($res && $row = mysqli_fetch_assoc($res)) {
+        return $row;
+    }
+    return null;
+}
+
+function abrirTurnoCaja(mysqli $conexion, int $id_usuario, float $monto_inicial) {
+    inicializarTablaCierresCaja($conexion);
+    $id_usuario = intval($id_usuario);
+    $monto_inicial = floatval($monto_inicial);
+
+    $existente = obtenerTurnoCajaAbierto($conexion, $id_usuario);
+    if ($existente) {
+        $id_cierre = intval($existente['id_cierre']);
+        mysqli_query($conexion, "UPDATE cierres_caja SET monto_inicial = $monto_inicial WHERE id_cierre = $id_cierre");
+        return $id_cierre;
+    }
+
+    $query = "INSERT INTO cierres_caja (id_usuario, fecha_apertura, monto_inicial, estado) 
+              VALUES ($id_usuario, NOW(), $monto_inicial, 'Abierto')";
+    if (mysqli_query($conexion, $query)) {
+        return mysqli_insert_id($conexion);
+    }
+    return false;
+}
+
 function registrarCierreCaja(mysqli $conexion, int $id_usuario, float $monto_inicial, float $monto_final, float $monto_esperado, float $diferencia, array $denominaciones) {
     inicializarTablaCierresCaja($conexion);
     $id_usuario = intval($id_usuario);
@@ -323,12 +356,26 @@ function registrarCierreCaja(mysqli $conexion, int $id_usuario, float $monto_ini
     $diferencia = floatval($diferencia);
     $denom_json = mysqli_real_escape_string($conexion, json_encode($denominaciones));
 
-    $query = "INSERT INTO cierres_caja 
-                (id_usuario, fecha_apertura, fecha_cierre, monto_inicial, monto_final, monto_esperado, diferencia, denominaciones, estado) 
-              VALUES 
-                ($id_usuario, CURDATE(), NOW(), $monto_inicial, $monto_final, $monto_esperado, $diferencia, '$denom_json', 'Cerrado')";
-
-    return mysqli_query($conexion, $query);
+    $abierto = obtenerTurnoCajaAbierto($conexion, $id_usuario);
+    if ($abierto) {
+        $id_cierre = intval($abierto['id_cierre']);
+        $query = "UPDATE cierres_caja 
+                  SET fecha_cierre = NOW(), 
+                      monto_inicial = $monto_inicial, 
+                      monto_final = $monto_final, 
+                      monto_esperado = $monto_esperado, 
+                      diferencia = $diferencia, 
+                      denominaciones = '$denom_json', 
+                      estado = 'Cerrado' 
+                  WHERE id_cierre = $id_cierre";
+        return mysqli_query($conexion, $query);
+    } else {
+        $query = "INSERT INTO cierres_caja 
+                    (id_usuario, fecha_apertura, fecha_cierre, monto_inicial, monto_final, monto_esperado, diferencia, denominaciones, estado) 
+                  VALUES 
+                    ($id_usuario, NOW(), NOW(), $monto_inicial, $monto_final, $monto_esperado, $diferencia, '$denom_json', 'Cerrado')";
+        return mysqli_query($conexion, $query);
+    }
 }
 
 function obtenerUltimoCierreCajaHoy(mysqli $conexion, int $id_usuario) {

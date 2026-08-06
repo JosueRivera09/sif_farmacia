@@ -4,6 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../models/ventas/TicketModel.php';
+
+$id_usuario_actual = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+$turnoAbierto = obtenerTurnoCajaAbierto($conexion, $id_usuario_actual);
+$aperturaCaja = ($turnoAbierto) ? floatval($turnoAbierto['monto_inicial']) : 1000.00;
 
 // Consultar ventas reales cobradas hoy por este cajero (o en general)
 $querySales = "SELECT SUM(total) as total_ventas, COUNT(*) as total_tickets 
@@ -18,7 +23,6 @@ if ($resSales && $row = mysqli_fetch_assoc($resSales)) {
     $totalTicketsHoy = isset($row['total_tickets']) ? intval($row['total_tickets']) : 0;
 }
 
-$aperturaCaja = 1000.00; // Fondo fijo de apertura de caja por defecto
 $totalEsperado = $aperturaCaja + $totalVentasHoy;
 ?>
 <div class="row g-4">
