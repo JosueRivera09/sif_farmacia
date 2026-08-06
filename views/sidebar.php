@@ -29,7 +29,7 @@ if ($current_dir === 'Interfaz_admin' || $current_file === 'admin_dashboard.php'
 }
 
 // Función auxiliar para obtener el enlace de regreso según el rol
-function obtenerLinkVolver($rol)
+function obtenerLinkVolver(string $rol)
 {
     switch ($rol) {
         case 'Administrador':
