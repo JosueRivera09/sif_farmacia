@@ -17,7 +17,7 @@ class Lote {
     }
 
     public static function obtenerLotesPorVencer(mysqli $conexion) {
-        $query = "SELECT COUNT(*) as total_vencer FROM lotes WHERE fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
+        $query = "SELECT COUNT(*) as total_vencer FROM lotes WHERE fecha_vencimiento > CURDATE() AND fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)";
         $resultado = mysqli_query($conexion, $query);
         if ($resultado && $fila = mysqli_fetch_assoc($resultado)) {
             return intval($fila['total_vencer']);
@@ -85,7 +85,7 @@ class Lote {
         $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, l.cantidad_unidades_recibidas, l.cantidad_unidades_recibidas AS cantidad_recibida, l.fecha_vencimiento, p.unidad_minima, p.unidad_minima AS unidad_medida
                   FROM lotes l
                   JOIN productos p ON l.id_producto = p.id_producto
-                  WHERE l.fecha_vencimiento < CURDATE()
+                  WHERE l.fecha_vencimiento <= CURDATE()
                   ORDER BY l.fecha_vencimiento ASC";
         $res = mysqli_query($conexion, $query);
         if ($res) {
@@ -107,10 +107,10 @@ class Lote {
         $res = mysqli_query($conexion, "SELECT COUNT(*) as total FROM lotes");
         if ($res && $row = mysqli_fetch_assoc($res)) $resumen['total_lotes'] = intval($row['total']);
 
-        $res = mysqli_query($conexion, "SELECT COUNT(*) as total FROM lotes WHERE fecha_vencimiento < CURDATE()");
+        $res = mysqli_query($conexion, "SELECT COUNT(*) as total FROM lotes WHERE fecha_vencimiento <= CURDATE()");
         if ($res && $row = mysqli_fetch_assoc($res)) $resumen['total_vencidos'] = intval($row['total']);
 
-        $res = mysqli_query($conexion, "SELECT COUNT(*) as total FROM lotes WHERE fecha_vencimiento >= CURDATE() AND fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)");
+        $res = mysqli_query($conexion, "SELECT COUNT(*) as total FROM lotes WHERE fecha_vencimiento > CURDATE() AND fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)");
         if ($res && $row = mysqli_fetch_assoc($res)) $resumen['total_por_vencer'] = intval($row['total']);
 
         $res = mysqli_query($conexion, "SELECT COUNT(*) as total FROM productos WHERE stock_actual <= stock_minimo");

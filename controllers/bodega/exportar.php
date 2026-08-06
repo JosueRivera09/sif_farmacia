@@ -76,7 +76,7 @@ if ($format === 'excel') {
         $diff = strtotime($fecha_vencimiento) - strtotime($hoy);
         $dias = round($diff / (60 * 60 * 24));
         
-        if ($dias < 0) {
+        if ($dias <= 0) {
             $estado = 'Vencido';
         } elseif ($dias <= 30) {
             $estado = 'Próximo a Vencer';
@@ -209,7 +209,7 @@ if ($format === 'excel') {
         $dias = round($diff / (60 * 60 * 24));
         
         // Colores para estados
-        if ($dias < 0) {
+        if ($dias <= 0) {
             $estado = 'Vencido';
             $bgEstado = [254, 226, 226]; // Rojo Claro
             $textEstado = [220, 38, 38]; // Rojo Fuerte

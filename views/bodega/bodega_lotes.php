@@ -240,7 +240,7 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                                 $diff = strtotime($fecha_vencimiento) - strtotime($hoy);
                                                 $dias = round($diff / (60 * 60 * 24));
 
-                                                if ($dias < 0) {
+                                                if ($dias <= 0) {
                                                     $estado = 'Vencido';
                                                     $badge_class = 'badge-vencido';
                                                 } elseif ($dias <= 30) {
