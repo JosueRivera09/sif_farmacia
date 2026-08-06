@@ -82,8 +82,11 @@
 </div>
 
 <div class="custom-card mt-4">
-    <div class="border-bottom border-secondary pb-2 mb-3">
-        <h6 class="card-title-custom mb-0">Mis Tickets de Venta (Últimos 20)</h6>
+    <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
+        <h6 class="card-title-custom mb-0" id="titulo-seccion-tickets">Mis Tickets de Venta (Últimos 20)</h6>
+        <button id="btn-imprimir-todos-tickets" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-3" style="font-size: 12px;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir Lista de Tickets
+        </button>
     </div>
     <div class="table-responsive">
         <table class="table table-custom">
@@ -91,9 +94,9 @@
                 <tr>
                     <th style="color: #94a3b8;">N° Ticket</th>
                     <th style="color: #94a3b8;">Fecha y Hora</th>
+                    <th style="color: #94a3b8;">Vendedor / Usuario</th>
                     <th style="color: #94a3b8; text-align: right;">Total</th>
                     <th style="color: #94a3b8; text-align: center;">Estado</th>
-                    <th style="color: #94a3b8; text-align: center;">Acción</th>
                 </tr>
             </thead>
             <tbody id="vendedor-tickets-tbody">
@@ -194,15 +197,25 @@
             .catch(err => console.error("Error al cargar métricas de resumen:", err));
     }
 
+    let rawTicketsResponse = null;
+
     function cargarMisTickets() {
         fetch('../../controllers/vendedor/VentaController.php?action=mis_tickets')
             .then(res => res.json())
             .then(response => {
                 if (response.status === 'success') {
-                    const tickets = response.data;
+                    rawTicketsResponse = response;
+                    const tickets = response.data || [];
+                    const esAdmin = response.es_admin;
+                    
+                    const tituloEl = document.getElementById('titulo-seccion-tickets');
+                    if (tituloEl) {
+                        tituloEl.innerText = esAdmin ? 'Tickets de Venta del Sistema (Todos)' : 'Mis Tickets de Venta (Últimos 20)';
+                    }
+
                     const tbody = document.getElementById('vendedor-tickets-tbody');
                     if (tickets.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No has generado tickets de venta.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No hay tickets registrados para mostrar.</td></tr>`;
                         return;
                     }
                     
@@ -223,14 +236,10 @@
                             <tr>
                                 <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
                                 <td class="text-light">${fecha} ${hora}</td>
+                                <td class="text-light">${t.nombre_vendedor || response.nombre_usuario_actual}</td>
                                 <td class="text-end font-monospace text-success fw-bold">C$ ${parseFloat(t.total).toFixed(2)}</td>
                                 <td class="text-center">
                                     <span class="badge ${badgeClass} px-3 py-1">${estadoTexto}</span>
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-success p-1 px-2 d-inline-flex align-items-center gap-1" onclick="window.verTicketResumen('${t.codigo_ticket}')">
-                                        <span class="material-symbols-outlined" style="font-size:16px;">print</span> Ver / Imprimir
-                                    </button>
                                 </td>
                             </tr>
                         `;
@@ -242,6 +251,119 @@
                 console.error("Error al cargar tickets del vendedor:", err);
                 document.getElementById('vendedor-tickets-tbody').innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Error al cargar tickets</td></tr>`;
             });
+    }
+
+    const btnImprimirTodos = document.getElementById('btn-imprimir-todos-tickets');
+    if (btnImprimirTodos) {
+        btnImprimirTodos.addEventListener('click', function() {
+            if (!rawTicketsResponse || !rawTicketsResponse.data || rawTicketsResponse.data.length === 0) {
+                alert("No hay tickets registrados para imprimir.");
+                return;
+            }
+
+            const tickets = rawTicketsResponse.data;
+            const esAdmin = rawTicketsResponse.es_admin;
+            const usuarioActual = rawTicketsResponse.nombre_usuario_actual || 'Usuario';
+            const rolActual = rawTicketsResponse.rol_usuario_actual || 'Vendedor';
+            const fechaEmision = new Date().toLocaleString();
+
+            let tituloReporte = "Lista de Tickets de Venta Generados (Mis Tickets)";
+            let alcanceReporte = `Tickets generados por el vendedor: ${usuarioActual}`;
+            if (esAdmin) {
+                tituloReporte = "Lista General de Todo lo Vendido en el Sistema (Todos los Vendedores)";
+                alcanceReporte = "Consolidado total de tickets generados por todos los usuarios del sistema";
+            }
+
+            let totalMonto = 0;
+            let filasHTML = '';
+            tickets.forEach(t => {
+                const dateObj = new Date(t.fecha_creacion);
+                const fechaHora = dateObj.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+                const monto = parseFloat(t.total);
+                totalMonto += monto;
+                filasHTML += `
+                    <tr>
+                        <td>${fechaHora}</td>
+                        <td><strong>${t.codigo_ticket}</strong></td>
+                        <td>${t.nombre_vendedor || usuarioActual}</td>
+                        <td>${t.nombre_cliente || 'Cliente Final'}</td>
+                        <td class="text-center">
+                            <span class="badge ${t.estado === 'Pagado' ? 'bg-success' : 'bg-warning text-dark'}">${t.estado}</span>
+                        </td>
+                        <td class="text-end fw-bold">C$ ${monto.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            const win = window.open('', '_blank', 'width=800,height=750');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="utf-8">
+                    <title>${tituloReporte}</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <style>
+                        body { font-family: sans-serif; font-size: 13px; padding: 25px; color: #1e293b; }
+                        .header-reporte { border-bottom: 2px solid #10b981; padding-bottom: 12px; margin-bottom: 20px; }
+                        .table-reporte th { background-color: #f1f5f9; text-transform: uppercase; font-size: 11px; font-weight: 700; color: #475569; }
+                        .resumen-card { background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin-top: 20px; }
+                        @media print {
+                            body { padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header-reporte d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="fw-bold mb-1" style="color: #0f172a;">SISTEMA SIF - FARMACIA</h3>
+                            <h5 class="text-success fw-bold mb-0">${tituloReporte}</h5>
+                        </div>
+                        <div class="text-end" style="font-size: 12px; color: #64748b;">
+                            <p class="mb-1"><strong>Fecha emisión:</strong> ${fechaEmision}</p>
+                            <p class="mb-1"><strong>Generado por:</strong> ${usuarioActual} (${rolActual})</p>
+                            <p class="mb-0"><strong>Alcance:</strong> ${alcanceReporte}</p>
+                        </div>
+                    </div>
+
+                    <table class="table table-bordered align-middle table-reporte mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Código Ticket</th>
+                                <th>Vendedor / Usuario</th>
+                                <th>Cliente</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filasHTML}
+                        </tbody>
+                    </table>
+
+                    <div class="resumen-card d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 fw-bold">Total Transacciones: ${tickets.length} ticket(s)</p>
+                            <p class="mb-0 text-muted" style="font-size: 11px;">Documento oficial impreso desde el Panel de Ventas SIF</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-muted d-block" style="font-size: 11px; text-transform: uppercase;">Monto Total de Ventas</span>
+                            <h4 class="fw-bold text-success mb-0">C$ ${totalMonto.toFixed(2)}</h4>
+                        </div>
+                    </div>
+
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() { window.close(); }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        });
     }
 
     window.verTicketResumen = function(codigo) {

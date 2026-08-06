@@ -16,8 +16,18 @@ require_once __DIR__ . '/../../models/personas/Cliente.php';
 
 header('Content-Type: application/json');
 
-// Verificar sesión y rol
-if (!isset($_SESSION['id_usuario']) || !in_array($_SESSION['rol'], ['Vendedor', 'Administrador'])) {
+// Verificar sesión, rol y permisos extra
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso_ventas = (
+    isset($_SESSION['rol']) && (
+        $_SESSION['rol'] === 'Vendedor' ||
+        $_SESSION['rol'] === 'Administrador' ||
+        in_array('ventas', $permisos_extra) ||
+        in_array('vendedor', $permisos_extra)
+    )
+);
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso_ventas) {
     echo json_encode(['status' => 'error', 'message' => 'No autorizado']);
     exit;
 }
@@ -198,14 +208,22 @@ elseif ($action === 'vender') {
 }
 
 elseif ($action === 'mis_tickets') {
+    $es_admin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador');
     $id_vendedor = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
-    if ($id_vendedor <= 0) {
-        echo json_encode(['status' => 'error', 'message' => 'Vendedor no identificado']);
-        exit;
+    
+    if ($es_admin) {
+        $tickets = obtenerTodosLosTickets($conexion);
+    } else {
+        $tickets = obtenerTicketsPorVendedor($conexion, $id_vendedor);
     }
 
-    $tickets = obtenerTicketsPorVendedor($conexion, $id_vendedor);
-    echo json_encode(['status' => 'success', 'data' => $tickets]);
+    echo json_encode([
+        'status' => 'success',
+        'es_admin' => $es_admin,
+        'nombre_usuario_actual' => isset($_SESSION['nombre_usuario']) ? $_SESSION['nombre_usuario'] : 'Usuario',
+        'rol_usuario_actual' => isset($_SESSION['rol']) ? $_SESSION['rol'] : 'Vendedor',
+        'data' => $tickets
+    ]);
     exit;
 }
 

@@ -243,11 +243,31 @@ function obtenerTicketsPendientesHoy(mysqli $conexion) {
 function obtenerTicketsPorVendedor(mysqli $conexion, int $id_vendedor) {
     inicializarTablasTickets($conexion);
     $id_vendedor = intval($id_vendedor);
-    $query = "SELECT codigo_ticket, total, estado, fecha_creacion 
-              FROM tickets 
-              WHERE id_vendedor = $id_vendedor 
-              ORDER BY id_ticket DESC 
+    $query = "SELECT t.codigo_ticket, t.total, t.estado, t.fecha_creacion, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
+              FROM tickets t 
+              LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
+              LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
+              WHERE t.id_vendedor = $id_vendedor 
+              ORDER BY t.id_ticket DESC 
               LIMIT 20";
+    $res = mysqli_query($conexion, $query);
+    $tickets = [];
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $tickets[] = $row;
+        }
+    }
+    return $tickets;
+}
+
+function obtenerTodosLosTickets(mysqli $conexion) {
+    inicializarTablasTickets($conexion);
+    $query = "SELECT t.codigo_ticket, t.total, t.estado, t.fecha_creacion, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente 
+              FROM tickets t 
+              LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
+              LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
+              ORDER BY t.id_ticket DESC 
+              LIMIT 50";
     $res = mysqli_query($conexion, $query);
     $tickets = [];
     if ($res) {

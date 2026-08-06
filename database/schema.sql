@@ -826,7 +826,7 @@ CREATE TRIGGER `actualizar_stock_nuevo_lote` AFTER INSERT ON `lotes` FOR EACH RO
 END
 $$
 
-DELIMITER;
+DELIMITER ;
 
 SET FOREIGN_KEY_CHECKS = 1;
 

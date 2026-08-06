@@ -2,8 +2,17 @@
 session_start();
 require_once __DIR__ . '/../../config/conexion.php';
 
-// Verificar si hay sesión iniciada
-if (!isset($_SESSION['id_usuario'])) {
+// Verificar sesión y permisos
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso_bodega = (
+    isset($_SESSION['rol']) && (
+        $_SESSION['rol'] === 'Bodega' ||
+        $_SESSION['rol'] === 'Administrador' ||
+        in_array('bodega', $permisos_extra)
+    )
+);
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso_bodega) {
     header("Location: ../../views/login.php");
     exit;
 }

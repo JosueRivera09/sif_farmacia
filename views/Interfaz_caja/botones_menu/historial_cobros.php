@@ -2,18 +2,9 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
         <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cobros (Hoy)</h6>
 
-        <div class="d-flex align-items-center gap-2">
-            <div id="wrapper-filtro-admin-historial" class="d-none">
-                <select id="select-filtro-admin-historial" class="form-select form-select-sm border-secondary text-dark bg-white" style="font-size: 12px; width: 180px; cursor: pointer;">
-                    <option value="todos" selected>Todo lo Vendido (Admin)</option>
-                    <option value="mis_ventas">Solo Mis Ventas</option>
-                </select>
-            </div>
-
-            <button id="btn-imprimir-reporte-cobros" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-3" style="font-size: 12px;">
-                <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir Historial
-            </button>
-        </div>
+        <button id="btn-imprimir-reporte-cobros" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-3" style="font-size: 12px;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir Lista de Ventas
+        </button>
     </div>
 
     <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
@@ -26,12 +17,11 @@
                     <th style="color: #94a3b8;">Cliente</th>
                     <th style="color: #94a3b8; text-align: right;">Total Cobrado</th>
                     <th style="color: #94a3b8; text-align: center;">Estado</th>
-                    <th style="color: #94a3b8; text-align: center;">Acción</th>
                 </tr>
             </thead>
             <tbody id="historial-cobros-tbody">
                 <tr>
-                    <td colspan="7" class="text-center py-5 text-muted">
+                    <td colspan="6" class="text-center py-5 text-muted">
                         <div class="spinner-border text-success mb-3" role="status"></div><br>
                         Cargando historial de cobros...
                     </td>
@@ -44,8 +34,6 @@
 <script>
     {
         const tbodyHistorial = document.getElementById('historial-cobros-tbody');
-        const wrapperAdminFiltro = document.getElementById('wrapper-filtro-admin-historial');
-        const selectAdminFiltro = document.getElementById('select-filtro-admin-historial');
         const btnImprimirReporte = document.getElementById('btn-imprimir-reporte-cobros');
 
         let datosHistorialRaw = null;
@@ -56,51 +44,43 @@
                 .then(response => {
                     if (response.status === 'success') {
                         datosHistorialRaw = response;
-
-                        // Mostrar u ocultar selector de filtro según si es admin
-                        if (response.es_admin) {
-                            wrapperAdminFiltro.classList.remove('d-none');
-                        } else {
-                            wrapperAdminFiltro.classList.add('d-none');
-                        }
-
                         renderHistorial();
                     } else {
-                        tbodyHistorial.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">Error: ${response.message}</td></tr>`;
+                        tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Error: ${response.message}</td></tr>`;
                     }
                 })
                 .catch(err => {
                     console.error("Error al cargar historial de cobros:", err);
-                    tbodyHistorial.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">Ocurrió un error al cargar los datos.</td></tr>`;
+                    tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Ocurrió un error al cargar los datos.</td></tr>`;
                 });
         }
 
-        function obtenerVentasFiltradas() {
+        function obtenerVentasSegunRol() {
             if (!datosHistorialRaw || !datosHistorialRaw.data) return [];
 
             const tickets = datosHistorialRaw.data;
             const esAdmin = datosHistorialRaw.es_admin;
             const idUsuarioActual = datosHistorialRaw.id_usuario_actual;
-            const filtroVal = selectAdminFiltro ? selectAdminFiltro.value : 'todos';
 
-            if (esAdmin && filtroVal === 'todos') {
+            if (esAdmin) {
+                // Administrador ve y puede imprimir todo lo vendido por todos los usuarios
                 return tickets;
             } else {
-                // Si no es admin o seleccionó "mis_ventas", filtrar solo las ventas hechas por este usuario
+                // Rol diferente de administrador solo ve e imprime lo que él vendió
                 return tickets.filter(t => parseInt(t.id_vendedor) === parseInt(idUsuarioActual));
             }
         }
 
         function renderHistorial() {
-            const ticketsFiltrados = obtenerVentasFiltradas();
+            const tickets = obtenerVentasSegunRol();
 
-            if (ticketsFiltrados.length === 0) {
-                tbodyHistorial.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5"><span class="material-symbols-outlined d-block fs-1 mb-2" style="opacity: 0.4;">receipt_long</span>No hay cobros registrados para mostrar con el filtro actual.</td></tr>`;
+            if (tickets.length === 0) {
+                tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5"><span class="material-symbols-outlined d-block fs-1 mb-2" style="opacity: 0.4;">receipt_long</span>No hay cobros registrados para mostrar.</td></tr>`;
                 return;
             }
 
             let html = '';
-            ticketsFiltrados.forEach(t => {
+            tickets.forEach(t => {
                 const hora = new Date(t.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const cliente = t.nombre_cliente ? t.nombre_cliente : 'Cliente Ocasional';
 
@@ -114,42 +94,33 @@
                     <td class="text-center">
                         <span class="badge bg-success-box text-success px-3 py-1">Pagado</span>
                     </td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-outline-success p-1 px-2 d-inline-flex align-items-center gap-1" onclick="window.imprimirTicketIndividualCobros('${t.codigo_ticket}')" title="Imprimir Ticket">
-                            <span class="material-symbols-outlined" style="font-size:16px;">print</span> Ticket
-                        </button>
-                    </td>
                 </tr>
             `;
             });
             tbodyHistorial.innerHTML = html;
         }
 
-        if (selectAdminFiltro) {
-            selectAdminFiltro.addEventListener('change', renderHistorial);
-        }
-
         if (btnImprimirReporte) {
             btnImprimirReporte.addEventListener('click', function() {
                 if (!datosHistorialRaw) return;
 
-                const ventasAImprimir = obtenerVentasFiltradas();
+                const ventasAImprimir = obtenerVentasSegunRol();
                 if (ventasAImprimir.length === 0) {
-                    alert('No hay ventas cobradas registradas para imprimir con el filtro actual.');
+                    alert('No hay ventas registradas para imprimir.');
                     return;
                 }
 
                 const esAdmin = datosHistorialRaw.es_admin;
-                const filtroVal = selectAdminFiltro ? selectAdminFiltro.value : 'todos';
                 const usuarioActual = datosHistorialRaw.nombre_usuario_actual;
                 const rolActual = datosHistorialRaw.rol_usuario_actual;
                 const fechaActual = new Date().toLocaleString();
 
-                let tituloReporte = "Reporte de Ventas Realizadas (Mis Ventas)";
-                let alcanceReporte = `Solo ventas procesadas por ${usuarioActual}`;
-                if (esAdmin && filtroVal === 'todos') {
-                    tituloReporte = "Reporte General de Ventas Cobradas (Todo lo Vendido)";
-                    alcanceReporte = "Todo lo vendido en el sistema (Consolidado Administrador)";
+                let tituloReporte = "Lista de Ventas Realizadas por Usuario";
+                let alcanceReporte = `Ventas procesadas por el usuario: ${usuarioActual}`;
+                
+                if (esAdmin) {
+                    tituloReporte = "Lista General de Todo lo Vendido en el Sistema";
+                    alcanceReporte = "Consolidado total de ventas realizadas por todos los usuarios";
                 }
 
                 let totalMonto = 0;
@@ -217,11 +188,11 @@
 
                         <div class="resumen-card d-flex justify-content-between align-items-center">
                             <div>
-                                <p class="mb-1 fw-bold">Total Transacciones: ${ventasAImprimir.length} venta(s)</p>
-                                <p class="mb-0 text-muted" style="font-size: 11px;">Documento oficial generado desde la Interfaz de Caja SIF</p>
+                                <p class="mb-1 fw-bold">Total Registros: ${ventasAImprimir.length} ticket(s)</p>
+                                <p class="mb-0 text-muted" style="font-size: 11px;">Documento oficial generado desde el Historial de Cobros</p>
                             </div>
                             <div class="text-end">
-                                <span class="text-muted d-block" style="font-size: 11px; text-transform: uppercase;">Recaudación Total</span>
+                                <span class="text-muted d-block" style="font-size: 11px; text-transform: uppercase;">Monto Total Recaudado</span>
                                 <h4 class="fw-bold text-success mb-0">C$ ${totalMonto.toFixed(2)}</h4>
                             </div>
                         </div>
@@ -238,94 +209,6 @@
                 win.document.close();
             });
         }
-
-        // Función global para imprimir un ticket individual desde la tabla de cobros
-        window.imprimirTicketIndividualCobros = function(codigo) {
-            fetch(`../../controllers/caja/CajaController.php?action=ver_ticket&codigo=${codigo}`)
-                .then(res => res.json())
-                .then(response => {
-                    if (response.status === 'success') {
-                        const data = response.data;
-                        const win = window.open('', '_blank', 'width=500,height=700');
-                        
-                        let itemsHtml = '';
-                        if (data.items && data.items.length > 0) {
-                            data.items.forEach(item => {
-                                const subt = parseFloat(item.precio_unitario) * parseInt(item.cantidad);
-                                itemsHtml += `
-                                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                                        <span>${item.nombre_commercial || 'Producto'} x${item.cantidad} (${item.nombre_empaque || 'Unidad'})</span>
-                                        <span>C$ ${subt.toFixed(2)}</span>
-                                    </div>
-                                `;
-                            });
-                        } else {
-                            itemsHtml = '<div class="text-muted text-center py-2">Sin detalles de productos</div>';
-                        }
-
-                        win.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Factura - ${data.codigo_ticket}</title>
-                                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                                <style>
-                                    body { font-family: monospace; font-size: 12px; margin: 0 auto; padding: 15px; max-width: 80mm; }
-                                    hr { border-top: 1px dashed #000; }
-                                    @media print {
-                                        body { max-width: 80mm; padding: 0; }
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="text-center mb-2">
-                                    <h5 class="m-0 fw-bold">SISTEMA SIF - FARMACIA</h5>
-                                    <p class="text-muted m-0" style="font-size: 10px;">COMPROBANTE DE PAGO / FACTURA</p>
-                                    <h4 class="m-0 fw-bold mt-1">${data.codigo_ticket}</h4>
-                                </div>
-                                <hr>
-                                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                                    <span>Fecha:</span> <span>${new Date(data.fecha_creacion).toLocaleString()}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                                    <span>Vendedor:</span> <span>${data.nombre_vendedor || 'Vendedor'}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                                    <span>Cliente:</span> <span>${data.nombre_cliente || 'Cliente Final'}</span>
-                                </div>
-                                <hr>
-                                <div>
-                                    ${itemsHtml}
-                                </div>
-                                <hr>
-                                <div class="d-flex justify-content-between fw-bold fs-6">
-                                    <span>TOTAL:</span> <span>C$ ${parseFloat(data.total).toFixed(2)}</span>
-                                </div>
-                                <hr class="my-3">
-                                <div class="text-center py-2" style="font-size: 10px; border: 1px dashed #333; border-radius: 4px;">
-                                    <p class="mb-3 text-muted">SELLO / FIRMA DE CAJA</p>
-                                    <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
-                                    <p class="m-0 mt-1 text-dark fw-bold" style="font-size: 9px;">PAGADO / CAJERO AUTORIZADO</p>
-                                </div>
-                                <script>
-                                    window.onload = function() {
-                                        window.print();
-                                        setTimeout(function(){ window.close(); }, 500);
-                                    };
-                                <\/script>
-                            </body>
-                            </html>
-                        `);
-                        win.document.close();
-                    } else {
-                        alert('Error al obtener los detalles del ticket: ' + response.message);
-                    }
-                })
-                .catch(err => {
-                    console.error("Error al imprimir ticket:", err);
-                    alert("No se pudo cargar la información del ticket.");
-                });
-        };
 
         // Inicializar carga
         cargarHistorialCobros();

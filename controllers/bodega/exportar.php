@@ -15,8 +15,17 @@
 
 session_start();
 
-// 1. Validar autenticación
-if (!isset($_SESSION['id_usuario'])) {
+// 1. Validar autenticación y permisos
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso_bodega = (
+    isset($_SESSION['rol']) && (
+        $_SESSION['rol'] === 'Bodega' ||
+        $_SESSION['rol'] === 'Administrador' ||
+        in_array('bodega', $permisos_extra)
+    )
+);
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso_bodega) {
     header("Location: ../../views/login.php");
     exit;
 }

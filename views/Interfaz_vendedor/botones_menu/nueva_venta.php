@@ -706,6 +706,9 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                         ticketOverlay.classList.remove('d-none');
                         ticketOverlay.style.setProperty('display', 'flex', 'important');
 
+                        // Mandar a imprimir de manera directa al generar el producto/ticket
+                        setTimeout(ejecutarImpresionDirectaTicket, 200);
+
                         cart = [];
                         selectedClientId = null;
                         selectedClientData = null;
@@ -727,6 +730,75 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
                 });
         });
 
+        function ejecutarImpresionDirectaTicket() {
+            const selectImpresora = document.getElementById('select-impresora-ticket');
+            const tipoImpresora = selectImpresora ? selectImpresora.value : 'pos80';
+            const codigoTicket = ticketCodeEl.innerText;
+            const fechaTicket = ticketDateEl.innerText;
+            const totalTicket = ticketTotalEl.innerText;
+            const itemsHtml = ticketItemsEl.innerHTML;
+            const clienteRowHtml = document.getElementById('ticket-generated-client-row').style.display !== 'none' ? document.getElementById('ticket-generated-client-row').outerHTML : '';
+
+            let widthCss = '80mm';
+            if (tipoImpresora === 'pos58') widthCss = '58mm';
+            if (tipoImpresora === 'laser') widthCss = '100%';
+
+            const win = window.open('', '_blank', 'width=600,height=700');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Factura Ticket - ${codigoTicket}</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <style>
+                        body { font-family: monospace; font-size: 12px; margin: 0 auto; padding: 15px; max-width: ${widthCss}; }
+                        hr { border-top: 1px dashed #000; }
+                        @media print {
+                            body { max-width: ${widthCss}; padding: 0; }
+                            button { display: none !important; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="text-center mb-2">
+                        <h5 class="m-0 fw-bold">SISTEMA SIF - FARMACIA</h5>
+                        <p class="text-muted m-0" style="font-size: 10px;">PRE-VENTA / FACTURA</p>
+                        <h4 class="m-0 fw-bold mt-1">${codigoTicket}</h4>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                        <span>Fecha:</span> <span>${fechaTicket}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                        <span>Vendedor:</span> <span>${'<?php echo $nombre_vendedor; ?>'}</span>
+                    </div>
+                    ${clienteRowHtml}
+                    <hr>
+                    <div style="font-size: 11px;">
+                        ${itemsHtml}
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold fs-6">
+                        <span>TOTAL:</span> <span>${totalTicket}</span>
+                    </div>
+                    <hr class="my-3">
+                    <div class="text-center py-2" style="font-size: 10px; border: 1px dashed #333; border-radius: 4px;">
+                        <p class="mb-3 text-muted">SELLO / FIRMA DE CAJA</p>
+                        <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
+                        <p class="m-0 mt-1 text-dark fw-bold" style="font-size: 9px;">CAJERO AUTORIZADO</p>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function(){ window.close(); }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
         btnCloseModal.addEventListener('click', function() {
             ticketOverlay.classList.add('d-none');
             ticketOverlay.style.setProperty('display', 'none', 'important');
@@ -734,73 +806,7 @@ $nombre_vendedor = isset($_SESSION['nombre_usuario']) ? htmlspecialchars($_SESSI
 
         const btnImprimirTicket = document.getElementById('btn-imprimir-ticket-modal');
         if (btnImprimirTicket) {
-            btnImprimirTicket.addEventListener('click', function() {
-                const tipoImpresora = document.getElementById('select-impresora-ticket').value;
-                const codigoTicket = ticketCodeEl.innerText;
-                const fechaTicket = ticketDateEl.innerText;
-                const totalTicket = ticketTotalEl.innerText;
-                const itemsHtml = ticketItemsEl.innerHTML;
-                const clienteRowHtml = document.getElementById('ticket-generated-client-row').style.display !== 'none' ? document.getElementById('ticket-generated-client-row').outerHTML : '';
-
-                let widthCss = '80mm';
-                if (tipoImpresora === 'pos58') widthCss = '58mm';
-                if (tipoImpresora === 'laser') widthCss = '100%';
-
-                const win = window.open('', '_blank', 'width=600,height=700');
-                win.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Factura Ticket - ${codigoTicket}</title>
-                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                        <style>
-                            body { font-family: monospace; font-size: 12px; margin: 0 auto; padding: 15px; max-width: ${widthCss}; }
-                            hr { border-top: 1px dashed #000; }
-                            @media print {
-                                body { max-width: ${widthCss}; padding: 0; }
-                                button { display: none !important; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="text-center mb-2">
-                            <h5 class="m-0 fw-bold">SISTEMA SIF - FARMACIA</h5>
-                            <p class="text-muted m-0" style="font-size: 10px;">PRE-VENTA / FACTURA</p>
-                            <h4 class="m-0 fw-bold mt-1">${codigoTicket}</h4>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                            <span>Fecha:</span> <span>${fechaTicket}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                            <span>Vendedor:</span> <span>${'<?php echo $nombre_vendedor; ?>'}</span>
-                        </div>
-                        ${clienteRowHtml}
-                        <hr>
-                        <div style="font-size: 11px;">
-                            ${itemsHtml}
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between fw-bold fs-6">
-                            <span>TOTAL:</span> <span>${totalTicket}</span>
-                        </div>
-                        <hr class="my-3">
-                        <div class="text-center py-2" style="font-size: 10px; border: 1px dashed #333; border-radius: 4px;">
-                            <p class="mb-3 text-muted">SELLO / FIRMA DE CAJA</p>
-                            <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
-                            <p class="m-0 mt-1 text-dark fw-bold" style="font-size: 9px;">CAJERO AUTORIZADO</p>
-                        </div>
-                        <script>
-                            window.onload = function() {
-                                window.print();
-                                setTimeout(function(){ window.close(); }, 500);
-                            };
-                        <\/script>
-                    </body>
-                    </html>
-                `);
-                win.document.close();
-            });
+            btnImprimirTicket.addEventListener('click', ejecutarImpresionDirectaTicket);
         }
 
         cargarProductosParaVenta();

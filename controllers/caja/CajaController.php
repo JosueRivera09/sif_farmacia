@@ -8,8 +8,18 @@ require_once __DIR__ . '/../../models/ventas/TicketModel.php';
 
 header('Content-Type: application/json');
 
-// Verificar sesión y rol (Cajero o Administrador pueden cobrar)
-if (!isset($_SESSION['id_usuario']) || ($_SESSION['rol'] !== 'Cajero' && $_SESSION['rol'] !== 'Administrador')) {
+// Verificar sesión, rol y permisos extra (Cajero, Administrador o permiso extra a caja)
+$permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$tiene_acceso_caja = (
+    isset($_SESSION['rol']) && (
+        $_SESSION['rol'] === 'Cajero' ||
+        $_SESSION['rol'] === 'Administrador' ||
+        in_array('caja', $permisos_extra) ||
+        in_array('cajero', $permisos_extra)
+    )
+);
+
+if (!isset($_SESSION['id_usuario']) || !$tiene_acceso_caja) {
     echo json_encode(['status' => 'error', 'message' => 'No autorizado']);
     exit;
 }

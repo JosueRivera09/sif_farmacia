@@ -81,6 +81,9 @@ switch ($action) {
             $exito = Usuario::actualizarUsuario($conexion, $id_usuario, $nombre_usuario, $rol, $clave_acceso);
             if ($exito) {
                 Usuario::actualizarPermisosExtra($conexion, $id_usuario, $permisos_extra);
+                if (isset($_SESSION['id_usuario']) && intval($_SESSION['id_usuario']) === $id_usuario) {
+                    $_SESSION['permisos_extra'] = Usuario::obtenerPermisosExtra($conexion, $id_usuario);
+                }
                 echo json_encode(['status' => 'success', 'message' => 'Usuario actualizado correctamente.']);
             } else {
                 http_response_code(500);
