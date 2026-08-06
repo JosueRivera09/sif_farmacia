@@ -327,9 +327,7 @@
             .then(res => res.json())
             .then(response => {
                 if (response.status === 'success') {
-                    const ticketAImprimir = loadedTicket;
                     alert('¡Cobro Procesado Exitosamente!\nStock actualizado en el inventario.');
-                    imprimirComprobantePagoDirecto(ticketAImprimir);
                     resetDetallesCaja();
                     cargarMetricasCaja();
                     cargarTicketsPendientesListado();
@@ -347,81 +345,6 @@
                 btnCobrar.innerHTML = `<span class="material-symbols-outlined">point_of_sale</span> Procesar Cobro`;
             });
     });
-
-    function imprimirComprobantePagoDirecto(ticket) {
-        if (!ticket) return;
-        const win = window.open('', '_blank', 'width=500,height=700');
-        
-        let itemsHtml = '';
-        if (ticket.items && ticket.items.length > 0) {
-            ticket.items.forEach(item => {
-                const subt = parseFloat(item.precio_unitario) * parseInt(item.cantidad);
-                itemsHtml += `
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                        <span>${item.nombre_commercial || 'Producto'} x${item.cantidad} (${item.nombre_empaque || 'Unidad'})</span>
-                        <span>C$ ${subt.toFixed(2)}</span>
-                    </div>
-                `;
-            });
-        } else {
-            itemsHtml = '<div class="text-muted text-center py-2">Sin detalles de productos</div>';
-        }
-
-        win.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Factura - ${ticket.codigo_ticket}</title>
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                <style>
-                    body { font-family: monospace; font-size: 12px; margin: 0 auto; padding: 15px; max-width: 80mm; }
-                    hr { border-top: 1px dashed #000; }
-                    @media print {
-                        body { max-width: 80mm; padding: 0; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="text-center mb-2">
-                    <h5 class="m-0 fw-bold">SISTEMA SIF - FARMACIA</h5>
-                    <p class="text-muted m-0" style="font-size: 10px;">COMPROBANTE DE PAGO / FACTURA</p>
-                    <h4 class="m-0 fw-bold mt-1">${ticket.codigo_ticket}</h4>
-                </div>
-                <hr>
-                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                    <span>Fecha:</span> <span>${new Date().toLocaleString()}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                    <span>Vendedor:</span> <span>${ticket.nombre_vendedor || 'Vendedor'}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                    <span>Cliente:</span> <span>${ticket.nombre_cliente || 'Cliente Final'}</span>
-                </div>
-                <hr>
-                <div>
-                    ${itemsHtml}
-                </div>
-                <hr>
-                <div class="d-flex justify-content-between fw-bold fs-6">
-                    <span>TOTAL:</span> <span>C$ ${parseFloat(ticket.total).toFixed(2)}</span>
-                </div>
-                <hr class="my-3">
-                <div class="text-center py-2" style="font-size: 10px; border: 1px dashed #333; border-radius: 4px;">
-                    <p class="mb-3 text-muted">SELLO / FIRMA DE CAJA</p>
-                    <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
-                    <p class="m-0 mt-1 text-dark fw-bold" style="font-size: 9px;">PAGADO / CAJERO AUTORIZADO</p>
-                </div>
-                <script>
-                    window.onload = function() {
-                        window.print();
-                        setTimeout(function(){ window.close(); }, 500);
-                    };
-                <\/script>
-            </body>
-            </html>
-        `);
-        win.document.close();
-    }
 
     function resetDetallesCaja() {
         loadedTicket = null;
