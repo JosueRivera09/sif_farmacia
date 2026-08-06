@@ -51,17 +51,41 @@ class DashboardModel
     }
 
     /**
-     * Obtiene el historial de las últimas 10 ventas pagadas
+     * Obtiene el historial de ventas pagadas con filtro de período y paginación
      */
-    public static function obtenerHistorialVentas(mysqli $conexion)
+    public static function obtenerHistorialVentas(mysqli $conexion, string $filtro = 'todos', int $offset = 0, int $limit = 10)
     {
         $ventas = [];
+        $whereFecha = "";
+
+        switch ($filtro) {
+            case 'dia':
+                $whereFecha = " AND DATE(t.fecha_creacion) = CURDATE()";
+                break;
+            case 'semana':
+                $whereFecha = " AND YEARWEEK(t.fecha_creacion, 1) = YEARWEEK(CURDATE(), 1)";
+                break;
+            case 'mes':
+                $whereFecha = " AND YEAR(t.fecha_creacion) = YEAR(CURDATE()) AND MONTH(t.fecha_creacion) = MONTH(CURDATE())";
+                break;
+            case 'anio':
+                $whereFecha = " AND YEAR(t.fecha_creacion) = YEAR(CURDATE())";
+                break;
+            case 'todos':
+            default:
+                $whereFecha = "";
+                break;
+        }
+
+        $offset = max(0, intval($offset));
+        $limit = max(1, intval($limit));
+
         $query = "SELECT t.codigo_ticket, t.total, t.fecha_creacion, c.nombre_completo as cliente
                   FROM tickets t
                   LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
-                  WHERE t.estado = 'Pagado'
+                  WHERE t.estado = 'Pagado' $whereFecha
                   ORDER BY t.id_ticket DESC
-                  LIMIT 10";
+                  LIMIT $offset, $limit";
         $res = mysqli_query($conexion, $query);
         if ($res) {
             while ($row = mysqli_fetch_assoc($res)) {

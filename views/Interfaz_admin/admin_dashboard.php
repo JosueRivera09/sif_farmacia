@@ -109,16 +109,28 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
             <div class="row g-4">
                 <div class="col-12 col-lg-8 d-flex flex-column gap-4">
                     <div class="custom-card height-historial">
-                        <div class="border-bottom border-secondary pb-2 mb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
                             <h6 class="card-title-custom mb-0">
-                                Historial de Ventas del Sistema <span class="text-muted fw-normal lowercase">(últimas 10)</span>
+                                Historial de Ventas del Sistema
                             </h6>
+                            <div class="d-flex align-items-center gap-2">
+                                <select id="filtro-ventas-periodo" class="form-select form-select-sm border-secondary text-dark bg-white" style="font-size: 12px; width: 130px; cursor: pointer;">
+                                    <option value="todos" selected>Todos</option>
+                                    <option value="dia">Hoy (Día)</option>
+                                    <option value="semana">Esta Semana</option>
+                                    <option value="mes">Este Mes</option>
+                                    <option value="anio">Este Año</option>
+                                </select>
+                                <button id="btn-filtrar-ventas" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-3" style="font-size: 12px;">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">filter_alt</span> Filtrar
+                                </button>
+                            </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-custom">
+                        <div class="table-responsive custom-scrollbar" id="container-historial-ventas">
+                            <table class="table table-custom mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Hora</th>
+                                        <th>Fecha y Hora</th>
                                         <th>Ticket</th>
                                         <th>Cliente</th>
                                         <th>Monto</th>
@@ -190,7 +202,92 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
     // Almacenar el HTML inicial limpio para restaurarlo
     let vistaInicioHTML = '';
 
+    let ventasOffset = 0;
+    let ventasFiltro = 'todos';
+    let loadingVentas = false;
+    let hasMoreVentas = true;
+
+    function cargarVentasFiltradas(reset = false) {
+        const tbodyVentas = document.getElementById('admin-table-ventas');
+        if (!tbodyVentas) return;
+
+        if (reset) {
+            ventasOffset = 0;
+            hasMoreVentas = true;
+            tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-wait-custom py-4"><div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>Cargando ventas...</td></tr>';
+        }
+
+        if (loadingVentas || (!hasMoreVentas && !reset)) return;
+        loadingVentas = true;
+
+        const rowLoadingMore = document.getElementById('row-loading-more');
+        if (!reset && rowLoadingMore) {
+            rowLoadingMore.classList.remove('d-none');
+        }
+
+        fetch(`../../controllers/admin/AdminDashboardController.php?action=ventas_filtradas&filtro=${ventasFiltro}&offset=${ventasOffset}&limit=10`)
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    const ventas = response.ventas || [];
+                    hasMoreVentas = response.has_more;
+
+                    const rowOldLoader = document.getElementById('row-loading-more');
+                    if (rowOldLoader) {
+                        rowOldLoader.remove();
+                    }
+
+                    if (reset) {
+                        tbodyVentas.innerHTML = '';
+                        if (ventas.length === 0) {
+                            tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-wait-custom py-4">No hay ventas registradas para el período seleccionado.</td></tr>';
+                            return;
+                        }
+                    }
+
+                    if (ventas.length > 0) {
+                        let htmlVentas = '';
+                        ventas.forEach(v => {
+                            const fechaHora = new Date(v.fecha_creacion).toLocaleString('es-NI', { dateStyle: 'short', timeStyle: 'short' });
+                            htmlVentas += `
+                                <tr>
+                                    <td style="white-space: nowrap;">${fechaHora}</td>
+                                    <td><code class="text-success font-bold">${v.codigo_ticket}</code></td>
+                                    <td>${v.cliente ? v.cliente : 'Cliente Final'}</td>
+                                    <td class="font-monospace text-success fw-bold">C$ ${parseFloat(v.total).toFixed(2)}</td>
+                                    <td><span class="badge px-2 py-1 bg-success-box text-success">Pagado</span></td>
+                                </tr>
+                            `;
+                        });
+                        tbodyVentas.insertAdjacentHTML('beforeend', htmlVentas);
+                        ventasOffset += ventas.length;
+                    }
+
+                    if (hasMoreVentas) {
+                        tbodyVentas.insertAdjacentHTML('beforeend', `
+                            <tr id="row-loading-more" class="d-none">
+                                <td colspan="5" class="text-center py-2 text-muted small">
+                                    <div class="spinner-border spinner-border-sm text-success me-1"></div> Cargando más ventas...
+                                </td>
+                            </tr>
+                        `);
+                    }
+                }
+            })
+            .catch(err => console.error("Error al cargar ventas filtradas:", err))
+            .finally(() => {
+                loadingVentas = false;
+            });
+    }
+
     function cargarDatosDashboard() {
+        // Cargar ventas filtradas por defecto
+        const selectFiltro = document.getElementById('filtro-ventas-periodo');
+        if (selectFiltro) {
+            ventasFiltro = selectFiltro.value;
+        }
+        cargarVentasFiltradas(true);
+
         fetch('../../controllers/admin/AdminDashboardController.php?action=todo')
             .then(res => res.json())
             .then(response => {
@@ -202,27 +299,6 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     if (document.getElementById('admin-metric-facturas')) document.getElementById('admin-metric-facturas').innerText = data.metricas.facturas_hoy + ' Tickets';
                     if (document.getElementById('admin-metric-critico')) document.getElementById('admin-metric-critico').innerText = data.metricas.stock_critico;
                     if (document.getElementById('admin-metric-bodega')) document.getElementById('admin-metric-bodega').innerText = data.metricas.ingresos_bodega_hoy + ' Lotes';
-
-                    // Ventas
-                    const tbodyVentas = document.getElementById('admin-table-ventas');
-                    if (data.ventas.length === 0) {
-                        tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-wait-custom py-4">No hay ventas registradas el día de hoy.</td></tr>';
-                    } else {
-                        let htmlVentas = '';
-                        data.ventas.forEach(v => {
-                            const hora = new Date(v.fecha_creacion).toLocaleTimeString();
-                            htmlVentas += `
-                                <tr>
-                                    <td>${hora}</td>
-                                    <td><code class="text-success font-bold">${v.codigo_ticket}</code></td>
-                                    <td>${v.cliente ? v.cliente : 'Cliente Final'}</td>
-                                    <td class="font-monospace text-success fw-bold">C$ ${parseFloat(v.total).toFixed(2)}</td>
-                                    <td><span class="badge px-2 py-1 bg-success-box text-success">Pagado</span></td>
-                                </tr>
-                            `;
-                        });
-                        tbodyVentas.innerHTML = htmlVentas;
-                    }
 
                     // Usuarios
                     const tbodyUsuarios = document.getElementById('admin-table-usuarios');
@@ -271,6 +347,29 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
             })
             .catch(err => console.error("Error al cargar datos del dashboard:", err));
     }
+
+    // Event listeners para el botón de filtrado y el scroll del contenedor de ventas
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('#btn-filtrar-ventas');
+        if (btn) {
+            e.preventDefault();
+            const select = document.getElementById('filtro-ventas-periodo');
+            if (select) {
+                ventasFiltro = select.value;
+                cargarVentasFiltradas(true);
+            }
+        }
+    });
+
+    document.addEventListener('scroll', function(e) {
+        if (e.target && e.target.id === 'container-historial-ventas') {
+            const container = e.target;
+            if (loadingVentas || !hasMoreVentas) return;
+            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 40) {
+                cargarVentasFiltradas(false);
+            }
+        }
+    }, true);
 
     // Guardar el HTML inicial de la vista de inicio DESPUES de renderizar o antes.
     // Como las tablas están vacías, queremos cargarlas, luego guardar el HTML si es necesario.

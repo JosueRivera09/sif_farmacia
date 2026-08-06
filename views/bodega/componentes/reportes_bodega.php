@@ -67,7 +67,13 @@ $productos_bajo_stock = isset($productos_bajo_stock) ? $productos_bajo_stock : [
                                         <span class="font-semibold text-light" style="font-size: 13px;"><?php echo htmlspecialchars($lv['nombre_commercial']); ?></span>
                                     </td>
                                     <td class="text-danger font-bold" style="font-size: 13px;"><?php echo date('d M Y', strtotime($lv['fecha_vencimiento'])); ?></td>
-                                    <td class="text-end text-light" style="font-size: 13px;"><?php echo $lv['cantidad_recibida'] . ' ' . $lv['unidad_medida']; ?></td>
+                                    <td class="text-end text-light" style="font-size: 13px;">
+                                        <?php 
+                                            $cantLV = isset($lv['cantidad_unidades_recibidas']) ? $lv['cantidad_unidades_recibidas'] : (isset($lv['cantidad_recibida']) ? $lv['cantidad_recibida'] : 0);
+                                            $uniLV = isset($lv['unidad_minima']) ? $lv['unidad_minima'] : (isset($lv['unidad_medida']) ? $lv['unidad_medida'] : '');
+                                            echo $cantLV . ' ' . $uniLV;
+                                        ?>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
@@ -103,13 +109,16 @@ $productos_bajo_stock = isset($productos_bajo_stock) ? $productos_bajo_stock : [
                     <tbody>
                         <?php if (count($productos_bajo_stock) > 0): ?>
                             <?php foreach ($productos_bajo_stock as $pb): ?>
+                                <?php 
+                                    $uniPB = isset($pb['unidad_minima']) ? $pb['unidad_minima'] : (isset($pb['unidad_medida']) ? $pb['unidad_medida'] : '');
+                                ?>
                                 <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
                                     <td class="font-mono-custom text-secondary" style="font-size: 13px;"><?php echo htmlspecialchars($pb['codigo_barras']); ?></td>
                                     <td>
                                         <span class="font-semibold text-light" style="font-size: 13px;"><?php echo htmlspecialchars($pb['nombre_commercial']); ?></span>
                                     </td>
-                                    <td class="text-center text-danger font-bold" style="font-size: 13px;"><?php echo $pb['stock_actual'] . ' ' . $pb['unidad_medida']; ?></td>
-                                    <td class="text-center text-muted" style="font-size: 13px;"><?php echo $pb['stock_minimo'] . ' ' . $pb['unidad_medida']; ?></td>
+                                    <td class="text-center text-danger font-bold" style="font-size: 13px;"><?php echo $pb['stock_actual'] . ' ' . $uniPB; ?></td>
+                                    <td class="text-center text-muted" style="font-size: 13px;"><?php echo $pb['stock_minimo'] . ' ' . $uniPB; ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>

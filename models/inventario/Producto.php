@@ -55,7 +55,7 @@ class Producto {
      */
     public static function obtenerProductosBajoStock(mysqli $conexion) {
         $productos = [];
-        $query = "SELECT p.id_producto, p.codigo_barras, p.nombre_commercial, p.stock_actual, p.stock_minimo, p.unidad_minima
+        $query = "SELECT p.id_producto, p.codigo_barras, p.nombre_commercial, p.stock_actual, p.stock_minimo, p.unidad_minima, p.unidad_minima AS unidad_medida
                   FROM productos p
                   WHERE p.stock_actual <= p.stock_minimo
                   ORDER BY p.stock_actual ASC";

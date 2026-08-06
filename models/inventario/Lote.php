@@ -82,7 +82,7 @@ class Lote {
 
     public static function obtenerLotesVencidos(mysqli $conexion) {
         $lotes = [];
-        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, l.cantidad_unidades_recibidas, l.fecha_vencimiento, p.unidad_minima
+        $query = "SELECT l.numero_lote, l.bodega, p.nombre_commercial, l.cantidad_unidades_recibidas, l.cantidad_unidades_recibidas AS cantidad_recibida, l.fecha_vencimiento, p.unidad_minima, p.unidad_minima AS unidad_medida
                   FROM lotes l
                   JOIN productos p ON l.id_producto = p.id_producto
                   WHERE l.fecha_vencimiento < CURDATE()

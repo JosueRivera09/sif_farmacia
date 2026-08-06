@@ -24,15 +24,33 @@ header('Content-Type: application/json; charset=utf-8');
 $action = isset($_GET['action']) ? $_GET['action'] : 'todo';
 
 if ($action === 'todo') {
-    // Obtener todas las métricas para cargar el dashboard completo
+    $filtro = isset($_GET['filtro']) ? $_GET['filtro'] : 'todos';
+    $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
+    $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;
+
+    $ventas = DashboardModel::obtenerHistorialVentas($conexion, $filtro, $offset, $limit);
     $datos = [
         'metricas' => DashboardModel::obtenerMetricasGenerales($conexion),
-        'ventas' => DashboardModel::obtenerHistorialVentas($conexion),
+        'ventas' => $ventas,
+        'has_more' => count($ventas) === $limit,
         'usuarios' => DashboardModel::obtenerUsuarios($conexion),
         'alertas' => DashboardModel::obtenerAlertasStock($conexion)
     ];
 
     echo json_encode(['status' => 'success', 'data' => $datos]);
+    exit;
+} elseif ($action === 'ventas_filtradas') {
+    $filtro = isset($_GET['filtro']) ? $_GET['filtro'] : 'todos';
+    $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
+    $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;
+
+    $ventas = DashboardModel::obtenerHistorialVentas($conexion, $filtro, $offset, $limit);
+
+    echo json_encode([
+        'status' => 'success',
+        'ventas' => $ventas,
+        'has_more' => count($ventas) === $limit
+    ]);
     exit;
 } else {
     http_response_code(400);

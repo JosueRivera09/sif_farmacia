@@ -76,7 +76,7 @@ elseif ($action === 'listar_pendientes') {
 
 elseif ($action === 'listar_pagados') {
     // Obtener tickets pagados de hoy
-    $query = "SELECT t.codigo_ticket, t.total, t.fecha_creacion, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
+    $query = "SELECT t.id_ticket, t.codigo_ticket, t.total, t.fecha_creacion, t.id_vendedor, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
               FROM tickets t 
               LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
               LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
@@ -89,7 +89,29 @@ elseif ($action === 'listar_pagados') {
             $pagados[] = $row;
         }
     }
-    echo json_encode(['status' => 'success', 'data' => $pagados]);
+    echo json_encode([
+        'status' => 'success',
+        'es_admin' => (isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador'),
+        'id_usuario_actual' => isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0,
+        'nombre_usuario_actual' => isset($_SESSION['nombre_usuario']) ? $_SESSION['nombre_usuario'] : 'Usuario',
+        'rol_usuario_actual' => isset($_SESSION['rol']) ? $_SESSION['rol'] : 'Cajero',
+        'data' => $pagados
+    ]);
+    exit;
+}
+
+elseif ($action === 'ver_ticket') {
+    $codigo = isset($_GET['codigo']) ? trim($_GET['codigo']) : '';
+    if (empty($codigo)) {
+        echo json_encode(['status' => 'error', 'message' => 'Código de ticket no proporcionado']);
+        exit;
+    }
+    $ticket = obtenerTicketDetallePorCodigo($conexion, $codigo);
+    if ($ticket) {
+        echo json_encode(['status' => 'success', 'data' => $ticket]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Ticket no encontrado']);
+    }
     exit;
 }
 
