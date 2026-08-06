@@ -10,20 +10,35 @@ $id_usuario_actual = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuar
 $turnoAbierto = obtenerTurnoCajaAbierto($conexion, $id_usuario_actual);
 $aperturaCaja = ($turnoAbierto) ? floatval($turnoAbierto['monto_inicial']) : 1000.00;
 
-// Consultar ventas reales cobradas hoy por este cajero (o en general)
-$querySales = "SELECT SUM(total) as total_ventas, COUNT(*) as total_tickets 
-               FROM tickets 
-               WHERE estado = 'Pagado' AND DATE(fecha_creacion) = CURDATE()";
-$resSales = mysqli_query($conexion, $querySales);
-$totalVentasHoy = 0.0;
-$totalTicketsHoy = 0;
+// Fecha de apertura del turno activo (para filtrar sólo ventas de este turno)
+$fechaAperturaShift = ($turnoAbierto && !empty($turnoAbierto['fecha_apertura'])) ? $turnoAbierto['fecha_apertura'] : date('Y-m-d 00:00:00');
 
-if ($resSales && $row = mysqli_fetch_assoc($resSales)) {
-    $totalVentasHoy = isset($row['total_ventas']) ? floatval($row['total_ventas']) : 0.0;
-    $totalTicketsHoy = isset($row['total_tickets']) ? intval($row['total_tickets']) : 0;
+// Ventas recaudadas ÚNICAMENTE en el turno actual (desde que se abrió la caja)
+$queryTurnoSales = "SELECT SUM(total) as total_ventas_turno, COUNT(*) as tickets_turno 
+                    FROM tickets 
+                    WHERE estado = 'Pagado' AND fecha_creacion >= '$fechaAperturaShift'";
+$resTurnoSales = mysqli_query($conexion, $queryTurnoSales);
+$totalVentasTurno = 0.0;
+$ticketsTurno = 0;
+if ($resTurnoSales && $rowT = mysqli_fetch_assoc($resTurnoSales)) {
+    $totalVentasTurno = isset($rowT['total_ventas_turno']) ? floatval($rowT['total_ventas_turno']) : 0.0;
+    $ticketsTurno = isset($rowT['tickets_turno']) ? intval($rowT['tickets_turno']) : 0;
 }
 
-$totalEsperado = $aperturaCaja + $totalVentasHoy;
+// Ventas consolidadas generales del día (para fines informativos)
+$querySalesDia = "SELECT SUM(total) as total_ventas_dia, COUNT(*) as total_tickets_dia 
+                  FROM tickets 
+                  WHERE estado = 'Pagado' AND DATE(fecha_creacion) = CURDATE()";
+$resSalesDia = mysqli_query($conexion, $querySalesDia);
+$totalVentasHoy = 0.0;
+$totalTicketsHoy = 0;
+if ($resSalesDia && $rowD = mysqli_fetch_assoc($resSalesDia)) {
+    $totalVentasHoy = isset($rowD['total_ventas_dia']) ? floatval($rowD['total_ventas_dia']) : 0.0;
+    $totalTicketsHoy = isset($rowD['total_tickets_dia']) ? intval($rowD['total_tickets_dia']) : 0;
+}
+
+// El total esperado en caja para este turno es APERTURA TURNO + VENTAS TURNO
+$totalEsperado = $aperturaCaja + $totalVentasTurno;
 ?>
 <div class="row g-4">
     <!-- Columna Izquierda: Ingreso de Denominaciones -->
@@ -31,7 +46,7 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
         <!--
         /*
          * Archivo: views/Interfaz_caja/botones_menu/arqueo_caja.php
-         * Propósito: Módulo de arqueo de caja (cierre del día).
+         * Propósito: Módulo de arqueo de caja (cierre del día / turno).
          * Qué muestra: Formulario para ingresar valores físicos y botón para procesar.
          */
         -->
@@ -96,21 +111,27 @@ $totalEsperado = $aperturaCaja + $totalVentasHoy;
     <div class="col-lg-5"> 
         <div class="custom-card h-100 d-flex flex-column justify-content-between">
             <div>
-                <div class="border-bottom border-secondary pb-2 mb-4">
-                    <h6 class="card-title-custom mb-0">Balance de Arqueo</h6>
+                <div class="border-bottom border-secondary pb-2 mb-4 d-flex justify-content-between align-items-center">
+                    <h6 class="card-title-custom mb-0">Balance de Arqueo (Turno)</h6>
+                    <span class="badge bg-success-subtle text-success px-2 py-1 font-monospace" style="font-size:10px;">Turno Activo</span>
                 </div>
 
                 <div class="d-flex justify-content-between mb-2.5">
-                    <span style="color: #000000 !important; font-weight: 600;">Apertura de Caja:</span>
+                    <span style="color: #000000 !important; font-weight: 600;">Apertura de Caja (Turno):</span>
                     <span class="font-monospace" style="color: #000000 !important; font-weight: 700;">C$ <?php echo number_format($aperturaCaja, 2); ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2.5">
-                    <span style="color: #000000 !important; font-weight: 600;">Ventas Recaudadas (Hoy):</span>
-                    <span class="font-monospace" style="color: #000000 !important; font-weight: 700;">C$ <?php echo number_format($totalVentasHoy, 2); ?></span>
+                    <span style="color: #000000 !important; font-weight: 600;">Ventas Recaudadas (Turno):</span>
+                    <span class="font-monospace" style="color: #000000 !important; font-weight: 700;">C$ <?php echo number_format($totalVentasTurno, 2); ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-3 align-items-center">
                     <span style="color: #000000 !important; font-weight: 700;">Total Esperado en Caja:</span>
                     <span class="font-monospace" style="color: #000000 !important; font-weight: 700;">C$ <?php echo number_format($totalEsperado, 2); ?></span>
+                </div>
+
+                <div class="p-2 mb-3 rounded bg-slate border border-secondary text-muted" style="font-size: 11px;">
+                    <span class="material-symbols-outlined align-middle me-1" style="font-size: 14px;">info</span>
+                    Ventas consolidadas del día en sistema: <strong>C$ <?php echo number_format($totalVentasHoy, 2); ?></strong> (<?php echo $totalTicketsHoy; ?> tickets totales).
                 </div>
 
                 <hr class="border-secondary my-4">
