@@ -59,8 +59,8 @@ function obtenerLinkVolver($rol)
 
     <nav class="sidebar-menu custom-scrollbar">
         <?php
-        // Caso 1: Administrador viendo el panel de Administración O el panel de Bodega
-        if ($user_role === 'Administrador' && ($panel_context === 'admin' || $panel_context === 'bodega')):
+        // Caso 1: Administrador (acceso completo a todos los paneles)
+        if ($user_role === 'Administrador'):
             $page = isset($_GET['page']) ? $_GET['page'] : '';
             $in_admin_page = ($panel_context === 'admin');
         ?>
