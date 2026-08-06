@@ -41,10 +41,16 @@ if ($action === 'listar') {
 } 
 
 elseif ($action === 'metricas') {
-    $metricas = Venta::obtenerMetricasVendedor($conexion);
-    // Simular total de ventas en la sesión actual
-    $metricas['ventas_sesion'] = isset($_SESSION['ventas_simuladas_count']) ? $_SESSION['ventas_simuladas_count'] : 0;
-    $metricas['monto_ventas'] = isset($_SESSION['ventas_simuladas_monto']) ? number_format($_SESSION['ventas_simuladas_monto'], 2) : "0.00";
+    $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    $rol = isset($_SESSION['rol']) ? $_SESSION['rol'] : '';
+    
+    // Si el usuario es Administrador calcula el consolidado general del día, si es Vendedor calcula sus ventas del día
+    $id_filtro_vendedor = ($rol === 'Administrador') ? 0 : $id_usuario;
+
+    $metricas = Venta::obtenerMetricasVendedor($conexion, $id_filtro_vendedor);
+    $metricas['ventas_sesion'] = $metricas['ventas_dia'];
+    $metricas['monto_ventas'] = number_format($metricas['monto_dia'], 2);
+
     echo json_encode(['status' => 'success', 'data' => $metricas]);
     exit;
 } 

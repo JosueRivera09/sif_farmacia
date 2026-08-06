@@ -41,7 +41,7 @@
         <div class="col-md-3">
             <div class="metric-card card-secondary">
                 <div>
-                    <h5 class="metric-title">Ventas del Turno</h5>
+                    <h5 class="metric-title">Ventas del Día</h5>
                     <h3 class="metric-value" id="resumen-ventas-count">0</h3>
                 </div>
                 <div class="metric-icon-box bg-secondary-box">
@@ -54,7 +54,7 @@
         <div class="col-md-3">
             <div class="metric-card card-purple">
                 <div>
-                    <h5 class="metric-title">Total Facturado</h5>
+                    <h5 class="metric-title">Total Facturado (Día)</h5>
                     <h3 class="metric-value" id="resumen-ventas-monto">C$ 0.00</h3>
                 </div>
                 <div class="metric-icon-box bg-purple-box">
