@@ -166,7 +166,7 @@ elseif ($action === 'vender') {
         $total_venta = $total_venta * 1.15;
           // lo que edite
         // === RESTA DE STOCK AL GENERAR TICKET ===
-        // Se resta aquí calculando las unidades mínimas reales para que el inventario se actualice de inmediato
+        // Se resta aquí calculando las unidades mínimas reales y descontando FIFO de los lotes activos
         foreach ($data['items'] as $item) {
             $id_producto = intval($item['id_producto']);
             $cantidad = intval($item['cantidad']);
@@ -185,11 +185,7 @@ elseif ($action === 'vender') {
             }
             $unidades_a_descontar = $cantidad * $factor;
 
-            $updateStock = "UPDATE productos 
-                           SET stock_actual = stock_actual - $unidades_a_descontar 
-                           WHERE id_producto = $id_producto";
-
-            if (!mysqli_query($conexion, $updateStock)) {
+            if (!Producto::actualizarStockProducto($conexion, $id_producto, $unidades_a_descontar)) {
                 throw new Exception("Error al actualizar el stock del producto ID: $id_producto");
             }
         }

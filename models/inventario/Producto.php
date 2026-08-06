@@ -54,13 +54,68 @@ class Producto {
     }
 
     /**
-     * Actualiza (reduce) el stock de un producto tras una venta.
+     * Actualiza (reduce) el stock de un producto y sus lotes FIFO tras una venta.
      */
     public static function actualizarStockProducto(mysqli $conexion, int $id_producto, int $cantidad) {
         $id_producto = intval($id_producto);
         $cantidad = intval($cantidad);
-        $query = "UPDATE productos SET stock_actual = stock_actual - $cantidad WHERE id_producto = $id_producto AND stock_actual >= $cantidad";
-        return mysqli_query($conexion, $query) && mysqli_affected_rows($conexion) > 0;
+        if ($cantidad <= 0) return true;
+
+        // 1. Reducir stock global del producto
+        $query = "UPDATE productos SET stock_actual = stock_actual - $cantidad WHERE id_producto = $id_producto";
+        $ok = mysqli_query($conexion, $query);
+
+        // 2. Reducir stock FIFO de los lotes activos (vencimiento más cercano primero)
+        $unidades_pendientes = $cantidad;
+        $queryLotes = "SELECT id_lote, cantidad_unidades_recibidas 
+                       FROM lotes 
+                       WHERE id_producto = $id_producto AND cantidad_unidades_recibidas > 0 
+                       ORDER BY fecha_vencimiento ASC, id_lote ASC";
+        $resLotes = mysqli_query($conexion, $queryLotes);
+        if ($resLotes) {
+            while ($lote = mysqli_fetch_assoc($resLotes)) {
+                if ($unidades_pendientes <= 0) break;
+
+                $id_lote = intval($lote['id_lote']);
+                $cantLote = intval($lote['cantidad_unidades_recibidas']);
+
+                if ($cantLote <= $unidades_pendientes) {
+                    $restar = $cantLote;
+                    $unidades_pendientes -= $cantLote;
+                } else {
+                    $restar = $unidades_pendientes;
+                    $unidades_pendientes = 0;
+                }
+
+                mysqli_query($conexion, "UPDATE lotes SET cantidad_unidades_recibidas = cantidad_unidades_recibidas - $restar WHERE id_lote = $id_lote");
+            }
+        }
+
+        return $ok;
+    }
+
+    /**
+     * Restablece (suma) el stock de un producto y de sus lotes tras cancelar o borrar un ticket.
+     */
+    public static function restablecerStockProducto(mysqli $conexion, int $id_producto, int $cantidad) {
+        $id_producto = intval($id_producto);
+        $cantidad = intval($cantidad);
+        if ($cantidad <= 0) return true;
+
+        // 1. Sumar de vuelta en la tabla productos
+        $query = "UPDATE productos SET stock_actual = stock_actual + $cantidad WHERE id_producto = $id_producto";
+        $ok = mysqli_query($conexion, $query);
+
+        // 2. Devolver unidades al lote activo más reciente
+        $queryLote = "SELECT id_lote FROM lotes WHERE id_producto = $id_producto ORDER BY fecha_vencimiento DESC, id_lote DESC LIMIT 1";
+        $resLote = mysqli_query($conexion, $queryLote);
+        if ($resLote && mysqli_num_rows($resLote) > 0) {
+            $loteRow = mysqli_fetch_assoc($resLote);
+            $id_lote = intval($loteRow['id_lote']);
+            mysqli_query($conexion, "UPDATE lotes SET cantidad_unidades_recibidas = cantidad_unidades_recibidas + $cantidad WHERE id_lote = $id_lote");
+        }
+
+        return $ok;
     }
 
     /**

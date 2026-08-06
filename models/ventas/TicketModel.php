@@ -184,9 +184,8 @@ function cancelarTicket(mysqli $conexion, int $id_ticket) {
 
                     $unidades_a_devolver = $cant * $factor;
 
-                    // Restablecer el stock sumando las unidades de vuelta
-                    $updateStock = "UPDATE productos SET stock_actual = stock_actual + $unidades_a_devolver WHERE id_producto = $id_prod";
-                    if (!mysqli_query($conexion, $updateStock)) {
+                    // Restablecer el stock sumando las unidades de vuelta en productos y lotes
+                    if (!Producto::restablecerStockProducto($conexion, $id_prod, $unidades_a_devolver)) {
                         throw new Exception("Error al devolver existencias al inventario.");
                     }
                 }
