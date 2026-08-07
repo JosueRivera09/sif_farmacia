@@ -784,34 +784,30 @@ VALUES (
         12.00
     );
 
-CREATE TABLE `ventas` (
-    `id_venta` int(11) NOT NULL AUTO_INCREMENT,
-    `id_usuario` int(11) NOT NULL,
-    `id_cliente` int(11) DEFAULT NULL,
-    `fecha_venta` timestamp NOT NULL DEFAULT current_timestamp(),
-    `total_neto` decimal(10, 2) DEFAULT 0.00,
-    `estado_pago` varchar(20) DEFAULT 'Pendiente',
-    PRIMARY KEY (`id_venta`),
-    KEY `id_usuario` (`id_usuario`),
-    KEY `id_cliente` (`id_cliente`),
-    CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
-    CONSTRAINT `ventas_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- --------------------------------------------------------
+-- Vistas SQL para mapear compatibilidad de 'ventas' y 'detalle_ventas' desde los 'tickets' activos
+-- --------------------------------------------------------
 
-CREATE TABLE `detalle_ventas` (
-    `id_detalle` int(11) NOT NULL AUTO_INCREMENT,
-    `id_venta` int(11) NOT NULL,
-    `id_producto` int(11) NOT NULL,
-    `cantidad` int(11) NOT NULL,
-    `nivel_empaque` varchar(20) NOT NULL DEFAULT 'Principal',
-    `nombre_empaque` varchar(50) NOT NULL,
-    `precio_unitario` decimal(10, 2) NOT NULL,
-    PRIMARY KEY (`id_detalle`),
-    KEY `id_venta` (`id_venta`),
-    KEY `id_producto` (`id_producto`),
-    CONSTRAINT `detalle_ventas_ibfk_1` FOREIGN KEY (`id_venta`) REFERENCES `ventas` (`id_venta`) ON DELETE CASCADE,
-    CONSTRAINT `detalle_ventas_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+CREATE OR REPLACE VIEW `ventas` AS 
+SELECT 
+    `id_ticket` AS `id_venta`,
+    `id_vendedor` AS `id_usuario`,
+    `id_cliente`,
+    `fecha_creacion` AS `fecha_venta`,
+    `total` AS `total_neto`,
+    `estado` AS `estado_pago`
+FROM `tickets`;
+
+CREATE OR REPLACE VIEW `detalle_ventas` AS 
+SELECT 
+    `id_detalle`,
+    `id_ticket` AS `id_venta`,
+    `id_producto`,
+    `cantidad`,
+    `nivel_empaque`,
+    `nombre_empaque`,
+    `precio_unitario`
+FROM `ticket_detalles`;
 
 -- --------------------------------------------------------
 -- Disparadores
