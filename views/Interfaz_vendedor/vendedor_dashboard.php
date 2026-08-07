@@ -80,7 +80,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
         const contentArea = document.getElementById('main-content-area');
         const moduleTitle = document.getElementById('module-title');
 
-        const btnInicio = document.getElementById('btn-inicio');
+        const btnInicio = document.getElementById('btn-inicio-ventas') || document.getElementById('btn-inicio');
         const btnNuevaVenta = document.getElementById('btn-nueva-venta');
         const btnInventario = document.getElementById('btn-inventario');
 
@@ -142,20 +142,26 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
                 });
         }
 
-        btnInicio.addEventListener('click', (e) => {
-            e.preventDefault();
-            manejarCarga('botones_menu/resumen.php', btnInicio, 'Resumen de Ventas');
-        });
+        if (btnInicio) {
+            btnInicio.addEventListener('click', (e) => {
+                e.preventDefault();
+                manejarCarga('botones_menu/resumen.php', btnInicio, 'Resumen de Ventas');
+            });
+        }
 
-        btnNuevaVenta.addEventListener('click', (e) => {
-            e.preventDefault();
-            manejarCarga('botones_menu/nueva_venta.php', btnNuevaVenta, 'Registrar Nueva Venta');
-        });
+        if (btnNuevaVenta) {
+            btnNuevaVenta.addEventListener('click', (e) => {
+                e.preventDefault();
+                manejarCarga('botones_menu/nueva_venta.php', btnNuevaVenta, 'Registrar Nueva Venta');
+            });
+        }
 
-        btnInventario.addEventListener('click', (e) => {
-            e.preventDefault();
-            manejarCarga('../productos/catalogo.php', btnInventario, 'Catálogo de Inventario');
-        });
+        if (btnInventario) {
+            btnInventario.addEventListener('click', (e) => {
+                e.preventDefault();
+                manejarCarga('../productos/catalogo.php', btnInventario, 'Catálogo de Inventario');
+            });
+        }
 
         // Exponer globalmente para usarse desde el Resumen
         window.cargarModuloNuevaVenta = function() {

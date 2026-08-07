@@ -222,7 +222,7 @@ if (!function_exists('obtenerLinkVolver')) {
                     <span class="sidebar-subtitle px-3" style="font-size: 9px; color: #fca5a5 !important; font-weight: 700; text-transform: uppercase;">Módulo de Ventas</span>
 
                     <a class="nav-link-custom <?php echo ($is_ventas_active && (empty($subParam) || $subParam === 'resumen')) ? 'active' : ''; ?>"
-                        id="btn-inicio"
+                        id="btn-inicio-ventas"
                         href="<?php echo $is_ventas_active ? '#' : $href_ventas_base . '?sub=resumen'; ?>">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Resumen Ventas</span>
