@@ -361,3 +361,92 @@ if (!function_exists('obtenerLinkVolver')) {
         </div>
     </div>
 </div>
+
+<!-- Motor Global de Preservación de Estado de Formularios e Instancias en todas las pantallas del sistema -->
+<script>
+(function() {
+    const STORAGE_PREFIX = 'sif_draft_';
+
+    function saveInputValue(element) {
+        if (!element || (!element.id && !element.name)) return;
+        const identifier = element.id || element.name;
+        const key = STORAGE_PREFIX + identifier;
+        if (element.type === 'checkbox' || element.type === 'radio') {
+            sessionStorage.setItem(key, element.checked ? 'true' : 'false');
+        } else {
+            sessionStorage.setItem(key, element.value);
+        }
+    }
+
+    function restoreAllInputValues(container) {
+        const root = container || document;
+        const inputs = root.querySelectorAll('input:not([type="password"]):not([type="hidden"]), select, textarea');
+        inputs.forEach(el => {
+            const identifier = el.id || el.name;
+            if (!identifier) return;
+            const key = STORAGE_PREFIX + identifier;
+            const savedValue = sessionStorage.getItem(key);
+            if (savedValue !== null) {
+                if (el.type === 'checkbox' || el.type === 'radio') {
+                    el.checked = (savedValue === 'true');
+                } else {
+                    el.value = savedValue;
+                }
+            }
+        });
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+            saveInputValue(e.target);
+        }
+    }, true);
+
+    document.addEventListener('change', function(e) {
+        if (e.target && (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT')) {
+            saveInputValue(e.target);
+        }
+    }, true);
+
+    document.addEventListener('submit', function(e) {
+        if (e.target && e.target.tagName === 'FORM') {
+            const inputs = e.target.querySelectorAll('input, select, textarea');
+            inputs.forEach(el => {
+                const identifier = el.id || el.name;
+                if (identifier) {
+                    sessionStorage.removeItem(STORAGE_PREFIX + identifier);
+                }
+            });
+        }
+    }, true);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        restoreAllInputValues();
+    });
+
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) {
+                        restoreAllInputValues(node);
+                    }
+                });
+            }
+        });
+    });
+
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+    }
+
+    window.sifStatePreserver = {
+        save: saveInputValue,
+        restore: restoreAllInputValues
+    };
+})();
+</script>
