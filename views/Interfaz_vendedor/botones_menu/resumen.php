@@ -208,9 +208,9 @@
                     
                     let html = '';
                     tickets.forEach(t => {
-                        const dateObj = new Date(t.fecha_creacion);
-                        const fecha = dateObj.toLocaleDateString();
-                        const hora = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
+                        const fecha = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleDateString();
+                        const hora = isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                         
                         let badgeClass = 'bg-warning-box text-warning';
                         let estadoTexto = 'Pendiente';

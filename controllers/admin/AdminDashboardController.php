@@ -10,9 +10,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Verificar sesión, rol y permisos extra
 $permisos_extra = isset($_SESSION['permisos_extra']) ? $_SESSION['permisos_extra'] : [];
+$rol_actual = isset($_SESSION['rol']) ? trim($_SESSION['rol']) : '';
 $tiene_acceso_admin = (
-    isset($_SESSION['rol']) && (
-        $_SESSION['rol'] === 'Administrador' ||
+    !empty($rol_actual) && (
+        strcasecmp($rol_actual, 'Administrador') === 0 ||
+        strcasecmp($rol_actual, 'Admin') === 0 ||
         in_array('admin', $permisos_extra) ||
         in_array('administrador', $permisos_extra) ||
         in_array('dashboard', $permisos_extra)
@@ -25,6 +27,8 @@ if (!isset($_SESSION['id_usuario']) || !$tiene_acceso_admin) {
     echo json_encode(['status' => 'error', 'message' => 'Acceso denegado. No autorizado.']);
     exit;
 }
+
+session_write_close();
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../models/admin/DashboardModel.php';

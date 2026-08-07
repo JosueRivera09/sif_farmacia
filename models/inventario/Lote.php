@@ -118,5 +118,19 @@ class Lote {
 
         return $resumen;
     }
+    public static function crearLote($conexion, $id_producto, $numero_lote, $empaque, $cantidad_recibida, $unidades_totales, $fecha_vencimiento, $bodega) {
+        $id = intval($id_producto);
+        $nl = mysqli_real_escape_string($conexion, $numero_lote);
+        $emp = mysqli_real_escape_string($conexion, $empaque);
+        $cant = intval($cantidad_recibida);
+        $tot = intval($unidades_totales);
+        $fv = mysqli_real_escape_string($conexion, $fecha_vencimiento);
+        $bod = mysqli_real_escape_string($conexion, $bodega);
+
+        $query = "INSERT INTO lotes (id_producto, numero_lote, empaque_ingreso, cantidad_empaques_recibidos, cantidad_unidades_recibidas, fecha_vencimiento, bodega) 
+                  VALUES ($id, '$nl', '$emp', $cant, $tot, '$fv', '$bod')";
+        return mysqli_query($conexion, $query);
+    }
+
 }
 ?>

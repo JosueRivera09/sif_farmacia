@@ -143,5 +143,93 @@ class Producto {
         }
         return $productos;
     }
+    public static function editarProducto($conexion, $id_producto, $datos) {
+        $id = intval($id_producto);
+        $cod = mysqli_real_escape_string($conexion, $datos['codigo_barras']);
+        $nom = mysqli_real_escape_string($conexion, $datos['nombre_commercial']);
+        $desc = mysqli_real_escape_string($conexion, $datos['descripcion']);
+        $desc_val = $desc === '' ? 'NULL' : "'$desc'";
+        $id_cat = intval($datos['id_categoria']);
+        $id_lab = intval($datos['id_laboratorio']);
+        $mg = $datos['miligramos'];
+        $mg_val = ($mg === '' || $mg === 'NULL') ? 'NULL' : intval($mg);
+        $emp_prin = mysqli_real_escape_string($conexion, $datos['empaque_principal']);
+        $emp_med = $datos['empaque_medio'];
+        $emp_med_val = $emp_med ? "'" . mysqli_real_escape_string($conexion, $emp_med) . "'" : 'NULL';
+        $uni_min = mysqli_real_escape_string($conexion, $datos['unidad_minima']);
+        
+        $u_emp_med = intval($datos['unidades_por_empaque_medio']);
+        $u_tot_emp_prin = intval($datos['unidades_totales_por_empaque_principal']);
+        $fracc = intval($datos['es_fraccionable']);
+        
+        $precio_prin = floatval($datos['precio_empaque_principal']);
+        $precio_med = $datos['precio_empaque_medio'];
+        $precio_med_val = ($precio_med !== null && $precio_med !== '') ? floatval($precio_med) : 'NULL';
+        $precio_min = floatval($datos['precio_unidad_minima']);
+        
+        $receta = intval($datos['requiere_receta']);
+        $stock_min = intval($datos['stock_minimo']);
+        $tipo = mysqli_real_escape_string($conexion, $datos['tipo_producto']);
+
+        $query = "UPDATE productos SET 
+                    codigo_barras = '$cod', nombre_commercial = '$nom', descripcion = $desc_val,
+                    id_categoria = $id_cat, id_laboratorio = $id_lab, miligramos = $mg_val,
+                    empaque_principal = '$emp_prin', empaque_medio = $emp_med_val, unidad_minima = '$uni_min',
+                    unidades_por_empaque_medio = $u_emp_med, unidades_totales_por_empaque_principal = $u_tot_emp_prin,
+                    es_fraccionable = $fracc, precio_empaque_principal = $precio_prin, precio_empaque_medio = $precio_med_val,
+                    precio_unidad_minima = $precio_min, requiere_receta = $receta, stock_minimo = $stock_min,
+                    tipo_producto = '$tipo'
+                  WHERE id_producto = $id";
+                  
+        return mysqli_query($conexion, $query);
+    }
+
+    public static function crearProducto($conexion, $datos) {
+        $cod = mysqli_real_escape_string($conexion, $datos['codigo_barras']);
+        $nom = mysqli_real_escape_string($conexion, $datos['nombre_commercial']);
+        $desc = mysqli_real_escape_string($conexion, $datos['descripcion']);
+        $desc_val = $desc === '' ? 'NULL' : "'$desc'";
+        $id_cat = intval($datos['id_categoria']);
+        $id_lab = intval($datos['id_laboratorio']);
+        $mg = $datos['miligramos'];
+        $mg_val = ($mg === '' || $mg === 'NULL') ? 'NULL' : intval($mg);
+        $emp_prin = mysqli_real_escape_string($conexion, $datos['empaque_principal']);
+        $emp_med = $datos['empaque_medio'];
+        $emp_med_val = $emp_med ? "'" . mysqli_real_escape_string($conexion, $emp_med) . "'" : 'NULL';
+        $uni_min = mysqli_real_escape_string($conexion, $datos['unidad_minima']);
+        
+        $u_emp_med = intval($datos['unidades_por_empaque_medio']);
+        $u_tot_emp_prin = intval($datos['unidades_totales_por_empaque_principal']);
+        $fracc = intval($datos['es_fraccionable']);
+        
+        $precio_prin = floatval($datos['precio_empaque_principal']);
+        $precio_med = $datos['precio_empaque_medio'];
+        $precio_med_val = ($precio_med !== null && $precio_med !== '') ? floatval($precio_med) : 'NULL';
+        $precio_min = floatval($datos['precio_unidad_minima']);
+        
+        $receta = intval($datos['requiere_receta']);
+        $stock_min = intval($datos['stock_minimo']);
+        $tipo = mysqli_real_escape_string($conexion, $datos['tipo_producto']);
+
+        $query = "INSERT INTO productos (
+                    codigo_barras, nombre_commercial, descripcion, id_categoria, id_laboratorio,
+                    miligramos, empaque_principal, empaque_medio, unidad_minima, unidades_por_empaque_medio,
+                    unidades_totales_por_empaque_principal, es_fraccionable, precio_empaque_principal,
+                    precio_empaque_medio, precio_unidad_minima, requiere_receta, stock_minimo,
+                    stock_actual, tipo_producto
+                  ) VALUES (
+                    '$cod', '$nom', $desc_val, $id_cat, $id_lab,
+                    $mg_val, '$emp_prin', $emp_med_val, '$uni_min', $u_emp_med,
+                    $u_tot_emp_prin, $fracc, $precio_prin,
+                    $precio_med_val, $precio_min, $receta, $stock_min,
+                    0, '$tipo'
+                  )";
+        
+        if (mysqli_query($conexion, $query)) {
+            return mysqli_insert_id($conexion);
+        }
+        return false;
+    }
+
 }
 ?>

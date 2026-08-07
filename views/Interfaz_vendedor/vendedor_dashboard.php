@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/Interfaz_vendedor/vendedor_dashboard.php
+ * Propósito: Panel de control principal para el rol de Vendedor.
+ */
+
 session_start();
 
 // Esta es la pantalla del dashboard del Vendedor, que permite registrar ventas, consultar stock de productos y ver el historial de ventas.

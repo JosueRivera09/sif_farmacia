@@ -1,3 +1,9 @@
+<?php
+/*
+ * Archivo: views/Interfaz_admin/botones_menu/Reportes.php
+ * Propósito: Vista para la visualización y generación de reportes administrativos.
+ */
+?>
 <link rel="stylesheet" href="../../assets/css/admin/reportes.css">
 
 <div class="container-fluid p-0">

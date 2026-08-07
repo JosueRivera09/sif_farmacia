@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/Interfaz_caja/botones_menu/arqueo_caja.php
+ * Propósito: Vista para el proceso de arqueo de caja.
+ */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: controllers/admin/UsuarioController.php
+ * Propósito: Controlador para la gestión de usuarios (CRUD).
+ */
+
 session_start();
 
 // Validar que el usuario tenga sesión activa y sea Administrador

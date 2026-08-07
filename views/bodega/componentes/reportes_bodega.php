@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/bodega/componentes/reportes_bodega.php
+ * Propósito: Vista para la generación de reportes de bodega e inventario.
+ */
+
 $resumen_reportes = isset($resumen_reportes) ? $resumen_reportes : ['total_lotes' => 0, 'total_vencidos' => 0, 'total_por_vencer' => 0, 'total_bajo_stock' => 0];
 $lotes_vencidos = isset($lotes_vencidos) ? $lotes_vencidos : [];
 $productos_bajo_stock = isset($productos_bajo_stock) ? $productos_bajo_stock : [];

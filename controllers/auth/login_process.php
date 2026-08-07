@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: controllers/auth/login_process.php
+ * Propósito: Procesa la autenticación y el inicio de sesión de los usuarios.
+ */
+
 session_start();
 
 // Este controlador se encarga de procesar el inicio de sesión de los usuarios del sistema SIF, validando sus credenciales y redirigiéndolos al dashboard correspondiente según su rol.

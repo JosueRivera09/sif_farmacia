@@ -114,20 +114,7 @@ elseif ($action === 'listar_pendientes') {
 }
 
 elseif ($action === 'listar_pagados') {
-    // Obtener tickets pagados de hoy
-    $query = "SELECT t.id_ticket, t.codigo_ticket, t.total, t.fecha_creacion, t.id_vendedor, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
-              FROM tickets t 
-              LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
-              LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
-              WHERE t.estado = 'Pagado' AND DATE(t.fecha_creacion) = CURDATE()
-              ORDER BY t.id_ticket DESC";
-    $res = mysqli_query($conexion, $query);
-    $pagados = [];
-    if ($res) {
-        while ($row = mysqli_fetch_assoc($res)) {
-            $pagados[] = $row;
-        }
-    }
+    $pagados = listarTicketsPagadosHoy($conexion);
     echo json_encode([
         'status' => 'success',
         'es_admin' => (isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador'),
@@ -252,18 +239,7 @@ elseif ($action === 'obtener_arqueo_hoy') {
 }
 
 elseif ($action === 'listar_cierres') {
-    inicializarTablaCierresCaja($conexion);
-    $query = "SELECT c.*, u.nombre_usuario 
-              FROM cierres_caja c 
-              LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario 
-              ORDER BY c.id_cierre DESC LIMIT 30";
-    $res = mysqli_query($conexion, $query);
-    $cierres = [];
-    if ($res) {
-        while ($row = mysqli_fetch_assoc($res)) {
-            $cierres[] = $row;
-        }
-    }
+    $cierres = listarUltimosCierresCaja($conexion);
     echo json_encode(['status' => 'success', 'data' => $cierres]);
     exit;
 }

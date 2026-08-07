@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/Interfaz_caja/cajero_dashboard.php
+ * Propósito: Panel de control principal para el rol de Cajero.
+ */
+
 session_start();
 
 // Esta es la pantalla del dashboard del Cajero, que contiene las opciones para realizar cobros, transacciones y consultar el historial de caja.

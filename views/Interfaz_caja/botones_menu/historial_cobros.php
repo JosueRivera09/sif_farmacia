@@ -1,3 +1,9 @@
+<?php
+/*
+ * Archivo: views/Interfaz_caja/botones_menu/historial_cobros.php
+ * Propósito: Vista que muestra el historial de cobros realizados en caja.
+ */
+?>
 <div class="custom-card mb-4 p-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
         <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cobros (Hoy)</h6>

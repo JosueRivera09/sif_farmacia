@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/Interfaz_admin/admin_dashboard.php
+ * Propósito: Panel de control principal para el rol de Administrador.
+ */
+
 session_start();
 
 // Esta es la pantalla del dashboard del Administrador, que contiene accesos rápidos a la gestión de usuarios, productos, reportes y configuraciones.
@@ -248,7 +253,11 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                     if (ventas.length > 0) {
                         let htmlVentas = '';
                         ventas.forEach(v => {
-                            const fechaHora = new Date(v.fecha_creacion).toLocaleString('es-NI', { dateStyle: 'short', timeStyle: 'short' });
+                            let fechaHora = 'N/A';
+                            if (v.fecha_creacion) {
+                                const d = new Date(v.fecha_creacion.replace(' ', 'T'));
+                                fechaHora = isNaN(d.getTime()) ? v.fecha_creacion : d.toLocaleString('es-NI', { dateStyle: 'short', timeStyle: 'short' });
+                            }
                             htmlVentas += `
                                 <tr>
                                     <td style="white-space: nowrap;">${fechaHora}</td>
@@ -272,57 +281,127 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                             </tr>
                         `);
                     }
+                } else {
+                    if (reset) {
+                        tbodyVentas.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">${response.message || 'No se pudieron cargar las ventas.'}</td></tr>`;
+                    }
                 }
             })
-            .catch(err => console.error("Error al cargar ventas filtradas:", err))
+            .catch(err => {
+                console.error("Error al cargar ventas filtradas:", err);
+                if (reset && tbodyVentas) {
+                    tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Error de conexión al cargar ventas.</td></tr>';
+                }
+            })
             .finally(() => {
                 loadingVentas = false;
             });
     }
 
     function cargarDatosDashboard() {
-        // Cargar ventas filtradas por defecto
         const selectFiltro = document.getElementById('filtro-ventas-periodo');
         if (selectFiltro) {
             ventasFiltro = selectFiltro.value;
         }
-        cargarVentasFiltradas(true);
 
-        fetch('../../controllers/admin/AdminDashboardController.php?action=todo')
+        const tbodyVentas = document.getElementById('admin-table-ventas');
+        const tbodyUsuarios = document.getElementById('admin-table-usuarios');
+        const listAlertas = document.getElementById('admin-list-alertas');
+
+        if (tbodyVentas) {
+            tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-wait-custom py-4"><div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>Cargando ventas...</td></tr>';
+        }
+        if (tbodyUsuarios) {
+            tbodyUsuarios.innerHTML = '<tr><td colspan="4" class="text-center text-wait-custom py-2"><div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>Cargando usuarios...</td></tr>';
+        }
+        if (listAlertas) {
+            listAlertas.innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-4"><div class="spinner-border spinner-border-sm text-warning mb-2"></div><span class="text-wait-custom d-block fw-bold">Cargando alertas...</span></div>';
+        }
+
+        fetch(`../../controllers/admin/AdminDashboardController.php?action=todo&filtro=${ventasFiltro}&offset=0&limit=10`)
             .then(res => res.json())
             .then(response => {
                 if (response.status === 'success') {
                     const data = response.data;
                     
-                    // Métricas
-                    if (document.getElementById('admin-metric-recaudacion')) document.getElementById('admin-metric-recaudacion').innerText = 'C$ ' + data.metricas.recaudacion_hoy.toFixed(2);
-                    if (document.getElementById('admin-metric-facturas')) document.getElementById('admin-metric-facturas').innerText = data.metricas.facturas_hoy + ' Tickets';
-                    if (document.getElementById('admin-metric-critico')) document.getElementById('admin-metric-critico').innerText = data.metricas.stock_critico;
-                    if (document.getElementById('admin-metric-bodega')) document.getElementById('admin-metric-bodega').innerText = data.metricas.ingresos_bodega_hoy + ' Lotes';
-
-                    // Usuarios
-                    const tbodyUsuarios = document.getElementById('admin-table-usuarios');
-                    if (data.usuarios.length === 0) {
-                        tbodyUsuarios.innerHTML = '<tr><td colspan="4" class="text-center text-wait-custom py-2">No hay usuarios.</td></tr>';
-                    } else {
-                        let htmlUsuarios = '';
-                        data.usuarios.forEach(u => {
-                            htmlUsuarios += `
-                                <tr>
-                                    <td class="fw-bold text-light">${u.nombre_usuario}</td>
-                                    <td><span class="badge px-2 py-1" style="background-color: #334155;">${u.rol}</span></td>
-                                    <td>${new Date(u.fecha_creacion).toLocaleDateString()}</td>
-                                    <td><span class="text-success d-flex align-items-center gap-1"><span class="material-symbols-outlined" style="font-size:14px;">check_circle</span> Activo</span></td>
-                                </tr>
-                            `;
-                        });
-                        tbodyUsuarios.innerHTML = htmlUsuarios;
+                    // 1. Métricas
+                    if (data.metricas) {
+                        if (document.getElementById('admin-metric-recaudacion')) document.getElementById('admin-metric-recaudacion').innerText = 'C$ ' + (data.metricas.recaudacion_hoy || 0).toFixed(2);
+                        if (document.getElementById('admin-metric-facturas')) document.getElementById('admin-metric-facturas').innerText = (data.metricas.facturas_hoy || 0) + ' Tickets';
+                        if (document.getElementById('admin-metric-bodega')) document.getElementById('admin-metric-bodega').innerText = (data.metricas.ingresos_bodega_hoy || 0) + ' Lotes';
                     }
 
-                    // Alertas
-                    const listAlertas = document.getElementById('admin-list-alertas');
+                    // 2. Historial de Ventas
+                    if (tbodyVentas) {
+                        const ventas = data.ventas || [];
+                        ventasOffset = ventas.length;
+                        hasMoreVentas = data.has_more;
+                        tbodyVentas.innerHTML = '';
+
+                        if (ventas.length === 0) {
+                            tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-wait-custom py-4">No hay ventas registradas para el período seleccionado.</td></tr>';
+                        } else {
+                            let htmlVentas = '';
+                            ventas.forEach(v => {
+                                let fechaHora = 'N/A';
+                                if (v.fecha_creacion) {
+                                    const d = new Date(v.fecha_creacion.replace(' ', 'T'));
+                                    fechaHora = isNaN(d.getTime()) ? v.fecha_creacion : d.toLocaleString('es-NI', { dateStyle: 'short', timeStyle: 'short' });
+                                }
+                                htmlVentas += `
+                                    <tr>
+                                        <td style="white-space: nowrap;">${fechaHora}</td>
+                                        <td><code class="text-success font-bold">${v.codigo_ticket}</code></td>
+                                        <td>${v.cliente ? v.cliente : 'Cliente Final'}</td>
+                                        <td class="font-monospace text-success fw-bold">C$ ${parseFloat(v.total).toFixed(2)}</td>
+                                        <td><span class="badge px-2 py-1 bg-success-box text-success">Pagado</span></td>
+                                    </tr>
+                                `;
+                            });
+                            tbodyVentas.innerHTML = htmlVentas;
+
+                            if (hasMoreVentas) {
+                                tbodyVentas.insertAdjacentHTML('beforeend', `
+                                    <tr id="row-loading-more" class="d-none">
+                                        <td colspan="5" class="text-center py-2 text-muted small">
+                                            <div class="spinner-border spinner-border-sm text-success me-1"></div> Cargando más ventas...
+                                        </td>
+                                    </tr>
+                                `);
+                            }
+                        }
+                    }
+
+                    // 3. Usuarios
+                    if (tbodyUsuarios) {
+                        const usuarios = data.usuarios || [];
+                        if (usuarios.length === 0) {
+                            tbodyUsuarios.innerHTML = '<tr><td colspan="4" class="text-center text-wait-custom py-2">No hay usuarios registrados.</td></tr>';
+                        } else {
+                            let htmlUsuarios = '';
+                            usuarios.forEach(u => {
+                                let fechaReg = 'N/A';
+                                if (u.fecha_creacion) {
+                                    const d = new Date(u.fecha_creacion.replace(' ', 'T'));
+                                    fechaReg = isNaN(d.getTime()) ? u.fecha_creacion : d.toLocaleDateString('es-NI');
+                                }
+                                htmlUsuarios += `
+                                    <tr>
+                                        <td class="fw-bold text-light">${u.nombre_usuario}</td>
+                                        <td><span class="badge px-2 py-1" style="background-color: #334155;">${u.rol}</span></td>
+                                        <td>${fechaReg}</td>
+                                        <td><span class="text-success d-flex align-items-center gap-1"><span class="material-symbols-outlined" style="font-size:14px;">check_circle</span> Activo</span></td>
+                                    </tr>
+                                `;
+                            });
+                            tbodyUsuarios.innerHTML = htmlUsuarios;
+                        }
+                    }
+
+                    // 4. Alertas
                     if (listAlertas) {
-                        if (!data.alertas || data.alertas.length === 0) {
+                        const alertas = data.alertas || [];
+                        if (alertas.length === 0) {
                             listAlertas.innerHTML = `
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-4">
                                     <span class="material-symbols-outlined text-success fs-1 mb-2">check_circle</span>
@@ -332,7 +411,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                             `;
                         } else {
                             let htmlAlertas = '<div class="w-100 text-start px-1 mt-1" style="max-height: 280px; overflow-y: auto;">';
-                            data.alertas.forEach(a => {
+                            alertas.forEach(a => {
                                 let borderColor = a.tipo === 'warning' ? '#f59e0b' : '#ef4444';
                                 let badgeBg = a.tipo === 'warning' ? 'bg-warning text-dark' : 'bg-danger text-white';
                                 
@@ -350,20 +429,17 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                             listAlertas.innerHTML = htmlAlertas;
                         }
                     }
+                } else {
+                    if (tbodyVentas) tbodyVentas.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">${response.message || 'Error al cargar ventas.'}</td></tr>`;
+                    if (tbodyUsuarios) tbodyUsuarios.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-2">${response.message || 'Error al cargar usuarios.'}</td></tr>`;
+                    if (listAlertas) listAlertas.innerHTML = `<div class="p-3 text-danger text-center">${response.message || 'Error al cargar alertas.'}</div>`;
                 }
             })
             .catch(err => {
                 console.error("Error al cargar datos del dashboard:", err);
-                const listAlertas = document.getElementById('admin-list-alertas');
-                if (listAlertas) {
-                    listAlertas.innerHTML = `
-                        <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-4">
-                            <span class="material-symbols-outlined text-success fs-1 mb-2">check_circle</span>
-                            <span class="text-wait-custom d-block fw-bold" style="color: #cbd5e1;">Sin alertas del sistema</span>
-                            <span class="text-sub-wait mt-1" style="font-size: 11px; color: #94a3b8;">Todo el stock y los vencimientos están estables</span>
-                        </div>
-                    `;
-                }
+                if (tbodyVentas) tbodyVentas.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Error de conexión al cargar ventas.</td></tr>';
+                if (tbodyUsuarios) tbodyUsuarios.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-2">Error de conexión al cargar usuarios.</td></tr>';
+                if (listAlertas) listAlertas.innerHTML = '<div class="p-3 text-danger text-center">Error de conexión al cargar alertas.</div>';
             });
     }
 
@@ -375,7 +451,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
             const select = document.getElementById('filtro-ventas-periodo');
             if (select) {
                 ventasFiltro = select.value;
-                cargarVentasFiltradas(true);
+                cargarDatosDashboard();
             }
         }
     });
@@ -389,11 +465,6 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
             }
         }
     }, true);
-
-    // Guardar el HTML inicial de la vista de inicio DESPUES de renderizar o antes.
-    // Como las tablas están vacías, queremos cargarlas, luego guardar el HTML si es necesario.
-    // Alternativa: no guardar el HTML inicial, simplemente recargar la página o volver a mostrar el contenedor y ejecutar cargarDatosDashboard()
-
 
     const viewCache = {};
 
@@ -469,6 +540,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         });
         if (viewCache['dashboard']) {
             viewCache['dashboard'].style.display = 'block';
+            cargarDatosDashboard();
         }
     });
 

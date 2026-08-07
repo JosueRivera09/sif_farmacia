@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/sidebar.php
+ * Propósito: Componente visual de menú lateral de navegación (Sidebar).
+ */
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

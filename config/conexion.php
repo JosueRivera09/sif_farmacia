@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: config/conexion.php
+ * Propósito: Configuración de la conexión a la base de datos.
+ */
+
 $host = "127.0.0.1";
 $user = "sif_user";
 $password = "sif12345";

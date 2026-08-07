@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: controllers/auth/logout.php
+ * Propósito: Procesa el cierre de sesión de los usuarios.
+ */
+
 session_start();
 
 // Este controlador se encarga de cerrar la sesión activa del usuario, limpiar los datos de sesión y redirigir a la pantalla de login.

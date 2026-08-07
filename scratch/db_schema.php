@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: scratch/db_schema.php
+ * Propósito: Esquema de la base de datos (copia/scratch).
+ */
+
 require_once __DIR__ . '/../config/conexion.php';
 
 $res = mysqli_query($conexion, "SHOW TABLES");

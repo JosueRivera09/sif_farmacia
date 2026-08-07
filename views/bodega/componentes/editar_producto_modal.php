@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/bodega/componentes/editar_producto_modal.php
+ * Propósito: Modal para editar la información de un producto en bodega.
+ */
+
 $products_list = isset($products_list) ? $products_list : [];
 $categories_list = isset($categories_list) ? $categories_list : [];
 $laboratories_list = isset($laboratories_list) ? $laboratories_list : [];

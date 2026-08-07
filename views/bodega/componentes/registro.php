@@ -1,4 +1,9 @@
 <?php
+/*
+ * Archivo: views/bodega/componentes/registro.php
+ * Propósito: Vista general para el registro y gestión en bodega.
+ */
+
 $products_list = isset($products_list) ? $products_list : [];
 $categories_list = isset($categories_list) ? $categories_list : [];
 $laboratories_list = isset($laboratories_list) ? $laboratories_list : [];
