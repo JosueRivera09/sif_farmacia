@@ -170,12 +170,15 @@ body {
 /* Cabecera (Header) */
 .top-header {
     height: 64px;
+    min-height: 64px;
+    max-height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
     background-color: #ffffff;
     border-bottom: 1px solid #e2e8f0;
+    box-sizing: border-box;
 }
 
 .header-title {
@@ -183,6 +186,7 @@ body {
     font-weight: 700;
     color: #0f172a;
     margin: 0;
+    line-height: 1.2;
 }
 
 .header-icons {

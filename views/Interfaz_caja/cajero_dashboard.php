@@ -45,8 +45,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'C
     <div class="main-content">
         <header class="top-header">
             <h2 class="header-title" id="header-dinamico-titulo">Panel de Caja</h2>
+
             <div class="d-flex align-items-center gap-4">
-                <div class="profile-container d-flex align-items-center gap-3">
+                <div class="profile-container d-flex align-items-center gap-3 border-start border-secondary-subtle ps-4">
                     <div class="text-end d-none d-sm-block">
                         <p class="mb-0 font-bold" style="font-size: 14px; font-weight: 700; color: #000000 !important;"><?php echo $nombre_usuario; ?></p>
                         <p class="mb-0 text-uppercase" style="font-size: 10px; font-weight: 600; color: #64748b !important; text-transform: uppercase;"><?php echo $rol_usuario; ?></p>
