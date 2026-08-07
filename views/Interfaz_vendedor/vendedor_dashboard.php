@@ -101,6 +101,10 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
             // Si la vista ya existe en el caché del DOM, mostrar la instancia activa conservando todo su estado
             if (viewCache[url]) {
                 viewCache[url].style.display = 'block';
+                if (url.includes('resumen.php')) {
+                    if (typeof window.cargarMetricasResumen === 'function') window.cargarMetricasResumen();
+                    if (typeof window.cargarMisTickets === 'function') window.cargarMisTickets();
+                }
                 return;
             }
 

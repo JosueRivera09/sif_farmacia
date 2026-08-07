@@ -469,13 +469,16 @@
                             window.print();
                             setTimeout(function(){ window.close(); }, 500);
                         };
-                    <\/script>
+                    </` + `script>
                 </body>
                 </html>
             `);
             win.document.close();
         });
     }
+
+    window.cargarMetricasResumen = cargarMetricasResumen;
+    window.cargarMisTickets = cargarMisTickets;
 
     cargarMetricasResumen();
     cargarMisTickets();
