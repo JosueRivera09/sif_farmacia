@@ -390,8 +390,6 @@ function obtenerUltimoCierreCajaHoy(mysqli $conexion, int $id_usuario) {
     }
     return null;
 }
-?>
-
 
 function listarTicketsPagadosHoy(mysqli $conexion) {
     $query = "SELECT t.id_ticket, t.codigo_ticket, t.total, t.fecha_creacion, t.id_vendedor, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
