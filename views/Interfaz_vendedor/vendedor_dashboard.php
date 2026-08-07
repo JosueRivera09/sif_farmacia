@@ -55,8 +55,8 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
 
                     <div class="profile-container d-flex align-items-center gap-3 border-start border-secondary-subtle ps-4">
                         <div class="text-end d-none d-sm-block">
-                            <p class="mb-0 font-bold text-light" style="font-size: 14px; font-weight: 700;"><?php echo $nombre_usuario; ?> (Vendedor)</p>
-                            <p class="mb-0 text-muted uppercase tracking-wider" style="font-size: 10px;"><?php echo $rol_usuario; ?></p>
+                            <p class="mb-0 font-bold" style="font-size: 14px; font-weight: 700; color: #000000 !important;"><?php echo $nombre_usuario; ?></p>
+                            <p class="mb-0 text-uppercase" style="font-size: 10px; font-weight: 600; color: #64748b !important; text-transform: uppercase;"><?php echo $rol_usuario; ?></p>
                         </div>
                         <div class="avatar-box d-flex align-items-center justify-content-center text-white fw-bold" style="background-color: #10b981; font-size: 16px;">
                             <?php echo strtoupper(substr($nombre_usuario, 0, 1)); ?>
@@ -157,7 +157,12 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
         if (profileContainer) {
             profileContainer.style.cursor = 'pointer';
             profileContainer.addEventListener('click', () => {
-                manejarCarga('../perfil/ver_perfil.php', { classList: { remove: () => {}, add: () => {} } }, 'Mi Perfil');
+                manejarCarga('../perfil/ver_perfil.php', {
+                    classList: {
+                        remove: () => {},
+                        add: () => {}
+                    }
+                }, 'Mi Perfil');
             });
         }
     </script>
