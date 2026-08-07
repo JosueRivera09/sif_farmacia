@@ -23,24 +23,26 @@ $fecha_fin = isset($_GET['fecha_fin']) ? trim($_GET['fecha_fin']) : null;
 
 $datos = ReportesModel::obtenerDatosReporte($conexion, $periodo, $fecha_inicio, $fecha_fin);
 
-class PDFReporteContable extends FPDF {
+class PDFReporteContable extends FPDF
+{
     public $periodoTexto = '';
 
-    function Header() {
+    function Header()
+    {
         // Título del sistema y encabezado institucional
         $this->SetFont('Arial', 'B', 16);
         $this->SetTextColor(15, 23, 42); // slate-900
         $this->Cell(120, 8, iconv('UTF-8', 'windows-1252', 'SISTEMA SIF - FARMACIA'), 0, 0, 'L');
-        
+
         $this->SetFont('Arial', 'B', 12);
         $this->SetTextColor(16, 185, 129); // emerald-500
         $this->Cell(70, 8, iconv('UTF-8', 'windows-1252', 'REPORTE CONTABLE'), 0, 1, 'R');
 
         $this->SetFont('Arial', '', 9);
         $this->SetTextColor(100, 116, 139);
-        $this->Cell(120, 5, iconv('UTF-8', 'windows-1252', 'RUC: J0310000001234 | San José de Bocay, Jinotega'), 0, 0, 'L');
+        $this->Cell(120, 5, iconv('UTF-8', 'windows-1252', 'RUC: J0310000001234 | Rivas, Nicaragua'), 0, 0, 'L');
         $this->Cell(70, 5, iconv('UTF-8', 'windows-1252', 'Período: ' . $this->periodoTexto), 0, 1, 'R');
-        
+
         $this->Cell(120, 5, iconv('UTF-8', 'windows-1252', 'Emisión: ' . date('d/m/Y H:i:s')), 0, 1, 'L');
 
         $this->Ln(3);
@@ -50,7 +52,8 @@ class PDFReporteContable extends FPDF {
         $this->Ln(6);
     }
 
-    function Footer() {
+    function Footer()
+    {
         $this->SetY(-18);
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(148, 163, 184);
@@ -206,4 +209,3 @@ $pdf->Cell(85, 4, iconv('UTF-8', 'windows-1252', 'Sello y Firma Auditoría'), 0,
 
 $pdf->Output('I', 'Reporte_Contable_' . date('Ymd_His') . '.pdf');
 exit;
-?>
