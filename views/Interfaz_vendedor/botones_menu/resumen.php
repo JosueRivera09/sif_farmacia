@@ -201,8 +201,8 @@
 
     let rawTicketsResponse = null;
 
-    function renderizarTicketsFiltrados() {
-        if (!rawTicketsResponse || !rawTicketsResponse.data) return;
+    function obtenerTicketsFiltrados() {
+        if (!rawTicketsResponse || !rawTicketsResponse.data) return [];
 
         const selectFiltro = document.getElementById('filtro-resumen-periodo');
         const filtroVal = selectFiltro ? selectFiltro.value : 'todos';
@@ -211,7 +211,7 @@
         const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
 
         const tickets = rawTicketsResponse.data || [];
-        const ticketsFiltrados = tickets.filter(t => {
+        return tickets.filter(t => {
             if (filtroVal === 'todos') return true;
             if (filtroVal === 'pendiente') return t.estado === 'Pendiente';
             if (filtroVal === 'pagado') return t.estado === 'Pagado';
@@ -233,7 +233,12 @@
             }
             return true;
         });
+    }
 
+    function renderizarTicketsFiltrados() {
+        if (!rawTicketsResponse || !rawTicketsResponse.data) return;
+
+        const ticketsFiltrados = obtenerTicketsFiltrados();
         const tbody = document.getElementById('vendedor-tickets-tbody');
         if (!tbody) return;
 
@@ -309,29 +314,32 @@
     const btnImprimirTodos = document.getElementById('btn-imprimir-todos-tickets');
     if (btnImprimirTodos) {
         btnImprimirTodos.addEventListener('click', function() {
-            if (!rawTicketsResponse || !rawTicketsResponse.data || rawTicketsResponse.data.length === 0) {
-                alert("No hay tickets registrados para imprimir.");
+            const tickets = obtenerTicketsFiltrados();
+            if (tickets.length === 0) {
+                alert("No hay tickets que coincidan con el filtro seleccionado para imprimir.");
                 return;
             }
 
-            const tickets = rawTicketsResponse.data;
+            const selectFiltro = document.getElementById('filtro-resumen-periodo');
+            const filtroTexto = selectFiltro ? selectFiltro.options[selectFiltro.selectedIndex].text : 'Todos';
+
             const esAdmin = rawTicketsResponse.es_admin;
             const usuarioActual = rawTicketsResponse.nombre_usuario_actual || 'Usuario';
             const rolActual = rawTicketsResponse.rol_usuario_actual || 'Vendedor';
             const fechaEmision = new Date().toLocaleString();
 
-            let tituloReporte = "Lista de Tickets de Venta Generados (Mis Tickets)";
+            let tituloReporte = "Lista de Tickets de Venta Generados";
             let alcanceReporte = `Tickets generados por el vendedor: ${usuarioActual}`;
             if (esAdmin) {
-                tituloReporte = "Lista General de Todo lo Vendido en el Sistema (Todos los Vendedores)";
-                alcanceReporte = "Consolidado total de tickets generados por todos los usuarios del sistema";
+                tituloReporte = "Lista General de Todo lo Vendido en el Sistema";
+                alcanceReporte = "Consolidado total de tickets generados por los usuarios";
             }
 
             let totalMonto = 0;
             let filasHTML = '';
             tickets.forEach(t => {
-                const dateObj = new Date(t.fecha_creacion);
-                const fechaHora = dateObj.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+                const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
+                const fechaHora = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
                 const monto = parseFloat(t.total);
                 totalMonto += monto;
                 filasHTML += `
@@ -374,6 +382,7 @@
                         </div>
                         <div class="text-end" style="font-size: 12px; color: #64748b;">
                             <p class="mb-1"><strong>Fecha emisión:</strong> ${fechaEmision}</p>
+                            <p class="mb-1"><strong>Filtro aplicado:</strong> <span class="badge bg-success text-white">${filtroTexto}</span></p>
                             <p class="mb-1"><strong>Generado por:</strong> ${usuarioActual} (${rolActual})</p>
                             <p class="mb-0"><strong>Alcance:</strong> ${alcanceReporte}</p>
                         </div>
