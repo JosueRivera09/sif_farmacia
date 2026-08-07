@@ -154,8 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Error al registrar el lote.");
         }
 
-        // Actualizar Stock Total
-        if (!mysqli_query($conexion, "UPDATE productos SET stock_actual = stock_actual + $cantidad_unidades_totales WHERE id_producto = $id_producto")) {
+        // Actualizar y sincronizar el stock total del producto con sus lotes
+        if (!Producto::sincronizarStockProducto($conexion, $id_producto)) {
             throw new Exception("Error al actualizar el stock del producto.");
         }
 

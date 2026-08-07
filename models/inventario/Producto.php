@@ -47,6 +47,24 @@ class Producto {
     }
 
     /**
+    /**
+     * Recalcula y sincroniza exactamente el stock_actual de un producto basándose en la suma real de sus lotes disponibles.
+     */
+    public static function sincronizarStockProducto(mysqli $conexion, int $id_producto) {
+        $id_producto = intval($id_producto);
+        if ($id_producto <= 0) return false;
+        
+        $query = "UPDATE productos p
+                  SET p.stock_actual = IFNULL((
+                      SELECT SUM(l.cantidad_unidades_recibidas) 
+                      FROM lotes l 
+                      WHERE l.id_producto = $id_producto AND l.cantidad_unidades_recibidas > 0
+                  ), 0)
+                  WHERE p.id_producto = $id_producto";
+        return mysqli_query($conexion, $query);
+    }
+
+    /**
      * Actualiza (reduce) el stock de un producto y sus lotes FIFO tras una venta.
      */
     public static function actualizarStockProducto(mysqli $conexion, int $id_producto, int $cantidad) {
@@ -54,11 +72,7 @@ class Producto {
         $cantidad = intval($cantidad);
         if ($cantidad <= 0) return true;
 
-        // 1. Reducir stock global del producto
-        $query = "UPDATE productos SET stock_actual = stock_actual - $cantidad WHERE id_producto = $id_producto";
-        $ok = mysqli_query($conexion, $query);
-
-        // 2. Reducir stock FIFO de los lotes activos (vencimiento más cercano primero)
+        // 1. Reducir stock FIFO de los lotes activos (vencimiento más cercano primero)
         $unidades_pendientes = $cantidad;
         $queryLotes = "SELECT id_lote, cantidad_unidades_recibidas 
                        FROM lotes 
@@ -84,7 +98,8 @@ class Producto {
             }
         }
 
-        return $ok;
+        // 2. Sincronizar el stock_actual del producto con el total de sus lotes
+        return self::sincronizarStockProducto($conexion, $id_producto);
     }
 
     /**
@@ -95,11 +110,7 @@ class Producto {
         $cantidad = intval($cantidad);
         if ($cantidad <= 0) return true;
 
-        // 1. Sumar de vuelta en la tabla productos
-        $query = "UPDATE productos SET stock_actual = stock_actual + $cantidad WHERE id_producto = $id_producto";
-        $ok = mysqli_query($conexion, $query);
-
-        // 2. Devolver unidades al lote activo más reciente
+        // 1. Devolver unidades al lote activo más reciente
         $queryLote = "SELECT id_lote FROM lotes WHERE id_producto = $id_producto ORDER BY fecha_vencimiento DESC, id_lote DESC LIMIT 1";
         $resLote = mysqli_query($conexion, $queryLote);
         if ($resLote && mysqli_num_rows($resLote) > 0) {
@@ -108,7 +119,8 @@ class Producto {
             mysqli_query($conexion, "UPDATE lotes SET cantidad_unidades_recibidas = cantidad_unidades_recibidas + $cantidad WHERE id_lote = $id_lote");
         }
 
-        return $ok;
+        // 2. Sincronizar el stock_actual del producto con el total de sus lotes
+        return self::sincronizarStockProducto($conexion, $id_producto);
     }
 
     /**

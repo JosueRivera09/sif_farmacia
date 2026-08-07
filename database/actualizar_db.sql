@@ -2,13 +2,11 @@
 -- ARCHIVO DE ACTUALIZACIÓN DE BASE DE DATOS PARA PHPMyADMIN
 -- Propósito: Aplicar solo los cambios y nuevas tablas/vistas en una BD existente.
 -- =========================================================================
-
 USE `sistema_sif`;
-
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- -------------------------------------------------------------------------
--- 1. Crear tabla 'cierres_caja' (si no existe en la otra PC)
+-- 1. Crear tabla 'cierres_caja' (si no existe)
 -- -------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `cierres_caja` (
     `id_cierre` INT(11) NOT NULL AUTO_INCREMENT,
@@ -29,9 +27,8 @@ CREATE TABLE IF NOT EXISTS `cierres_caja` (
 -- -------------------------------------------------------------------------
 -- 2. Vistas SQL para mapear compatibilidad de 'ventas' y 'detalle_ventas' desde los 'tickets'
 -- -------------------------------------------------------------------------
-CREATE OR REPLACE VIEW `ventas` AS 
-SELECT 
-    `id_ticket` AS `id_venta`,
+CREATE OR REPLACE VIEW `ventas` AS
+SELECT `id_ticket` AS `id_venta`,
     `id_vendedor` AS `id_usuario`,
     `id_cliente`,
     `fecha_creacion` AS `fecha_venta`,
@@ -39,9 +36,8 @@ SELECT
     `estado` AS `estado_pago`
 FROM `tickets`;
 
-CREATE OR REPLACE VIEW `detalle_ventas` AS 
-SELECT 
-    `id_detalle`,
+CREATE OR REPLACE VIEW `detalle_ventas` AS
+SELECT `id_detalle`,
     `id_ticket` AS `id_venta`,
     `id_producto`,
     `cantidad`,
@@ -49,5 +45,17 @@ SELECT
     `nombre_empaque`,
     `precio_unitario`
 FROM `ticket_detalles`;
+
+-- -------------------------------------------------------------------------
+-- 3. Sincronizar stock_actual de productos con la suma real de sus lotes disponibles
+-- -------------------------------------------------------------------------
+UPDATE `productos` p
+LEFT JOIN (
+    SELECT `id_producto`, IFNULL(SUM(`cantidad_unidades_recibidas`), 0) AS `total_lotes`
+    FROM `lotes`
+    WHERE `cantidad_unidades_recibidas` > 0
+    GROUP BY `id_producto`
+) l ON p.`id_producto` = l.`id_producto`
+SET p.`stock_actual` = IFNULL(l.`total_lotes`, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
