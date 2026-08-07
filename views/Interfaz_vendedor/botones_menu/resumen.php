@@ -83,7 +83,22 @@
 
 <div class="custom-card mt-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
-        <h6 class="card-title-custom mb-0" id="titulo-seccion-tickets">Mis Tickets de Venta (Últimos 20)</h6>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <h6 class="card-title-custom mb-0" id="titulo-seccion-tickets">Mis Tickets de Venta (Últimos 20)</h6>
+            <div class="d-flex align-items-center gap-2">
+                <select id="filtro-resumen-periodo" class="form-select form-select-sm border-secondary text-dark bg-white" style="font-size: 12px; width: 130px; cursor: pointer;">
+                    <option value="todos" selected>Todos</option>
+                    <option value="hoy">Hoy</option>
+                    <option value="semana">Esta Semana</option>
+                    <option value="mes">Este Mes</option>
+                    <option value="pendiente">Pendientes</option>
+                    <option value="pagado">Pagados</option>
+                </select>
+                <button id="btn-filtrar-resumen" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-2 py-1" style="font-size: 12px;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">filter_alt</span> Filtrar
+                </button>
+            </div>
+        </div>
         <button id="btn-imprimir-todos-tickets" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-3" style="font-size: 12px;">
             <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir Lista de Tickets
         </button>
@@ -186,13 +201,81 @@
 
     let rawTicketsResponse = null;
 
+    function renderizarTicketsFiltrados() {
+        if (!rawTicketsResponse || !rawTicketsResponse.data) return;
+
+        const selectFiltro = document.getElementById('filtro-resumen-periodo');
+        const filtroVal = selectFiltro ? selectFiltro.value : 'todos';
+
+        const ahora = new Date();
+        const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+
+        const tickets = rawTicketsResponse.data || [];
+        const ticketsFiltrados = tickets.filter(t => {
+            if (filtroVal === 'todos') return true;
+            if (filtroVal === 'pendiente') return t.estado === 'Pendiente';
+            if (filtroVal === 'pagado') return t.estado === 'Pagado';
+
+            if (!t.fecha_creacion) return true;
+            const d = new Date(t.fecha_creacion.replace(' ', 'T'));
+            if (isNaN(d.getTime())) return true;
+
+            const fechaStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+            if (filtroVal === 'hoy') {
+                return fechaStr === hoyStr;
+            } else if (filtroVal === 'semana') {
+                const hace7dias = new Date();
+                hace7dias.setDate(ahora.getDate() - 7);
+                return d >= hace7dias;
+            } else if (filtroVal === 'mes') {
+                return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
+            }
+            return true;
+        });
+
+        const tbody = document.getElementById('vendedor-tickets-tbody');
+        if (!tbody) return;
+
+        if (ticketsFiltrados.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No hay tickets que coincidan con el filtro seleccionado.</td></tr>`;
+            return;
+        }
+        
+        let html = '';
+        ticketsFiltrados.forEach(t => {
+            const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
+            const fecha = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleDateString();
+            const hora = isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let badgeClass = 'bg-warning-box text-warning';
+            let estadoTexto = 'Pendiente';
+            if (t.estado === 'Pagado') {
+                badgeClass = 'bg-success-box text-success';
+                estadoTexto = 'Pagado';
+            }
+            
+            html += `
+                <tr>
+                    <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
+                    <td class="text-light">${fecha} ${hora}</td>
+                    <td class="text-light">${t.nombre_vendedor || rawTicketsResponse.nombre_usuario_actual}</td>
+                    <td class="text-end font-monospace text-success fw-bold">C$ ${parseFloat(t.total).toFixed(2)}</td>
+                    <td class="text-center">
+                        <span class="badge ${badgeClass} px-3 py-1">${estadoTexto}</span>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
     function cargarMisTickets() {
         fetch('../../controllers/vendedor/VentaController.php?action=mis_tickets')
             .then(res => res.json())
             .then(response => {
                 if (response.status === 'success') {
                     rawTicketsResponse = response;
-                    const tickets = response.data || [];
                     const esAdmin = response.es_admin;
                     
                     const tituloEl = document.getElementById('titulo-seccion-tickets');
@@ -200,38 +283,7 @@
                         tituloEl.innerText = esAdmin ? 'Tickets de Venta del Sistema (Todos)' : 'Mis Tickets de Venta (Últimos 20)';
                     }
 
-                    const tbody = document.getElementById('vendedor-tickets-tbody');
-                    if (tickets.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No hay tickets registrados para mostrar.</td></tr>`;
-                        return;
-                    }
-                    
-                    let html = '';
-                    tickets.forEach(t => {
-                        const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
-                        const fecha = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleDateString();
-                        const hora = isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                        
-                        let badgeClass = 'bg-warning-box text-warning';
-                        let estadoTexto = 'Pendiente';
-                        if (t.estado === 'Pagado') {
-                            badgeClass = 'bg-success-box text-success';
-                            estadoTexto = 'Pagado';
-                        }
-                        
-                        html += `
-                            <tr>
-                                <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
-                                <td class="text-light">${fecha} ${hora}</td>
-                                <td class="text-light">${t.nombre_vendedor || response.nombre_usuario_actual}</td>
-                                <td class="text-end font-monospace text-success fw-bold">C$ ${parseFloat(t.total).toFixed(2)}</td>
-                                <td class="text-center">
-                                    <span class="badge ${badgeClass} px-3 py-1">${estadoTexto}</span>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    tbody.innerHTML = html;
+                    renderizarTicketsFiltrados();
                 }
             })
             .catch(err => {
@@ -239,6 +291,20 @@
                 document.getElementById('vendedor-tickets-tbody').innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Error al cargar tickets</td></tr>`;
             });
     }
+
+    document.addEventListener('click', function(e) {
+        const btnFiltro = e.target.closest('#btn-filtrar-resumen');
+        if (btnFiltro) {
+            e.preventDefault();
+            renderizarTicketsFiltrados();
+        }
+    });
+
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'filtro-resumen-periodo') {
+            renderizarTicketsFiltrados();
+        }
+    });
 
     const btnImprimirTodos = document.getElementById('btn-imprimir-todos-tickets');
     if (btnImprimirTodos) {
