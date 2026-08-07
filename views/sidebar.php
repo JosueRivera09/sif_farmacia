@@ -442,5 +442,39 @@ if (!function_exists('obtenerLinkVolver')) {
         save: saveInputValue,
         restore: restoreAllInputValues
     };
+
+    // Preservar scroll y auto-ajustar foco en los botones del sidebar
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarMenu = document.querySelector('.sidebar-menu');
+        if (!sidebarMenu) return;
+
+        // Restaurar posición de scroll previa si existe
+        const savedScroll = sessionStorage.getItem('sif_sidebar_scroll');
+        if (savedScroll !== null) {
+            sidebarMenu.scrollTop = parseInt(savedScroll, 10);
+        }
+
+        // Auto-scroll del botón activo al cargar
+        const activeLink = sidebarMenu.querySelector('.nav-link-custom.active');
+        if (activeLink) {
+            activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Escuchar clics en botones para hacer scroll hacia el botón enfocado y guardar posición
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('.sidebar-menu .nav-link-custom');
+            if (link) {
+                setTimeout(() => {
+                    link.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    sessionStorage.setItem('sif_sidebar_scroll', sidebarMenu.scrollTop);
+                }, 50);
+            }
+        });
+
+        // Guardar scroll en evento de desplazamiento
+        sidebarMenu.addEventListener('scroll', function() {
+            sessionStorage.setItem('sif_sidebar_scroll', sidebarMenu.scrollTop);
+        });
+    });
 })();
 </script>
