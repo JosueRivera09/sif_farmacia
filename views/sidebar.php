@@ -156,12 +156,6 @@ if (!function_exists('obtenerLinkVolver')) {
                     <span class="material-symbols-outlined">point_of_sale</span>
                     <span>Nueva Venta</span>
                 </a>
-                <a class="nav-link-custom <?php echo ($panel_context === 'ventas' && $subParam === 'inventario') ? 'active' : ''; ?>"
-                    id="btn-inventario"
-                    href="<?php echo ($panel_context === 'ventas' && $subParam === 'inventario') ? '#' : $href_ventas . '?sub=inventario'; ?>">
-                    <span class="material-symbols-outlined">search</span>
-                    <span>Catálogo Inventario</span>
-                </a>
             </div>
 
             <!-- BLOQUE MÓDULO DE BODEGA -->
