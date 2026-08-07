@@ -84,12 +84,33 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
         const btnNuevaVenta = document.getElementById('btn-nueva-venta');
         const btnInventario = document.getElementById('btn-inventario');
 
+        const viewCache = {};
+
         function manejarCarga(url, btnClicado, nombreModulo) {
             document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
-            if (btnClicado) btnClicado.classList.add('active');
-            moduleTitle.innerText = nombreModulo;
+            if (btnClicado && btnClicado.classList) btnClicado.classList.add('active');
+            if (moduleTitle) moduleTitle.innerText = nombreModulo;
 
-            contentArea.innerHTML = `
+            // Ocultar todas las instancias de vistas cargadas anteriormente en el DOM
+            Object.keys(viewCache).forEach(key => {
+                if (viewCache[key]) {
+                    viewCache[key].style.display = 'none';
+                }
+            });
+
+            // Si la vista ya existe en el caché del DOM, mostrar la instancia activa conservando todo su estado
+            if (viewCache[url]) {
+                viewCache[url].style.display = 'block';
+                return;
+            }
+
+            // Si no existe, crear el contenedor para la nueva vista e instalar la instancia
+            const container = document.createElement('div');
+            container.className = 'cached-view-instance w-100 h-100';
+            contentArea.appendChild(container);
+            viewCache[url] = container;
+
+            container.innerHTML = `
                 <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 py-5">
                     <div class="spinner-border text-success mb-3" role="status"></div>
                     <span class="text-wait-custom">Cargando ${nombreModulo}...</span>
@@ -102,9 +123,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
                     return response.text();
                 })
                 .then(data => {
-                    contentArea.innerHTML = data;
+                    container.innerHTML = data;
                     // Ejecutar scripts cargados por ajax
-                    const scripts = contentArea.querySelectorAll('script');
+                    const scripts = container.querySelectorAll('script');
                     scripts.forEach(oldScript => {
                         const newScript = document.createElement('script');
                         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
@@ -113,7 +134,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'V
                     });
                 })
                 .catch(error => {
-                    contentArea.innerHTML = `<div class="alert alert-danger m-3">Error: ${error.message}</div>`;
+                    container.innerHTML = `<div class="alert alert-danger m-3">Error: ${error.message}</div>`;
                 });
         }
 

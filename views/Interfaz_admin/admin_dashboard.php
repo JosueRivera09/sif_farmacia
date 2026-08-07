@@ -395,14 +395,41 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
     // Alternativa: no guardar el HTML inicial, simplemente recargar la página o volver a mostrar el contenedor y ejecutar cargarDatosDashboard()
 
 
-    // Inicializar guardado del HTML
-    vistaInicioHTML = contentArea.innerHTML;
+    const viewCache = {};
+
+    // Envolver el contenido inicial del dashboard de admin como una instancia cacheada
+    const defaultDashboardContainer = document.createElement('div');
+    defaultDashboardContainer.className = 'cached-view-instance w-100 h-100';
+    while (contentArea.firstChild) {
+        defaultDashboardContainer.appendChild(contentArea.firstChild);
+    }
+    contentArea.appendChild(defaultDashboardContainer);
+    viewCache['dashboard'] = defaultDashboardContainer;
 
     function manejarCarga(url, btnClicado, nombreModulo) {
         document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
-        btnClicado.classList.add('active');
-        
-        contentArea.innerHTML = `
+        if (btnClicado && btnClicado.classList) btnClicado.classList.add('active');
+
+        // Ocultar todas las instancias de vistas cargadas anteriormente en el DOM
+        Object.keys(viewCache).forEach(key => {
+            if (viewCache[key]) {
+                viewCache[key].style.display = 'none';
+            }
+        });
+
+        // Si la vista ya existe en el caché del DOM, mostrar la instancia activa conservando todo su estado
+        if (viewCache[url]) {
+            viewCache[url].style.display = 'block';
+            return;
+        }
+
+        // Si no existe, crear el contenedor para la nueva vista e instalar la instancia
+        const container = document.createElement('div');
+        container.className = 'cached-view-instance w-100 h-100';
+        contentArea.appendChild(container);
+        viewCache[url] = container;
+
+        container.innerHTML = `
             <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 py-5">
                 <div class="spinner-border text-success mb-3" role="status"></div>
                 <span class="text-wait-custom">Cargando ${nombreModulo}...</span>
@@ -415,9 +442,9 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                 return response.text();
             })
             .then(data => { 
-                contentArea.innerHTML = data; 
+                container.innerHTML = data; 
                 // Ejecutar scripts cargados por ajax
-                const scripts = contentArea.querySelectorAll('script');
+                const scripts = container.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement('script');
                     Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
@@ -426,7 +453,7 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
                 });
             })
             .catch(error => {
-                contentArea.innerHTML = `<div class="alert alert-danger m-3">Error: ${error.message}</div>`;
+                container.innerHTML = `<div class="alert alert-danger m-3">Error: ${error.message}</div>`;
             });
     }
 
@@ -434,8 +461,15 @@ $rol_usuario = isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'A
         e.preventDefault();
         document.querySelectorAll('.nav-link-custom').forEach(link => link.classList.remove('active'));
         btnInicio.classList.add('active');
-        contentArea.innerHTML = vistaInicioHTML;
-        cargarDatosDashboard(); // Recargar datos frescos al volver al dashboard
+        
+        Object.keys(viewCache).forEach(key => {
+            if (viewCache[key]) {
+                viewCache[key].style.display = 'none';
+            }
+        });
+        if (viewCache['dashboard']) {
+            viewCache['dashboard'].style.display = 'block';
+        }
     });
 
     btnUsuarios.addEventListener('click', (e) => {
