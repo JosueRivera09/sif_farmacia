@@ -635,15 +635,17 @@ CREATE TABLE `tickets` (
     `total` decimal(10, 2) NOT NULL,
     `estado` varchar(20) DEFAULT 'Pendiente',
     `id_vendedor` int(11) NOT NULL,
+    `id_cajero` int(11) DEFAULT NULL,
     `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
     `id_cliente` int(11) DEFAULT NULL,
     PRIMARY KEY (`id_ticket`),
     UNIQUE KEY `codigo_ticket` (`codigo_ticket`),
     KEY `id_vendedor` (`id_vendedor`),
+    KEY `id_cajero` (`id_cajero`),
     KEY `id_cliente` (`id_cliente`),
     CONSTRAINT `tickets_ibfk_1` FOREIGN KEY (`id_vendedor`) REFERENCES `usuarios` (`id_usuario`),
-    CONSTRAINT `tickets_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON DELETE
-    SET NULL
+    CONSTRAINT `tickets_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON DELETE SET NULL,
+    CONSTRAINT `tickets_ibfk_3` FOREIGN KEY (`id_cajero`) REFERENCES `usuarios` (`id_usuario`) ON DELETE SET NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 INSERT INTO `tickets` (
         `id_ticket`,

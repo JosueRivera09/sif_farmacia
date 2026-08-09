@@ -58,7 +58,8 @@ elseif ($action === 'cobrar') {
     mysqli_begin_transaction($conexion);
 
     try {
-        $exito = procesarPagoTicket($conexion, $id_ticket);
+        $id_cajero = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+        $exito = procesarPagoTicket($conexion, $id_ticket, $id_cajero);
         if ($exito) {
             mysqli_commit($conexion);
             echo json_encode(['status' => 'success', 'message' => 'Pago del ticket registrado y stock descontado exitosamente']);

@@ -133,8 +133,9 @@ function obtenerTicketPorCodigo(mysqli $conexion, string $codigo) {
     return null;
 }
 
-function procesarPagoTicket(mysqli $conexion, int $id_ticket) {
+function procesarPagoTicket(mysqli $conexion, int $id_ticket, int $id_cajero = 0) {
     $id_ticket = intval($id_ticket);
+    $id_cajero = intval($id_cajero);
 
     // Verificar que el ticket exista y esté pendiente
     $resCheck = mysqli_query($conexion, "SELECT id_ticket FROM tickets WHERE id_ticket = $id_ticket AND estado = 'Pendiente' LIMIT 1");
@@ -142,8 +143,9 @@ function procesarPagoTicket(mysqli $conexion, int $id_ticket) {
         throw new Exception("El ticket no se encuentra pendiente de cobro.");
     }
 
-    // Marcar ticket como pagado (el stock ya fue reservado/descontado al generar la venta)
-    $updateTicket = "UPDATE tickets SET estado = 'Pagado' WHERE id_ticket = $id_ticket";
+    $cajeroVal = ($id_cajero > 0) ? $id_cajero : "NULL";
+    // Marcar ticket como pagado y registrar id_cajero
+    $updateTicket = "UPDATE tickets SET estado = 'Pagado', id_cajero = $cajeroVal WHERE id_ticket = $id_ticket";
     return mysqli_query($conexion, $updateTicket);
 }
 
@@ -395,12 +397,16 @@ function listarTicketsPagadosHoy(mysqli $conexion, int $id_usuario = 0, bool $es
     $whereUsuario = "";
     if (!$es_admin && $id_usuario > 0) {
         $id_usuario = intval($id_usuario);
-        $whereUsuario = " AND t.id_vendedor = $id_usuario ";
+        $whereUsuario = " AND (t.id_cajero = $id_usuario OR (t.id_cajero IS NULL AND t.id_vendedor = $id_usuario)) ";
     }
 
-    $query = "SELECT t.id_ticket, t.codigo_ticket, t.total, t.fecha_creacion, t.id_vendedor, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
+    $query = "SELECT t.id_ticket, t.codigo_ticket, t.total, t.fecha_creacion, t.id_vendedor, t.id_cajero,
+                     u.nombre_usuario as nombre_vendedor,
+                     uc.nombre_usuario as nombre_cajero,
+                     c.nombre_completo as nombre_cliente
               FROM tickets t 
               LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
+              LEFT JOIN usuarios uc ON t.id_cajero = uc.id_usuario
               LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
               WHERE t.estado = 'Pagado' $whereUsuario
               ORDER BY t.id_ticket DESC LIMIT 50";

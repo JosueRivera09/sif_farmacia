@@ -58,4 +58,25 @@ LEFT JOIN (
 ) l ON p.`id_producto` = l.`id_producto`
 SET p.`stock_actual` = IFNULL(l.`total_lotes`, 0);
 
+-- -------------------------------------------------------------------------
+-- 4. Agregar columna 'id_cajero' a la tabla 'tickets' si no existe
+-- -------------------------------------------------------------------------
+SET @dbname = DATABASE();
+SET @tablename = "tickets";
+SET @columnname = "id_cajero";
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      TABLE_SCHEMA = @dbname
+      AND TABLE_NAME = @tablename
+      AND COLUMN_NAME = @columnname
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE `tickets` ADD COLUMN `id_cajero` INT(11) DEFAULT NULL AFTER `id_vendedor`;"
+));
+PREPARE addColumnIfNotExist FROM @preparedStatement;
+EXECUTE addColumnIfNotExist;
+DEALLOCATE PREPARE addColumnIfNotExist;
+
 SET FOREIGN_KEY_CHECKS = 1;
