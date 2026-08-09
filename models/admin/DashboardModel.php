@@ -136,10 +136,10 @@ class DashboardModel
             }
         }
 
-        // 2. Productos Bajo Stock Mínimo (> 0 y <= stock_minimo)
+        // 2. Productos Próximos a Agotarse (Stock mayor a 0 pero menor o igual al mínimo o a 10 unidades)
         $queryStock = "SELECT nombre_commercial, stock_actual, stock_minimo, unidad_minima 
                        FROM productos 
-                       WHERE stock_actual > 0 AND stock_minimo > 0 AND stock_actual <= stock_minimo 
+                       WHERE stock_actual > 0 AND (stock_actual <= stock_minimo OR (stock_minimo = 0 AND stock_actual <= 10)) 
                        ORDER BY stock_actual ASC 
                        LIMIT 10";
         $resS = mysqli_query($conexion, $queryStock);
@@ -147,8 +147,8 @@ class DashboardModel
             while ($row = mysqli_fetch_assoc($resS)) {
                 $alertas[] = [
                     'nombre_commercial' => $row['nombre_commercial'],
-                    'detalle' => 'Stock: ' . intval($row['stock_actual']) . ' ' . $row['unidad_minima'] . 's (Mín: ' . intval($row['stock_minimo']) . ')',
-                    'etiqueta' => 'Bajo Stock',
+                    'detalle' => 'Quedan solo ' . intval($row['stock_actual']) . ' ' . $row['unidad_minima'] . 's' . (intval($row['stock_minimo']) > 0 ? ' (Mín: ' . intval($row['stock_minimo']) . ')' : ''),
+                    'etiqueta' => 'Próximo a Agotarse',
                     'tipo' => 'warning'
                 ];
             }
