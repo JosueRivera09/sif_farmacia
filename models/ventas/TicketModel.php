@@ -391,13 +391,19 @@ function obtenerUltimoCierreCajaHoy(mysqli $conexion, int $id_usuario) {
     return null;
 }
 
-function listarTicketsPagadosHoy(mysqli $conexion) {
+function listarTicketsPagadosHoy(mysqli $conexion, int $id_usuario = 0, bool $es_admin = true) {
+    $whereUsuario = "";
+    if (!$es_admin && $id_usuario > 0) {
+        $id_usuario = intval($id_usuario);
+        $whereUsuario = " AND t.id_vendedor = $id_usuario ";
+    }
+
     $query = "SELECT t.id_ticket, t.codigo_ticket, t.total, t.fecha_creacion, t.id_vendedor, u.nombre_usuario as nombre_vendedor, c.nombre_completo as nombre_cliente
               FROM tickets t 
               LEFT JOIN usuarios u ON t.id_vendedor = u.id_usuario 
               LEFT JOIN clientes c ON t.id_cliente = c.id_cliente
-              WHERE t.estado = 'Pagado' AND DATE(t.fecha_creacion) = CURDATE()
-              ORDER BY t.id_ticket DESC";
+              WHERE t.estado = 'Pagado' $whereUsuario
+              ORDER BY t.id_ticket DESC LIMIT 50";
     $res = mysqli_query($conexion, $query);
     $pagados = [];
     if ($res) {
@@ -408,13 +414,19 @@ function listarTicketsPagadosHoy(mysqli $conexion) {
     return $pagados;
 }
 
-function listarUltimosCierresCaja(mysqli $conexion) {
+function listarUltimosCierresCaja(mysqli $conexion, int $id_usuario = 0, bool $es_admin = true) {
     if (function_exists('inicializarTablaCierresCaja')) {
         inicializarTablaCierresCaja($conexion);
+    }
+    $whereUsuario = "";
+    if (!$es_admin && $id_usuario > 0) {
+        $id_usuario = intval($id_usuario);
+        $whereUsuario = " WHERE c.id_usuario = $id_usuario ";
     }
     $query = "SELECT c.*, u.nombre_usuario 
               FROM cierres_caja c 
               LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario 
+              $whereUsuario
               ORDER BY c.id_cierre DESC LIMIT 30";
     $res = mysqli_query($conexion, $query);
     $cierres = [];

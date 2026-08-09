@@ -152,16 +152,7 @@
 
         function obtenerVentasSegunRol() {
             if (!datosHistorialRaw || !datosHistorialRaw.data) return [];
-
-            const tickets = datosHistorialRaw.data;
-            const esAdmin = datosHistorialRaw.es_admin;
-            const idUsuarioActual = datosHistorialRaw.id_usuario_actual;
-
-            if (esAdmin) {
-                return tickets;
-            } else {
-                return tickets.filter(t => parseInt(t.id_vendedor) === parseInt(idUsuarioActual));
-            }
+            return datosHistorialRaw.data;
         }
 
         function renderHistorial() {

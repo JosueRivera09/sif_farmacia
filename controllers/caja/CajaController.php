@@ -114,11 +114,14 @@ elseif ($action === 'listar_pendientes') {
 }
 
 elseif ($action === 'listar_pagados') {
-    $pagados = listarTicketsPagadosHoy($conexion);
+    $es_admin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador');
+    $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    
+    $pagados = listarTicketsPagadosHoy($conexion, $id_usuario, $es_admin);
     echo json_encode([
         'status' => 'success',
-        'es_admin' => (isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador'),
-        'id_usuario_actual' => isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0,
+        'es_admin' => $es_admin,
+        'id_usuario_actual' => $id_usuario,
         'nombre_usuario_actual' => isset($_SESSION['nombre_usuario']) ? $_SESSION['nombre_usuario'] : 'Usuario',
         'rol_usuario_actual' => isset($_SESSION['rol']) ? $_SESSION['rol'] : 'Cajero',
         'data' => $pagados
@@ -239,7 +242,10 @@ elseif ($action === 'obtener_arqueo_hoy') {
 }
 
 elseif ($action === 'listar_cierres') {
-    $cierres = listarUltimosCierresCaja($conexion);
+    $es_admin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador');
+    $id_usuario = isset($_SESSION['id_usuario']) ? intval($_SESSION['id_usuario']) : 0;
+    
+    $cierres = listarUltimosCierresCaja($conexion, $id_usuario, $es_admin);
     echo json_encode(['status' => 'success', 'data' => $cierres]);
     exit;
 }

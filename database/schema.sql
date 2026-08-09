@@ -1,15 +1,9 @@
 CREATE DATABASE IF NOT EXISTS `sistema_sif` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-
 USE `sistema_sif`;
-
 SET FOREIGN_KEY_CHECKS = 0;
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-
 START TRANSACTION;
-
 SET time_zone = "+00:00";
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */
 ;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */
@@ -17,21 +11,16 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */
 ;
 /*!40101 SET NAMES utf8mb4 */
-;
-
--- --------------------------------------------------------
+Detalle de Liquidación Estado del Ticket: Pendiente Vendedor: joel_admin Monto Gravado: C $ 5008.70 I.V.A (15 %): C $ 751.30 -- --------------------------------------------------------
 -- Tablas sin dependencias
 -- --------------------------------------------------------
-
 CREATE TABLE `categorias` (
     `id_categoria` int(11) NOT NULL AUTO_INCREMENT,
     `nombre_categoria` varchar(100) NOT NULL,
     `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
     PRIMARY KEY (`id_categoria`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `categorias` (
+INSERT INTO `categorias` (
         `id_categoria`,
         `nombre_categoria`,
         `fecha_creacion`
@@ -61,16 +50,13 @@ VALUES (
         'Antihistamínicos',
         '2026-07-18 21:45:02'
     );
-
 CREATE TABLE `laboratorios` (
     `id_laboratorio` int(11) NOT NULL AUTO_INCREMENT,
     `nombre_laboratorio` varchar(100) NOT NULL,
     `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
     PRIMARY KEY (`id_laboratorio`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `laboratorios` (
+INSERT INTO `laboratorios` (
         `id_laboratorio`,
         `nombre_laboratorio`,
         `fecha_creacion`
@@ -100,7 +86,6 @@ VALUES (
         'Genfar',
         '2026-07-18 21:45:02'
     );
-
 CREATE TABLE `clientes` (
     `id_cliente` int(11) NOT NULL AUTO_INCREMENT,
     `cedula` varchar(20) DEFAULT NULL,
@@ -110,9 +95,7 @@ CREATE TABLE `clientes` (
     PRIMARY KEY (`id_cliente`),
     UNIQUE KEY `cedula` (`cedula`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `clientes` (
+INSERT INTO `clientes` (
         `id_cliente`,
         `cedula`,
         `nombre_completo`,
@@ -161,7 +144,6 @@ VALUES (
         NULL,
         '2026-07-18 22:07:21'
     );
-
 CREATE TABLE `usuarios` (
     `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
     `nombre_usuario` varchar(50) NOT NULL,
@@ -171,9 +153,7 @@ CREATE TABLE `usuarios` (
     PRIMARY KEY (`id_usuario`),
     UNIQUE KEY `nombre_usuario` (`nombre_usuario`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `usuarios` (
+INSERT INTO `usuarios` (
         `id_usuario`,
         `nombre_usuario`,
         `clave_acceso`,
@@ -208,11 +188,9 @@ VALUES (
         'Bodega',
         '2026-07-18 21:45:02'
     );
-
 -- --------------------------------------------------------
 -- Tablas dependientes
 -- --------------------------------------------------------
-
 CREATE TABLE `productos` (
     `id_producto` int(11) NOT NULL AUTO_INCREMENT,
     `codigo_barras` varchar(50) NOT NULL,
@@ -225,12 +203,12 @@ CREATE TABLE `productos` (
     `unidad_minima` varchar(50) NOT NULL,
     `unidades_por_empaque_medio` int(11) DEFAULT 1,
     `unidades_totales_por_empaque_principal` int(11) NOT NULL DEFAULT 1,
-    `es_fraccionable` bit(1) DEFAULT b'0',
+    `es_fraccionable` bit(1) DEFAULT b '0',
     `precio_empaque_principal` decimal(10, 2) NOT NULL,
     `precio_empaque_medio` decimal(10, 2) DEFAULT NULL,
     `precio_unidad_minima` decimal(10, 2) NOT NULL,
     `miligramos` int(11) DEFAULT NULL,
-    `requiere_receta` bit(1) DEFAULT b'0',
+    `requiere_receta` bit(1) DEFAULT b '0',
     `stock_actual` int(11) DEFAULT 0,
     `stock_minimo` int(11) DEFAULT 0,
     `tipo_producto` varchar(50) DEFAULT 'General',
@@ -242,9 +220,7 @@ CREATE TABLE `productos` (
     CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`),
     CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`id_laboratorio`) REFERENCES `laboratorios` (`id_laboratorio`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `productos` (
+INSERT INTO `productos` (
         `id_producto`,
         `codigo_barras`,
         `nombre_commercial`,
@@ -279,12 +255,12 @@ VALUES (
         'Tableta',
         10,
         100,
-        b'1',
+        b '1',
         150.00,
         20.00,
         2.50,
         500,
-        b'0',
+        b '0',
         1000,
         0,
         'General',
@@ -302,12 +278,12 @@ VALUES (
         'Jarabe',
         1,
         1,
-        b'0',
+        b '0',
         120.00,
         NULL,
         120.00,
         250,
-        b'0',
+        b '0',
         50,
         0,
         'General',
@@ -325,12 +301,12 @@ VALUES (
         'Cápsula',
         1,
         30,
-        b'1',
+        b '1',
         200.00,
         NULL,
         8.00,
         20,
-        b'0',
+        b '0',
         596,
         0,
         'General',
@@ -348,12 +324,12 @@ VALUES (
         'Gragea',
         10,
         50,
-        b'1',
+        b '1',
         250.00,
         55.00,
         6.00,
         1000,
-        b'0',
+        b '0',
         250,
         0,
         'General',
@@ -371,12 +347,12 @@ VALUES (
         'Ampolla',
         1,
         5,
-        b'0',
+        b '0',
         80.00,
         NULL,
         80.00,
         75,
-        b'0',
+        b '0',
         150,
         0,
         'General',
@@ -394,12 +370,12 @@ VALUES (
         'Tableta',
         10,
         20,
-        b'1',
+        b '1',
         90.00,
         48.00,
         5.00,
         10,
-        b'0',
+        b '0',
         400,
         0,
         'General',
@@ -417,12 +393,12 @@ VALUES (
         'Sobre',
         1,
         1,
-        b'0',
+        b '0',
         30.00,
         NULL,
         30.00,
         NULL,
-        b'0',
+        b '0',
         100,
         0,
         'General',
@@ -440,12 +416,12 @@ VALUES (
         'Pastilla',
         2,
         40,
-        b'1',
+        b '1',
         180.00,
         12.00,
         7.00,
         500,
-        b'0',
+        b '0',
         658,
         0,
         'General',
@@ -463,12 +439,12 @@ VALUES (
         'Crema',
         1,
         1,
-        b'0',
+        b '0',
         110.00,
         NULL,
         110.00,
         NULL,
-        b'0',
+        b '0',
         60,
         0,
         'General',
@@ -486,18 +462,17 @@ VALUES (
         'Cápsula',
         3,
         3,
-        b'1',
+        b '1',
         280.00,
         280.00,
         100.00,
         500,
-        b'0',
+        b '0',
         90,
         0,
         'General',
         '2026-07-18 21:45:02'
     );
-
 CREATE TABLE `cierres_caja` (
     `id_cierre` int(11) NOT NULL AUTO_INCREMENT,
     `id_usuario` int(11) NOT NULL,
@@ -510,7 +485,6 @@ CREATE TABLE `cierres_caja` (
     KEY `id_usuario` (`id_usuario`),
     CONSTRAINT `cierres_caja_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
 CREATE TABLE `permisos_extra` (
     `id_permiso` int(11) NOT NULL AUTO_INCREMENT,
     `id_usuario` int(11) NOT NULL,
@@ -520,7 +494,6 @@ CREATE TABLE `permisos_extra` (
     KEY `id_usuario` (`id_usuario`),
     CONSTRAINT `permisos_extra_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
 CREATE TABLE `lotes` (
     `id_lote` int(11) NOT NULL AUTO_INCREMENT,
     `id_producto` int(11) NOT NULL,
@@ -535,9 +508,7 @@ CREATE TABLE `lotes` (
     KEY `id_producto` (`id_producto`),
     CONSTRAINT `lotes_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `lotes` (
+INSERT INTO `lotes` (
         `id_lote`,
         `id_producto`,
         `numero_lote`,
@@ -658,7 +629,6 @@ VALUES (
         '2026-07-18 21:45:02',
         'Bodega Principal - Managua'
     );
-
 CREATE TABLE `tickets` (
     `id_ticket` int(11) NOT NULL AUTO_INCREMENT,
     `codigo_ticket` varchar(20) NOT NULL,
@@ -672,11 +642,10 @@ CREATE TABLE `tickets` (
     KEY `id_vendedor` (`id_vendedor`),
     KEY `id_cliente` (`id_cliente`),
     CONSTRAINT `tickets_ibfk_1` FOREIGN KEY (`id_vendedor`) REFERENCES `usuarios` (`id_usuario`),
-    CONSTRAINT `tickets_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON DELETE SET NULL
+    CONSTRAINT `tickets_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON DELETE
+    SET NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `tickets` (
+INSERT INTO `tickets` (
         `id_ticket`,
         `codigo_ticket`,
         `total`,
@@ -721,7 +690,6 @@ VALUES (
         '2026-07-18 22:07:21',
         6
     );
-
 CREATE TABLE `ticket_detalles` (
     `id_detalle` int(11) NOT NULL AUTO_INCREMENT,
     `id_ticket` int(11) NOT NULL,
@@ -736,9 +704,7 @@ CREATE TABLE `ticket_detalles` (
     CONSTRAINT `ticket_detalles_ibfk_1` FOREIGN KEY (`id_ticket`) REFERENCES `tickets` (`id_ticket`) ON DELETE CASCADE,
     CONSTRAINT `ticket_detalles_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-INSERT INTO
-    `ticket_detalles` (
+INSERT INTO `ticket_detalles` (
         `id_detalle`,
         `id_ticket`,
         `id_producto`,
@@ -783,51 +749,45 @@ VALUES (
         'Sobre',
         12.00
     );
-
--- --------------------------------------------------------
--- Vistas SQL para mapear compatibilidad de 'ventas' y 'detalle_ventas' desde los 'tickets' activos
--- --------------------------------------------------------
-
-CREATE OR REPLACE VIEW `ventas` AS 
-SELECT 
-    `id_ticket` AS `id_venta`,
-    `id_vendedor` AS `id_usuario`,
-    `id_cliente`,
-    `fecha_creacion` AS `fecha_venta`,
-    `total` AS `total_neto`,
-    `estado` AS `estado_pago`
-FROM `tickets`;
-
-CREATE OR REPLACE VIEW `detalle_ventas` AS 
-SELECT 
-    `id_detalle`,
-    `id_ticket` AS `id_venta`,
-    `id_producto`,
-    `cantidad`,
-    `nivel_empaque`,
-    `nombre_empaque`,
-    `precio_unitario`
-FROM `ticket_detalles`;
-
--- --------------------------------------------------------
+CREATE TABLE `ventas` (
+    `id_venta` int(11) NOT NULL AUTO_INCREMENT,
+    `id_usuario` int(11) NOT NULL,
+    `id_cliente` int(11) DEFAULT NULL,
+    `fecha_venta` timestamp NOT NULL DEFAULT current_timestamp(),
+    `total_neto` decimal(10, 2) DEFAULT 0.00,
+    `estado_pago` varchar(20) DEFAULT 'Pendiente',
+    PRIMARY KEY (`id_venta`),
+    KEY `id_usuario` (`id_usuario`),
+    KEY `id_cliente` (`id_cliente`),
+    CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
+    CONSTRAINT `ventas_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+CREATE TABLE `detalle_ventas` (
+    `id_detalle` int(11) NOT NULL AUTO_INCREMENT,
+    `id_venta` int(11) NOT NULL,
+    `id_producto` int(11) NOT NULL,
+    `cantidad` int(11) NOT NULL,
+    `nivel_empaque` varchar(20) NOT NULL DEFAULT 'Principal',
+    `nombre_empaque` varchar(50) NOT NULL,
+    `precio_unitario` decimal(10, 2) NOT NULL,
+    PRIMARY KEY (`id_detalle`),
+    KEY `id_venta` (`id_venta`),
+    KEY `id_producto` (`id_producto`),
+    CONSTRAINT `detalle_ventas_ibfk_1` FOREIGN KEY (`id_venta`) REFERENCES `ventas` (`id_venta`) ON DELETE CASCADE,
+    CONSTRAINT `detalle_ventas_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+-- -----------------------------------d---------------------
 -- Disparadores
 -- --------------------------------------------------------
-
-DELIMITER $$
-
-CREATE TRIGGER `actualizar_stock_nuevo_lote` AFTER INSERT ON `lotes` FOR EACH ROW BEGIN
-    UPDATE productos 
-    SET stock_actual = stock_actual + NEW.cantidad_unidades_recibidas
-    WHERE id_producto = NEW.id_producto;
-END
-$$
-
-DELIMITER ;
-
+DELIMITER $$ CREATE TRIGGER `actualizar_stock_nuevo_lote`
+AFTER
+INSERT ON `lotes` FOR EACH ROW BEGIN
+UPDATE productos
+SET stock_actual = stock_actual + NEW.cantidad_unidades_recibidas
+WHERE id_producto = NEW.id_producto;
+END $$ DELIMITER;
 SET FOREIGN_KEY_CHECKS = 1;
-
 COMMIT;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
 ;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */
