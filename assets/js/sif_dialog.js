@@ -4,7 +4,7 @@
  * Incluye reproducción de sonido sintetizado mediante Web Audio API y modal con diseño fiel al sistema.
  */
 
-(function() {
+(function () {
     // ---------------------------------------------------------
     // 1. Sintetizador de Sonido de Confirmación (Web Audio API)
     // ---------------------------------------------------------
@@ -181,7 +181,7 @@
     // 3. Objeto Principal SIFDialog
     // ---------------------------------------------------------
     window.SIFDialog = {
-        show: function(options) {
+        show: function (options) {
             return new Promise((resolve) => {
                 const message = options.message || options.text || '';
                 const type = options.type || 'info'; // success, error, warning, info
@@ -254,7 +254,7 @@
             });
         },
 
-        alert: function(message, title) {
+        alert: function (message, title) {
             let type = 'info';
             const msgLower = String(message).toLowerCase();
             if (msgLower.includes('éxito') || msgLower.includes('exitosamente') || msgLower.includes('procesado') || msgLower.includes('correcto') || msgLower.includes('guardado')) {
@@ -265,11 +265,11 @@
             return window.SIFDialog.show({ message, title, type });
         },
 
-        confirm: function(message, title = 'Confirmación de Operación') {
+        confirm: function (message, title = 'Confirmación de Operación') {
             return window.SIFDialog.show({ message, title, type: 'warning', confirm: true });
         },
 
-        playSound: function(type = 'success') {
+        playSound: function (type = 'success') {
             playAudioTone(type);
         }
     };
@@ -277,7 +277,7 @@
     // ---------------------------------------------------------
     // 4. Sobrescribir alert() NATIVO
     // ---------------------------------------------------------
-    window.alert = function(message) {
+    window.alert = function (message) {
         window.SIFDialog.alert(message);
     };
 

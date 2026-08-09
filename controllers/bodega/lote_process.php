@@ -23,6 +23,23 @@ if (!isset($_SESSION['id_usuario']) || !$tiene_acceso_bodega) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'obtener_producto') {
+    header('Content-Type: application/json; charset=utf-8');
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'ID de producto inválido.']);
+        exit;
+    }
+
+    $prod = Producto::obtenerProductoPorId($conexion, $id);
+    if ($prod) {
+        echo json_encode(['status' => 'success', 'data' => $prod]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Producto no encontrado.']);
+    }
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = isset($_POST['action']) ? trim($_POST['action']) : '';
     

@@ -47,6 +47,34 @@ class Producto {
     }
 
     /**
+     * Obtiene todos los campos de un producto por su ID.
+     */
+    public static function obtenerProductoPorId(mysqli $conexion, int $id_producto) {
+        $id = intval($id_producto);
+        if ($id <= 0) return null;
+
+        $query = "SELECT * FROM productos WHERE id_producto = $id LIMIT 1";
+        $res = mysqli_query($conexion, $query);
+        if ($res && $row = mysqli_fetch_assoc($res)) {
+            $row['id_producto'] = intval($row['id_producto']);
+            $row['id_categoria'] = intval($row['id_categoria']);
+            $row['id_laboratorio'] = intval($row['id_laboratorio']);
+            $row['stock_actual'] = intval($row['stock_actual']);
+            $row['stock_minimo'] = intval($row['stock_minimo']);
+            $row['miligramos'] = $row['miligramos'] !== null ? intval($row['miligramos']) : null;
+            $row['unidades_por_empaque_medio'] = intval($row['unidades_por_empaque_medio']);
+            $row['unidades_totales_por_empaque_principal'] = intval($row['unidades_totales_por_empaque_principal']);
+            $row['precio_empaque_principal'] = floatval($row['precio_empaque_principal']);
+            $row['precio_empaque_medio'] = $row['precio_empaque_medio'] !== null ? floatval($row['precio_empaque_medio']) : null;
+            $row['precio_unidad_minima'] = floatval($row['precio_unidad_minima']);
+            $row['es_fraccionable'] = ($row['es_fraccionable'] == 1 || $row['es_fraccionable'] == "\x01") ? 1 : 0;
+            $row['requiere_receta'] = ($row['requiere_receta'] == 1 || $row['requiere_receta'] == "\x01") ? 1 : 0;
+            return $row;
+        }
+        return null;
+    }
+
+    /**
     /**
      * Recalcula y sincroniza exactamente el stock_actual de un producto basándose en la suma real de sus lotes disponibles.
      */
