@@ -483,3 +483,11 @@ if (!function_exists('obtenerLinkVolver')) {
     });
 })();
 </script>
+
+<?php
+$base_assets_path = '../../assets';
+if ($current_dir === 'sif_farmacia' || $current_file === 'index.php') {
+    $base_assets_path = 'assets';
+}
+?>
+<script src="<?php echo $base_assets_path; ?>/js/sif_dialog.js"></script>

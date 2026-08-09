@@ -255,7 +255,9 @@
 
     // Eliminar usuario
     window.confirmarEliminarUsuario = function(id, nombre) {
-        if (confirm(`¿Estás completamente seguro de que deseas eliminar al usuario "${nombre}"?\nEsta acción no se puede deshacer.`)) {
+        SIFDialog.confirm(`¿Estás completamente seguro de que deseas eliminar al usuario "${nombre}"?\nEsta acción no se puede deshacer.`, 'Confirmar Eliminación de Usuario').then(confirmado => {
+            if (!confirmado) return;
+
             const formData = new FormData();
             formData.append('id', id);
 
@@ -266,13 +268,14 @@
                 .then(res => res.json())
                 .then(response => {
                     if (response.status === 'success') {
+                        SIFDialog.alert('Usuario eliminado correctamente.', 'Operación Exitosa');
                         cargarUsuarios();
                     } else {
-                        alert('Error: ' + response.message);
+                        SIFDialog.alert('Error: ' + response.message, 'Atención');
                     }
                 })
-                .catch(err => alert('Error al procesar la eliminación.'));
-        }
+                .catch(err => SIFDialog.alert('Error al procesar la eliminación.', 'Error'));
+        });
     };
 
     // Iniciar carga de datos al montar la vista

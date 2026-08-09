@@ -240,33 +240,33 @@
     };
 
     window.cancelarTicketDesdeLista = function(idTicket, codigoTicket) {
-        if (!confirm(`¿Está seguro de borrar el ticket ${codigoTicket}?\n\nLos productos no cobrados volverán automáticamente al stock disponible en el inventario.`)) {
-            return;
-        }
+        SIFDialog.confirm(`¿Está seguro de borrar el ticket ${codigoTicket}?\n\nLos productos no cobrados volverán automáticamente al stock disponible en el inventario.`, 'Confirmar Borrado de Ticket').then(confirmado => {
+            if (!confirmado) return;
 
-        const formData = new FormData();
-        formData.append('id_ticket', idTicket);
+            const formData = new FormData();
+            formData.append('id_ticket', idTicket);
 
-        fetch('../../controllers/caja/CajaController.php?action=cancelar_ticket', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(response => {
-            if (response.status === 'success') {
-                alert(response.message);
-                if (loadedTicket && loadedTicket.id_ticket == idTicket) {
-                    resetDetallesCaja();
+            fetch('../../controllers/caja/CajaController.php?action=cancelar_ticket', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    SIFDialog.alert('Ticket cancelado exitosamente.', 'Operación Completada');
+                    if (loadedTicket && loadedTicket.id_ticket == idTicket) {
+                        resetDetallesCaja();
+                    }
+                    cargarMetricasCaja();
+                    cargarTicketsPendientesListado();
+                } else {
+                    SIFDialog.alert('Error: ' + response.message, 'Atención');
                 }
-                cargarMetricasCaja();
-                cargarTicketsPendientesListado();
-            } else {
-                alert('Error: ' + response.message);
-            }
-        })
-        .catch(err => {
-            console.error("Error al borrar ticket:", err);
-            alert("Ocurrió un error al intentar borrar el ticket.");
+            })
+            .catch(err => {
+                console.error('Error al borrar ticket:', err);
+                SIFDialog.alert("Ocurrió un error al intentar borrar el ticket.", 'Error');
+            });
         });
     };
 
