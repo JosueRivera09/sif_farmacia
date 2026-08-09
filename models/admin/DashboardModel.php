@@ -118,10 +118,28 @@ class DashboardModel
     {
         $alertas = [];
 
-        // 1. Productos Bajo Stock Mínimo (Prioridad Alta)
+        // 1. Productos Agotados (0 Stock)
+        $queryAgotados = "SELECT nombre_commercial, stock_actual, unidad_minima 
+                          FROM productos 
+                          WHERE stock_actual <= 0 
+                          ORDER BY nombre_commercial ASC 
+                          LIMIT 10";
+        $resA = mysqli_query($conexion, $queryAgotados);
+        if ($resA) {
+            while ($row = mysqli_fetch_assoc($resA)) {
+                $alertas[] = [
+                    'nombre_commercial' => $row['nombre_commercial'],
+                    'detalle' => 'Sin existencias (0 ' . $row['unidad_minima'] . 's en inventario)',
+                    'etiqueta' => 'Agotado',
+                    'tipo' => 'danger'
+                ];
+            }
+        }
+
+        // 2. Productos Bajo Stock Mínimo (> 0 y <= stock_minimo)
         $queryStock = "SELECT nombre_commercial, stock_actual, stock_minimo, unidad_minima 
                        FROM productos 
-                       WHERE stock_actual <= stock_minimo 
+                       WHERE stock_actual > 0 AND stock_minimo > 0 AND stock_actual <= stock_minimo 
                        ORDER BY stock_actual ASC 
                        LIMIT 10";
         $resS = mysqli_query($conexion, $queryStock);
@@ -131,16 +149,16 @@ class DashboardModel
                     'nombre_commercial' => $row['nombre_commercial'],
                     'detalle' => 'Stock: ' . intval($row['stock_actual']) . ' ' . $row['unidad_minima'] . 's (Mín: ' . intval($row['stock_minimo']) . ')',
                     'etiqueta' => 'Bajo Stock',
-                    'tipo' => 'danger'
+                    'tipo' => 'warning'
                 ];
             }
         }
 
-        // 2. Lotes Vencidos (Urgente / Crítico)
-        $queryVencidos = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento
+        // 3. Lotes Vencidos (con unidades disponibles)
+        $queryVencidos = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento, l.cantidad_unidades_recibidas, p.unidad_minima
                           FROM lotes l
                           JOIN productos p ON l.id_producto = p.id_producto
-                          WHERE l.fecha_vencimiento <= CURDATE()
+                          WHERE l.fecha_vencimiento <= CURDATE() AND l.cantidad_unidades_recibidas > 0
                           ORDER BY l.fecha_vencimiento ASC
                           LIMIT 10";
         $resV = mysqli_query($conexion, $queryVencidos);
@@ -148,18 +166,18 @@ class DashboardModel
             while ($row = mysqli_fetch_assoc($resV)) {
                 $alertas[] = [
                     'nombre_commercial' => $row['nombre_commercial'],
-                    'detalle' => 'Lote ' . $row['numero_lote'] . ' - Vencido el ' . date('d/m/Y', strtotime($row['fecha_vencimiento'])),
+                    'detalle' => 'Lote ' . $row['numero_lote'] . ' (' . intval($row['cantidad_unidades_recibidas']) . ' ' . $row['unidad_minima'] . 's) - Vencido ' . date('d/m/Y', strtotime($row['fecha_vencimiento'])),
                     'etiqueta' => 'Vencido',
                     'tipo' => 'danger'
                 ];
             }
         }
 
-        // 3. Lotes Próximos a Vencer (< 30 días)
-        $queryPorVencer = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento
+        // 4. Lotes Próximos a Vencer (< 30 días con unidades disponibles)
+        $queryPorVencer = "SELECT p.nombre_commercial, l.numero_lote, l.fecha_vencimiento, l.cantidad_unidades_recibidas, p.unidad_minima
                            FROM lotes l
                            JOIN productos p ON l.id_producto = p.id_producto
-                           WHERE l.fecha_vencimiento > CURDATE() AND l.fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                           WHERE l.fecha_vencimiento > CURDATE() AND l.fecha_vencimiento <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND l.cantidad_unidades_recibidas > 0
                            ORDER BY l.fecha_vencimiento ASC
                            LIMIT 10";
         $resPV = mysqli_query($conexion, $queryPorVencer);
@@ -167,7 +185,7 @@ class DashboardModel
             while ($row = mysqli_fetch_assoc($resPV)) {
                 $alertas[] = [
                     'nombre_commercial' => $row['nombre_commercial'],
-                    'detalle' => 'Lote ' . $row['numero_lote'] . ' - Vence el ' . date('d/m/Y', strtotime($row['fecha_vencimiento'])),
+                    'detalle' => 'Lote ' . $row['numero_lote'] . ' (' . intval($row['cantidad_unidades_recibidas']) . ' ' . $row['unidad_minima'] . 's) - Vence el ' . date('d/m/Y', strtotime($row['fecha_vencimiento'])),
                     'etiqueta' => 'Próximo a Vencer',
                     'tipo' => 'warning'
                 ];
