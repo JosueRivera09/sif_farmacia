@@ -92,10 +92,6 @@ $totalEsperado = $aperturaCaja + $totalVentasTurno;
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 10.00</label>
                     <input type="number" class="form-control text-end input-denom fw-bold" data-value="10" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
-                <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
-                    <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 5.00</label>
-                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="5" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
-                </div>
 
                 <!-- Monedas -->
                 <div class="col-12 mt-4"><span class="badge bg-slate border border-secondary text-secondary w-100 py-2 fs-6">MONEDAS</span></div>
@@ -107,6 +103,14 @@ $totalEsperado = $aperturaCaja + $totalVentasTurno;
                 <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
                     <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 1.00</label>
                     <input type="number" class="form-control text-end input-denom fw-bold" data-value="1" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
+                    <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 0.50</label>
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="0.5" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-between mb-2">
+                    <label class="text-light m-0 font-monospace" style="width: 100px;">C$ 0.25</label>
+                    <input type="number" class="form-control text-end input-denom fw-bold" data-value="0.25" min="0" value="0" style="width: 120px; color: #000000 !important; background-color: #ffffff !important;">
                 </div>
             </form>
         </div>
