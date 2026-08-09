@@ -6,7 +6,20 @@
 ?>
 <div class="custom-card mb-4 p-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3 gap-2">
-        <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cobros (Hoy)</h6>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <h6 class="card-title-custom mb-0" style="color: #cbd5e1;">Historial de Cobros</h6>
+            <div class="d-flex align-items-center gap-2">
+                <select id="filtro-cobros-periodo" class="form-select form-select-sm border-secondary text-dark bg-white" style="font-size: 12px; width: 130px; cursor: pointer;">
+                    <option value="todos" selected>Todos</option>
+                    <option value="hoy">Hoy</option>
+                    <option value="semana">Esta Semana</option>
+                    <option value="mes">Este Mes</option>
+                </select>
+                <button id="btn-filtrar-cobros" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-2 py-1" style="font-size: 12px;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">filter_alt</span> Filtrar
+                </button>
+            </div>
+        </div>
 
         <button id="btn-imprimir-reporte-cobros" class="btn btn-sm btn-primary d-flex align-items-center gap-1 px-3" style="font-size: 12px;">
             <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir Lista de Ventas
@@ -152,26 +165,51 @@
 
         function obtenerVentasSegunRol() {
             if (!datosHistorialRaw || !datosHistorialRaw.data) return [];
-            return datosHistorialRaw.data;
+
+            const selectFiltro = document.getElementById('filtro-cobros-periodo');
+            const filtroVal = selectFiltro ? selectFiltro.value : 'todos';
+
+            const ahora = new Date();
+            const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+
+            const tickets = datosHistorialRaw.data || [];
+            return tickets.filter(t => {
+                if (filtroVal === 'todos') return true;
+
+                if (!t.fecha_creacion) return true;
+                const d = new Date(t.fecha_creacion.replace(' ', 'T'));
+                if (isNaN(d.getTime())) return true;
+
+                const fechaStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+                if (filtroVal === 'hoy') {
+                    return fechaStr === hoyStr;
+                } else if (filtroVal === 'semana') {
+                    const hace7dias = new Date();
+                    hace7dias.setDate(ahora.getDate() - 7);
+                    return d >= hace7dias;
+                } else if (filtroVal === 'mes') {
+                    return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
+                }
+                return true;
+            });
         }
 
         function renderHistorial() {
             const tickets = obtenerVentasSegunRol();
 
             if (tickets.length === 0) {
-                tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5"><span class="material-symbols-outlined d-block fs-1 mb-2" style="opacity: 0.4;">receipt_long</span>No hay cobros registrados para mostrar.</td></tr>`;
+                tbodyHistorial.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5"><span class="material-symbols-outlined d-block fs-1 mb-2" style="opacity: 0.4;">receipt_long</span>No hay cobros registrados para mostrar con el filtro seleccionado.</td></tr>`;
                 return;
             }
 
             let html = '';
             tickets.forEach(v => {
-                const hora = new Date(v.fecha_creacion).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                const dateObj = v.fecha_creacion ? new Date(v.fecha_creacion.replace(' ', 'T')) : new Date();
+                const fechaHora = isNaN(dateObj.getTime()) ? (v.fecha_creacion || '') : dateObj.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
                 html += `
                     <tr>
-                        <td class="text-light font-monospace" style="font-size:12px;">${hora}</td>
+                        <td class="text-light font-monospace" style="font-size:12px;">${fechaHora}</td>
                         <td><code class="text-success font-bold" style="font-size:13px;">${v.codigo_ticket}</code></td>
                         <td class="text-light">${v.nombre_vendedor || 'Vendedor'}</td>
                         <td class="text-light">${v.nombre_cliente || 'Cliente Final'}</td>
@@ -183,15 +221,32 @@
             tbodyHistorial.innerHTML = html;
         }
 
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('#btn-filtrar-cobros');
+            if (btn) {
+                e.preventDefault();
+                renderHistorial();
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'filtro-cobros-periodo') {
+                renderHistorial();
+            }
+        });
+
         if (btnImprimirReporte) {
             btnImprimirReporte.addEventListener('click', function() {
                 if (!datosHistorialRaw) return;
 
                 const ventasAImprimir = obtenerVentasSegunRol();
                 if (ventasAImprimir.length === 0) {
-                    alert('No hay ventas registradas para imprimir.');
+                    alert('No hay ventas que coincidan con el filtro seleccionado para imprimir.');
                     return;
                 }
+
+                const selectFiltro = document.getElementById('filtro-cobros-periodo');
+                const filtroTexto = selectFiltro ? selectFiltro.options[selectFiltro.selectedIndex].text : 'Todos';
 
                 const esAdmin = datosHistorialRaw.es_admin;
                 const usuarioActual = datosHistorialRaw.nombre_usuario_actual;
@@ -252,6 +307,7 @@
                             </div>
                             <div class="text-end" style="font-size: 12px; color: #64748b;">
                                 <p class="mb-1"><strong>Fecha emisión:</strong> ${fechaActual}</p>
+                                <p class="mb-1"><strong>Filtro aplicado:</strong> <span class="badge bg-success text-white">${filtroTexto}</span></p>
                                 <p class="mb-1"><strong>Generado por:</strong> ${usuarioActual} (${rolActual})</p>
                                 <p class="mb-0"><strong>Alcance:</strong> ${alcanceReporte}</p>
                             </div>
