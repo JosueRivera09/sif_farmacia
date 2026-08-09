@@ -116,6 +116,50 @@ class Usuario {
     }
 
     /**
+     * Permite a un usuario autenticado cambiar su propia contraseña.
+     */
+    public static function cambiarClavePropia(mysqli $conexion, int $id_usuario, string $clave_actual, string $clave_nueva) {
+        $id_usuario = intval($id_usuario);
+        if ($id_usuario <= 0 || empty($clave_actual) || empty($clave_nueva)) {
+            return ['status' => 'error', 'message' => 'Todos los campos son obligatorios.'];
+        }
+
+        if (strlen($clave_nueva) < 4) {
+            return ['status' => 'error', 'message' => 'La nueva contraseña debe tener al menos 4 caracteres.'];
+        }
+
+        $stmt = mysqli_prepare($conexion, "SELECT clave_acceso FROM usuarios WHERE id_usuario = ? LIMIT 1");
+        if (!$stmt) {
+            return ['status' => 'error', 'message' => 'Error al consultar datos del usuario.'];
+        }
+
+        mysqli_stmt_bind_param($stmt, "i", $id_usuario);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        if ($row = mysqli_fetch_assoc($res)) {
+            mysqli_stmt_close($stmt);
+
+            if (!password_verify($clave_actual, $row['clave_acceso']) && $clave_actual !== $row['clave_acceso']) {
+                return ['status' => 'error', 'message' => 'La contraseña actual ingresada es incorrecta.'];
+            }
+
+            $nuevo_hash = password_hash($clave_nueva, PASSWORD_BCRYPT);
+            $stmtUpd = mysqli_prepare($conexion, "UPDATE usuarios SET clave_acceso = ? WHERE id_usuario = ?");
+            if ($stmtUpd) {
+                mysqli_stmt_bind_param($stmtUpd, "si", $nuevo_hash, $id_usuario);
+                $ok = mysqli_stmt_execute($stmtUpd);
+                mysqli_stmt_close($stmtUpd);
+                if ($ok) {
+                    return ['status' => 'success', 'message' => 'Tu contraseña ha sido actualizada correctamente.'];
+                }
+            }
+            return ['status' => 'error', 'message' => 'Ocurrió un error al actualizar la contraseña.'];
+        }
+        mysqli_stmt_close($stmt);
+        return ['status' => 'error', 'message' => 'Usuario no encontrado.'];
+    }
+
+    /**
      * Elimina un usuario por su ID
      */
     public static function eliminarUsuario(mysqli $conexion, int $id_usuario) {

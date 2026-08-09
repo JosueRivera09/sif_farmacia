@@ -103,10 +103,126 @@ if ($rol_usuario === 'Administrador') {
         </div>
 
         <div class="mt-4 pt-2 text-center">
-            <button class="btn btn-outline-success btn-sm w-100" style="border-radius: 8px; font-weight: 600; padding: 10px;" onclick="alert('Funcionalidad de cambio de contraseña en desarrollo.')">
+            <button id="btn-abrir-modal-clave" class="btn btn-outline-success btn-sm w-100" style="border-radius: 8px; font-weight: 600; padding: 10px;">
                 <span class="material-symbols-outlined align-middle me-1" style="font-size: 16px;">lock_reset</span>
                 Cambiar Contraseña
             </button>
         </div>
     </div>
 </div>
+
+<!-- Modal Cambiar Contraseña -->
+<div class="modal fade" id="modalCambiarClave" tabindex="-1" aria-labelledby="modalCambiarClaveLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header border-bottom border-light-subtle bg-light" style="border-radius: 16px 16px 0 0;">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="modalCambiarClaveLabel">
+                    <span class="material-symbols-outlined text-success">lock_reset</span>
+                    Cambiar Mi Contraseña
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="form-cambiar-clave">
+                <div class="modal-body p-4">
+                    <div id="alert-modal-clave" class="alert d-none mb-3" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label for="clave_actual" class="form-label font-bold text-dark" style="font-size: 13px;">Contraseña Actual</label>
+                        <input type="password" class="form-control" id="clave_actual" name="clave_actual" placeholder="Ingresa tu contraseña actual" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="clave_nueva" class="form-label font-bold text-dark" style="font-size: 13px;">Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="clave_nueva" name="clave_nueva" placeholder="Ingresa la nueva contraseña (mín. 4 caracteres)" required minlength="4">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="clave_confirmar" class="form-label font-bold text-dark" style="font-size: 13px;">Confirmar Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="clave_confirmar" name="clave_confirmar" placeholder="Repite la nueva contraseña" required minlength="4">
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-light-subtle bg-light p-3" style="border-radius: 0 0 16px 16px;">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4 d-flex align-items-center gap-1">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">save</span> Guardar Contraseña
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const btnAbrir = document.getElementById('btn-abrir-modal-clave');
+    const formClave = document.getElementById('form-cambiar-clave');
+    const alertBox = document.getElementById('alert-modal-clave');
+    let modalBs = null;
+
+    if (btnAbrir) {
+        btnAbrir.addEventListener('click', function() {
+            const modalEl = document.getElementById('modalCambiarClave');
+            if (modalEl) {
+                if (typeof bootstrap !== 'undefined') {
+                    modalBs = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modalBs.show();
+                } else if (typeof $ !== 'undefined') {
+                    $(modalEl).modal('show');
+                }
+            }
+        });
+    }
+
+    if (formClave) {
+        formClave.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alertBox.classList.add('d-none');
+            alertBox.className = 'alert d-none mb-3';
+
+            const claveActual = document.getElementById('clave_actual').value;
+            const claveNueva = document.getElementById('clave_nueva').value;
+            const claveConfirmar = document.getElementById('clave_confirmar').value;
+
+            if (claveNueva !== claveConfirmar) {
+                alertBox.className = 'alert alert-danger mb-3';
+                alertBox.innerText = 'La nueva contraseña y su confirmación no coinciden.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('clave_actual', claveActual);
+            formData.append('clave_nueva', claveNueva);
+            formData.append('clave_confirmar', claveConfirmar);
+
+            fetch('../../controllers/auth/cambiar_clave_process.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alertBox.className = 'alert alert-success mb-3';
+                    alertBox.innerText = data.message;
+                    alertBox.classList.remove('d-none');
+                    formClave.reset();
+
+                    setTimeout(() => {
+                        if (modalBs) modalBs.hide();
+                    }, 1800);
+                } else {
+                    alertBox.className = 'alert alert-danger mb-3';
+                    alertBox.innerText = data.message || 'Error al cambiar contraseña.';
+                    alertBox.classList.remove('d-none');
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alertBox.className = 'alert alert-danger mb-3';
+                alertBox.innerText = 'Ocurrió un error al procesar la solicitud.';
+                alertBox.classList.remove('d-none');
+            });
+        });
+    }
+})();
+</script>
