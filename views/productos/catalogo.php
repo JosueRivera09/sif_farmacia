@@ -149,9 +149,19 @@ $es_admin = isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador';
         }
 
         const textoDesglose = partes.join(', ');
-        const isCritical = totalUnidades <= stockMinimo;
-        const badgeClass = isCritical ? 'bg-danger-subtle text-danger border border-danger' : 'bg-success-subtle text-success border border-success';
-        const estadoTexto = isCritical ? 'Crítico' : 'Disponible';
+        const isAgotado = totalUnidades <= 0;
+        const isCritical = !isAgotado && totalUnidades <= stockMinimo;
+
+        let badgeClass = 'bg-success-subtle text-success border border-success';
+        let estadoTexto = 'Disponible';
+
+        if (isAgotado) {
+            badgeClass = 'bg-danger text-white border border-danger';
+            estadoTexto = 'Agotado (0 Stock)';
+        } else if (isCritical) {
+            badgeClass = 'bg-warning-subtle text-warning border border-warning';
+            estadoTexto = 'Stock Bajo';
+        }
 
         return `
             <div>

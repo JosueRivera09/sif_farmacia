@@ -239,8 +239,12 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
                                                 $hoy = date('Y-m-d');
                                                 $diff = strtotime($fecha_vencimiento) - strtotime($hoy);
                                                 $dias = round($diff / (60 * 60 * 24));
+                                                $cant_unidades = intval($lote['cantidad_unidades_recibidas']);
 
-                                                if ($dias <= 0) {
+                                                if ($cant_unidades <= 0) {
+                                                    $estado = 'Agotado (0 Stock)';
+                                                    $badge_class = 'badge-vencido';
+                                                } elseif ($dias <= 0) {
                                                     $estado = 'Vencido';
                                                     $badge_class = 'badge-vencido';
                                                 } elseif ($dias <= 30) {
