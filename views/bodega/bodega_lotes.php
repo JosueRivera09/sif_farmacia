@@ -434,8 +434,8 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
             const inputNombre = document.getElementById('nombre_commercial');
             const selectCategoria = document.getElementById('id_categoria_new');
             const selectLaboratorio = document.getElementById('id_laboratorio_new');
-            const selectUnidad = document.getElementById('unidad_medida');
-            const inputPrecio = document.getElementById('precio_venta_actual');
+            const selectUnidad = document.getElementById('unidad_minima');
+            const inputPrecio = document.getElementById('precio_empaque_principal');
 
             const groupNuevoLaboratorio = document.getElementById('group_nuevo_laboratorio');
             const inputNuevoLaboratorio = document.getElementById('nuevo_laboratorio_nombre');
@@ -443,55 +443,68 @@ require_once __DIR__ . '/../../controllers/bodega/BodegaController.php';
             const groupNuevaCategoria = document.getElementById('group_nueva_categoria');
             const inputNuevaCategoria = document.getElementById('nueva_categoria_nombre');
 
+            function setReq(el, req) {
+                if (!el) return;
+                if (req) {
+                    el.setAttribute('required', 'required');
+                } else {
+                    el.removeAttribute('required');
+                }
+            }
+
             function toggleLaboratorioField() {
+                if (!radioNuevo || !selectLaboratorio || !groupNuevoLaboratorio) return;
                 if (radioNuevo.checked && selectLaboratorio.value === 'nuevo_laboratorio') {
                     groupNuevoLaboratorio.style.display = '';
-                    inputNuevoLaboratorio.setAttribute('required', 'required');
+                    setReq(inputNuevoLaboratorio, true);
                 } else {
                     groupNuevoLaboratorio.style.display = 'none';
-                    inputNuevoLaboratorio.removeAttribute('required');
+                    setReq(inputNuevoLaboratorio, false);
                 }
             }
 
             function toggleCategoriaField() {
+                if (!radioNuevo || !selectCategoria || !groupNuevaCategoria) return;
                 if (radioNuevo.checked && selectCategoria.value === 'nueva_categoria') {
                     groupNuevaCategoria.style.display = '';
-                    inputNuevaCategoria.setAttribute('required', 'required');
+                    setReq(inputNuevaCategoria, true);
                 } else {
                     groupNuevaCategoria.style.display = 'none';
-                    inputNuevaCategoria.removeAttribute('required');
+                    setReq(inputNuevaCategoria, false);
                 }
             }
 
             function toggleModalFields() {
-                if (radioExistente.checked) {
-                    groupExistente.style.display = '';
-                    groupNuevo.style.display = 'none';
+                if (!radioExistente) return;
 
-                    selectExistente.setAttribute('required', 'required');
-                    inputCodigo.removeAttribute('required');
-                    inputNombre.removeAttribute('required');
-                    selectCategoria.removeAttribute('required');
-                    selectLaboratorio.removeAttribute('required');
-                    selectUnidad.removeAttribute('required');
-                    inputPrecio.removeAttribute('required');
+                if (radioExistente.checked) {
+                    if (groupExistente) groupExistente.style.display = '';
+                    if (groupNuevo) groupNuevo.style.display = 'none';
+
+                    setReq(selectExistente, true);
+                    setReq(inputCodigo, false);
+                    setReq(inputNombre, false);
+                    setReq(selectCategoria, false);
+                    setReq(selectLaboratorio, false);
+                    setReq(selectUnidad, false);
+                    setReq(inputPrecio, false);
 
                     // Ocultar nuevo laboratorio y nueva categoría si se vuelve a existente
-                    groupNuevoLaboratorio.style.display = 'none';
-                    inputNuevoLaboratorio.removeAttribute('required');
-                    groupNuevaCategoria.style.display = 'none';
-                    inputNuevaCategoria.removeAttribute('required');
+                    if (groupNuevoLaboratorio) groupNuevoLaboratorio.style.display = 'none';
+                    setReq(inputNuevoLaboratorio, false);
+                    if (groupNuevaCategoria) groupNuevaCategoria.style.display = 'none';
+                    setReq(inputNuevaCategoria, false);
                 } else {
-                    groupExistente.style.display = 'none';
-                    groupNuevo.style.display = '';
+                    if (groupExistente) groupExistente.style.display = 'none';
+                    if (groupNuevo) groupNuevo.style.display = '';
 
-                    selectExistente.removeAttribute('required');
-                    inputCodigo.setAttribute('required', 'required');
-                    inputNombre.setAttribute('required', 'required');
-                    selectCategoria.setAttribute('required', 'required');
-                    selectLaboratorio.setAttribute('required', 'required');
-                    selectUnidad.setAttribute('required', 'required');
-                    inputPrecio.setAttribute('required', 'required');
+                    setReq(selectExistente, false);
+                    setReq(inputCodigo, true);
+                    setReq(inputNombre, true);
+                    setReq(selectCategoria, true);
+                    setReq(selectLaboratorio, true);
+                    setReq(selectUnidad, true);
+                    setReq(inputPrecio, true);
 
                     toggleLaboratorioField();
                     toggleCategoriaField();
