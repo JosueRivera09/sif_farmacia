@@ -70,7 +70,9 @@ PREPARE addCol FROM @preparedStatement; EXECUTE addCol; DEALLOCATE PREPARE addCo
 -- -------------------------------------------------------------------------
 -- 3. Vistas SQL para mapear compatibilidad de 'ventas' y 'detalle_ventas' desde los 'tickets'
 -- -------------------------------------------------------------------------
-CREATE OR REPLACE VIEW `ventas` AS
+DROP TABLE IF EXISTS `ventas`;
+DROP VIEW IF EXISTS `ventas`;
+CREATE VIEW `ventas` AS
 SELECT 
     `id_ticket` AS `id_venta`,
     `id_vendedor` AS `id_usuario`,
@@ -81,7 +83,9 @@ SELECT
     `estado` AS `estado_pago`
 FROM `tickets`;
 
-CREATE OR REPLACE VIEW `detalle_ventas` AS
+DROP TABLE IF EXISTS `detalle_ventas`;
+DROP VIEW IF EXISTS `detalle_ventas`;
+CREATE VIEW `detalle_ventas` AS
 SELECT 
     `id_detalle`,
     `id_ticket` AS `id_venta`,
