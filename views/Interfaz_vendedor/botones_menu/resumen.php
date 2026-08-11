@@ -9,7 +9,7 @@
     <div class="border-bottom border-secondary pb-2 mb-3">
         <h6 class="card-title-custom mb-0">Resumen del Turno</h6>
     </div>
-    
+
     <div class="row g-4">
         <!-- Stock Total -->
         <div class="col-md-3">
@@ -168,8 +168,8 @@
         </div>
 
         <div class="d-flex gap-2">
-            <button class="btn btn-danger flex-grow-1 py-2 font-bold d-flex align-items-center justify-content-center gap-1" id="btn-imprimir-ticket-resumen" style="border-radius: 8px;">
-                <span class="material-symbols-outlined" style="font-size: 18px;">picture_as_pdf</span> Guardar (PDF)
+            <button class="btn btn-success flex-grow-1 py-2 font-bold d-flex align-items-center justify-content-center gap-1" id="btn-imprimir-ticket-resumen" style="border-radius: 8px;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">print</span> Reimprimir Ticket
             </button>
             <button class="btn btn-dark py-2 font-bold" id="btn-close-ticket-resumen-modal" style="border-radius: 8px;">Cerrar</button>
         </div>
@@ -177,172 +177,181 @@
 </div>
 
 <script>
-{
-    const modalResumen = document.getElementById('ticket-modal-resumen-overlay');
-    const btnCloseModalResumen = document.getElementById('btn-close-ticket-resumen-modal');
-    const btnPrintModalResumen = document.getElementById('btn-imprimir-ticket-resumen');
+    {
+        const modalResumen = document.getElementById('ticket-modal-resumen-overlay');
+        const btnCloseModalResumen = document.getElementById('btn-close-ticket-resumen-modal');
+        const btnPrintModalResumen = document.getElementById('btn-imprimir-ticket-resumen');
 
-    let ticketActualDatos = null;
+        let ticketActualDatos = null;
 
-    function cargarMetricasResumen() {
-        fetch('../../controllers/vendedor/VentaController.php?action=metricas')
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === 'success') {
-                    const data = response.data;
-                    document.getElementById('resumen-stock').innerText = data.total_stock;
-                    document.getElementById('resumen-alertas').innerText = data.alertas_bajo_stock;
-                    document.getElementById('resumen-ventas-count').innerText = data.ventas_sesion;
-                    document.getElementById('resumen-ventas-monto').innerText = 'C$ ' + data.monto_ventas;
-                }
-            })
-            .catch(err => console.error("Error al cargar métricas de resumen:", err));
-    }
-
-    let rawTicketsResponse = null;
-
-    function obtenerTicketsFiltrados() {
-        if (!rawTicketsResponse || !rawTicketsResponse.data) return [];
-
-        const selectFiltro = document.getElementById('filtro-resumen-periodo');
-        const filtroVal = selectFiltro ? selectFiltro.value : 'todos';
-
-        const ahora = new Date();
-        const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
-
-        const tickets = rawTicketsResponse.data || [];
-        return tickets.filter(t => {
-            if (filtroVal === 'todos') return true;
-            if (filtroVal === 'pendiente') return t.estado === 'Pendiente';
-            if (filtroVal === 'pagado') return t.estado === 'Pagado';
-
-            if (!t.fecha_creacion) return true;
-            const d = new Date(t.fecha_creacion.replace(' ', 'T'));
-            if (isNaN(d.getTime())) return true;
-
-            const fechaStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-
-            if (filtroVal === 'hoy') {
-                return fechaStr === hoyStr;
-            } else if (filtroVal === 'semana') {
-                const hace7dias = new Date();
-                hace7dias.setDate(ahora.getDate() - 7);
-                return d >= hace7dias;
-            } else if (filtroVal === 'mes') {
-                return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
-            }
-            return true;
-        });
-    }
-
-    function renderizarTicketsFiltrados() {
-        if (!rawTicketsResponse || !rawTicketsResponse.data) return;
-
-        const ticketsFiltrados = obtenerTicketsFiltrados();
-        const tbody = document.getElementById('vendedor-tickets-tbody');
-        if (!tbody) return;
-
-        if (ticketsFiltrados.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No hay tickets que coincidan con el filtro seleccionado.</td></tr>`;
-            return;
+        function cargarMetricasResumen() {
+            fetch('../../controllers/vendedor/VentaController.php?action=metricas')
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success') {
+                        const data = response.data;
+                        document.getElementById('resumen-stock').innerText = data.total_stock;
+                        document.getElementById('resumen-alertas').innerText = data.alertas_bajo_stock;
+                        document.getElementById('resumen-ventas-count').innerText = data.ventas_sesion;
+                        document.getElementById('resumen-ventas-monto').innerText = 'C$ ' + data.monto_ventas;
+                    }
+                })
+                .catch(err => console.error("Error al cargar métricas de resumen:", err));
         }
-        
-        let html = '';
-        ticketsFiltrados.forEach(t => {
-            const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
-            const fecha = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleDateString();
-            const hora = isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            let badgeClass = 'bg-warning-box text-warning';
-            let estadoTexto = 'Pendiente';
-            if (t.estado === 'Pagado') {
-                badgeClass = 'bg-success-box text-success';
-                estadoTexto = 'Pagado';
+
+        let rawTicketsResponse = null;
+
+        function obtenerTicketsFiltrados() {
+            if (!rawTicketsResponse || !rawTicketsResponse.data) return [];
+
+            const selectFiltro = document.getElementById('filtro-resumen-periodo');
+            const filtroVal = selectFiltro ? selectFiltro.value : 'todos';
+
+            const ahora = new Date();
+            const hoyStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
+
+            const tickets = rawTicketsResponse.data || [];
+            return tickets.filter(t => {
+                if (filtroVal === 'todos') return true;
+                if (filtroVal === 'pendiente') return t.estado === 'Pendiente';
+                if (filtroVal === 'pagado') return t.estado === 'Pagado';
+
+                if (!t.fecha_creacion) return true;
+                const d = new Date(t.fecha_creacion.replace(' ', 'T'));
+                if (isNaN(d.getTime())) return true;
+
+                const fechaStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+                if (filtroVal === 'hoy') {
+                    return fechaStr === hoyStr;
+                } else if (filtroVal === 'semana') {
+                    const hace7dias = new Date();
+                    hace7dias.setDate(ahora.getDate() - 7);
+                    return d >= hace7dias;
+                } else if (filtroVal === 'mes') {
+                    return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        function renderizarTicketsFiltrados() {
+            if (!rawTicketsResponse || !rawTicketsResponse.data) return;
+
+            const ticketsFiltrados = obtenerTicketsFiltrados();
+            const tbody = document.getElementById('vendedor-tickets-tbody');
+            if (!tbody) return;
+
+            if (ticketsFiltrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No hay tickets que coincidan con el filtro seleccionado.</td></tr>`;
+                return;
             }
-            
-            html += `
-                <tr>
+
+            let html = '';
+            ticketsFiltrados.forEach(t => {
+                const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
+                const fecha = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleDateString();
+                const hora = isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                let badgeClass = 'bg-warning-box text-warning';
+                let estadoTexto = 'Pendiente';
+                if (t.estado === 'Pagado') {
+                    badgeClass = 'bg-success-box text-success';
+                    estadoTexto = 'Pagado';
+                }
+
+                html += `
+                <tr style="cursor: pointer;" onclick="verTicketResumen('${t.codigo_ticket}')" title="Haz clic en cualquier ticket para ver detalles o reimprimir">
                     <td><code class="text-success font-bold" style="font-size:13px;">${t.codigo_ticket}</code></td>
                     <td class="text-light">${fecha} ${hora}</td>
                     <td class="text-light">${t.nombre_vendedor || rawTicketsResponse.nombre_usuario_actual}</td>
                     <td class="text-end font-monospace text-success fw-bold">C$ ${parseFloat(t.total).toFixed(2)}</td>
                     <td class="text-center">
-                        <span class="badge ${badgeClass} px-3 py-1">${estadoTexto}</span>
+                        <span class="badge ${badgeClass} px-3 py-1 me-2">${estadoTexto}</span>
+                        <button class="btn btn-sm btn-outline-success border-0 px-2 py-1" onclick="event.stopPropagation(); verTicketResumen('${t.codigo_ticket}')" title="Reimprimir Ticket ${t.codigo_ticket}">
+                            <span class="material-symbols-outlined align-middle" style="font-size: 18px;">print</span>
+                        </button>
                     </td>
                 </tr>
             `;
-        });
-        tbody.innerHTML = html;
-    }
-
-    function cargarMisTickets() {
-        fetch('../../controllers/vendedor/VentaController.php?action=mis_tickets')
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === 'success') {
-                    rawTicketsResponse = response;
-                    const esAdmin = response.es_admin;
-                    
-                    const tituloEl = document.getElementById('titulo-seccion-tickets');
-                    if (tituloEl) {
-                        tituloEl.innerText = esAdmin ? 'Tickets de Venta del Sistema (Todos)' : 'Mis Tickets de Venta (Últimos 20)';
-                    }
-
-                    renderizarTicketsFiltrados();
-                }
-            })
-            .catch(err => {
-                console.error("Error al cargar tickets del vendedor:", err);
-                document.getElementById('vendedor-tickets-tbody').innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Error al cargar tickets</td></tr>`;
             });
-    }
-
-    document.addEventListener('click', function(e) {
-        const btnFiltro = e.target.closest('#btn-filtrar-resumen');
-        if (btnFiltro) {
-            e.preventDefault();
-            renderizarTicketsFiltrados();
+            tbody.innerHTML = html;
         }
-    });
 
-    document.addEventListener('change', function(e) {
-        if (e.target && e.target.id === 'filtro-resumen-periodo') {
-            renderizarTicketsFiltrados();
+        function cargarMisTickets() {
+            fetch('../../controllers/vendedor/VentaController.php?action=mis_tickets')
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success') {
+                        rawTicketsResponse = response;
+                        const esAdmin = response.es_admin;
+
+                        const tituloEl = document.getElementById('titulo-seccion-tickets');
+                        if (tituloEl) {
+                            tituloEl.innerText = esAdmin ? 'Tickets de Venta del Sistema' : 'Mis Tickets de Venta (Últimos 20)';
+                        }
+
+                        renderizarTicketsFiltrados();
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al cargar tickets del vendedor:", err);
+                    document.getElementById('vendedor-tickets-tbody').innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Error al cargar tickets</td></tr>`;
+                });
         }
-    });
 
-    const btnImprimirTodos = document.getElementById('btn-imprimir-todos-tickets');
-    if (btnImprimirTodos) {
-        btnImprimirTodos.addEventListener('click', function() {
-            const tickets = obtenerTicketsFiltrados();
-            if (tickets.length === 0) {
-                alert("No hay tickets que coincidan con el filtro seleccionado para imprimir.");
-                return;
+        document.addEventListener('click', function(e) {
+            const btnFiltro = e.target.closest('#btn-filtrar-resumen');
+            if (btnFiltro) {
+                e.preventDefault();
+                renderizarTicketsFiltrados();
             }
+        });
 
-            const selectFiltro = document.getElementById('filtro-resumen-periodo');
-            const filtroTexto = selectFiltro ? selectFiltro.options[selectFiltro.selectedIndex].text : 'Todos';
-
-            const esAdmin = rawTicketsResponse.es_admin;
-            const usuarioActual = rawTicketsResponse.nombre_usuario_actual || 'Usuario';
-            const rolActual = rawTicketsResponse.rol_usuario_actual || 'Vendedor';
-            const fechaEmision = new Date().toLocaleString();
-
-            let tituloReporte = "Lista de Tickets de Venta Generados";
-            let alcanceReporte = `Tickets generados por el vendedor: ${usuarioActual}`;
-            if (esAdmin) {
-                tituloReporte = "Lista General de Todo lo Vendido en el Sistema";
-                alcanceReporte = "Consolidado total de tickets generados por los usuarios";
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'filtro-resumen-periodo') {
+                renderizarTicketsFiltrados();
             }
+        });
 
-            let totalMonto = 0;
-            let filasHTML = '';
-            tickets.forEach(t => {
-                const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
-                const fechaHora = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
-                const monto = parseFloat(t.total);
-                totalMonto += monto;
-                filasHTML += `
+        const btnImprimirTodos = document.getElementById('btn-imprimir-todos-tickets');
+        if (btnImprimirTodos) {
+            btnImprimirTodos.addEventListener('click', function() {
+                const tickets = obtenerTicketsFiltrados();
+                if (tickets.length === 0) {
+                    alert("No hay tickets que coincidan con el filtro seleccionado para imprimir.");
+                    return;
+                }
+
+                const selectFiltro = document.getElementById('filtro-resumen-periodo');
+                const filtroTexto = selectFiltro ? selectFiltro.options[selectFiltro.selectedIndex].text : 'Todos';
+
+                const esAdmin = rawTicketsResponse.es_admin;
+                const usuarioActual = rawTicketsResponse.nombre_usuario_actual || 'Usuario';
+                const rolActual = rawTicketsResponse.rol_usuario_actual || 'Vendedor';
+                const fechaEmision = new Date().toLocaleString();
+
+                let tituloReporte = "Lista de Tickets de Venta Generados";
+                let alcanceReporte = `Tickets generados por el vendedor: ${usuarioActual}`;
+                if (esAdmin) {
+                    tituloReporte = "Lista General de Todo lo Vendido en el Sistema";
+                    alcanceReporte = "Consolidado total de tickets generados por los usuarios";
+                }
+
+                let totalMonto = 0;
+                let filasHTML = '';
+                tickets.forEach(t => {
+                    const dateObj = t.fecha_creacion ? new Date(t.fecha_creacion.replace(' ', 'T')) : new Date();
+                    const fechaHora = isNaN(dateObj.getTime()) ? (t.fecha_creacion || '') : dateObj.toLocaleString([], {
+                        dateStyle: 'short',
+                        timeStyle: 'short'
+                    });
+                    const monto = parseFloat(t.total);
+                    totalMonto += monto;
+                    filasHTML += `
                     <tr>
                         <td>${fechaHora}</td>
                         <td><strong>${t.codigo_ticket}</strong></td>
@@ -354,10 +363,10 @@
                         <td class="text-end fw-bold">C$ ${monto.toFixed(2)}</td>
                     </tr>
                 `;
-            });
+                });
 
-            const win = window.open('', '_blank', 'width=800,height=750');
-            win.document.write(`
+                const win = window.open('', '_blank', 'width=800,height=750');
+                win.document.write(`
                 <!DOCTYPE html>
                 <html lang="es">
                 <head>
@@ -424,77 +433,77 @@
                 </body>
                 </html>
             `);
-            win.document.close();
-        });
-    }
+                win.document.close();
+            });
+        }
 
-    window.verTicketResumen = function(codigo) {
-        fetch(`../../controllers/vendedor/VentaController.php?action=ver_ticket&codigo=${codigo}`)
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === 'success') {
-                    const data = response.data;
-                    ticketActualDatos = data;
+        window.verTicketResumen = function(codigo) {
+            fetch(`../../controllers/vendedor/VentaController.php?action=ver_ticket&codigo=${codigo}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success') {
+                        const data = response.data;
+                        ticketActualDatos = data;
 
-                    document.getElementById('ticket-resumen-code').innerText = data.codigo_ticket;
-                    document.getElementById('ticket-resumen-date').innerText = new Date(data.fecha_creacion).toLocaleString();
-                    document.getElementById('ticket-resumen-vendedor').innerText = data.nombre_vendedor || 'Vendedor';
-                    document.getElementById('ticket-resumen-client-name').innerText = data.nombre_cliente ? data.nombre_cliente : 'Cliente Final';
-                    document.getElementById('ticket-resumen-total').innerText = 'C$ ' + parseFloat(data.total).toFixed(2);
+                        document.getElementById('ticket-resumen-code').innerText = data.codigo_ticket;
+                        document.getElementById('ticket-resumen-date').innerText = new Date(data.fecha_creacion).toLocaleString();
+                        document.getElementById('ticket-resumen-vendedor').innerText = data.nombre_vendedor || 'Vendedor';
+                        document.getElementById('ticket-resumen-client-name').innerText = data.nombre_cliente ? data.nombre_cliente : 'Cliente Final';
+                        document.getElementById('ticket-resumen-total').innerText = 'C$ ' + parseFloat(data.total).toFixed(2);
 
-                    let itemsHtml = '';
-                    if (data.items && data.items.length > 0) {
-                        data.items.forEach(item => {
-                            const subt = parseFloat(item.precio_unitario) * parseInt(item.cantidad);
-                            itemsHtml += `
+                        let itemsHtml = '';
+                        if (data.items && data.items.length > 0) {
+                            data.items.forEach(item => {
+                                const subt = parseFloat(item.precio_unitario) * parseInt(item.cantidad);
+                                itemsHtml += `
                                 <div class="d-flex justify-content-between mb-1">
                                     <span>${item.nombre_commercial || 'Producto'} x${item.cantidad} (${item.nombre_empaque || 'Caja'})</span>
                                     <span>C$ ${subt.toFixed(2)}</span>
                                 </div>
                             `;
-                        });
+                            });
+                        } else {
+                            itemsHtml = '<div class="text-muted text-center py-2">Sin detalles registrados</div>';
+                        }
+                        document.getElementById('ticket-resumen-items-list').innerHTML = itemsHtml;
+
+                        modalResumen.classList.remove('d-none');
+                        modalResumen.style.setProperty('display', 'flex', 'important');
                     } else {
-                        itemsHtml = '<div class="text-muted text-center py-2">Sin detalles registrados</div>';
+                        alert('Error: ' + response.message);
                     }
-                    document.getElementById('ticket-resumen-items-list').innerHTML = itemsHtml;
+                })
+                .catch(err => {
+                    console.error("Error al ver ticket:", err);
+                    alert("Error al cargar los datos del ticket.");
+                });
+        };
 
-                    modalResumen.classList.remove('d-none');
-                    modalResumen.style.setProperty('display', 'flex', 'important');
-                } else {
-                    alert('Error: ' + response.message);
-                }
-            })
-            .catch(err => {
-                console.error("Error al ver ticket:", err);
-                alert("Error al cargar los datos del ticket.");
+        if (btnCloseModalResumen) {
+            btnCloseModalResumen.addEventListener('click', function() {
+                modalResumen.classList.add('d-none');
+                modalResumen.style.setProperty('display', 'none', 'important');
             });
-    };
+        }
 
-    if (btnCloseModalResumen) {
-        btnCloseModalResumen.addEventListener('click', function() {
-            modalResumen.classList.add('d-none');
-            modalResumen.style.setProperty('display', 'none', 'important');
-        });
-    }
+        if (btnPrintModalResumen) {
+            btnPrintModalResumen.addEventListener('click', function() {
+                if (!ticketActualDatos) return;
 
-    if (btnPrintModalResumen) {
-        btnPrintModalResumen.addEventListener('click', function() {
-            if (!ticketActualDatos) return;
+                const tipoImpresora = document.getElementById('select-impresora-resumen').value;
+                const codigoTicket = ticketActualDatos.codigo_ticket;
+                const fechaTicket = new Date(ticketActualDatos.fecha_creacion).toLocaleString();
+                const totalTicket = 'C$ ' + parseFloat(ticketActualDatos.total).toFixed(2);
+                const vendedorTicket = ticketActualDatos.nombre_vendedor || 'Vendedor';
+                const clienteTicket = ticketActualDatos.nombre_cliente ? ticketActualDatos.nombre_cliente : 'Cliente Final';
+                const itemsHtml = document.getElementById('ticket-resumen-items-list').innerHTML;
 
-            const tipoImpresora = document.getElementById('select-impresora-resumen').value;
-            const codigoTicket = ticketActualDatos.codigo_ticket;
-            const fechaTicket = new Date(ticketActualDatos.fecha_creacion).toLocaleString();
-            const totalTicket = 'C$ ' + parseFloat(ticketActualDatos.total).toFixed(2);
-            const vendedorTicket = ticketActualDatos.nombre_vendedor || 'Vendedor';
-            const clienteTicket = ticketActualDatos.nombre_cliente ? ticketActualDatos.nombre_cliente : 'Cliente Final';
-            const itemsHtml = document.getElementById('ticket-resumen-items-list').innerHTML;
+                let widthCss = '80mm';
+                if (tipoImpresora === 'pos58') widthCss = '58mm';
+                if (tipoImpresora === 'laser') widthCss = '100%';
 
-            let widthCss = '80mm';
-            if (tipoImpresora === 'pos58') widthCss = '58mm';
-            if (tipoImpresora === 'laser') widthCss = '100%';
-
-            const win = window.open('', '_blank', 'width=600,height=700');
-            win.document.write(`
+                const win = window.open('', '_blank', 'width=600,height=700');
+                win.document.write(`
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -548,14 +557,14 @@
                 </body>
                 </html>
             `);
-            win.document.close();
-        });
+                win.document.close();
+            });
+        }
+
+        window.cargarMetricasResumen = cargarMetricasResumen;
+        window.cargarMisTickets = cargarMisTickets;
+
+        cargarMetricasResumen();
+        cargarMisTickets();
     }
-
-    window.cargarMetricasResumen = cargarMetricasResumen;
-    window.cargarMisTickets = cargarMisTickets;
-
-    cargarMetricasResumen();
-    cargarMisTickets();
-}
 </script>
