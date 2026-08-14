@@ -271,7 +271,7 @@
                     <td class="text-end font-monospace text-success fw-bold">C$ ${parseFloat(t.total).toFixed(2)}</td>
                     <td class="text-center">
                         <span class="badge ${badgeClass} px-3 py-1 me-2">${estadoTexto}</span>
-                        <button class="btn btn-sm btn-outline-success border-0 px-2 py-1" onclick="event.stopPropagation(); verTicketResumen('${t.codigo_ticket}')" title="Reimprimir Ticket ${t.codigo_ticket}">
+                        <button class="btn btn-sm btn-outline-success border-0 px-2 py-1" onclick="event.stopPropagation(); reimprimirTicketDirecto('${t.codigo_ticket}')" title="Reimprimir Ticket ${t.codigo_ticket}">
                             <span class="material-symbols-outlined align-middle" style="font-size: 18px;">print</span>
                         </button>
                     </td>
@@ -486,78 +486,118 @@
             });
         }
 
+        function ejecutarImpresionTicket(data) {
+            if (!data) return;
+
+            const codigoTicket = data.codigo_ticket || 'TK-XXXXXX';
+            const fechaTicket = data.fecha_creacion ? (function() {
+                const d = new Date(data.fecha_creacion.replace(' ', 'T'));
+                return isNaN(d.getTime()) ? data.fecha_creacion : d.toLocaleString();
+            })() : new Date().toLocaleString();
+            const totalTicket = 'C$ ' + parseFloat(data.total).toFixed(2);
+            const vendedorTicket = data.nombre_vendedor || (rawTicketsResponse ? rawTicketsResponse.nombre_usuario_actual : '') || 'Vendedor';
+            const clienteTicket = data.nombre_cliente ? data.nombre_cliente : 'Cliente Final';
+
+            let itemsHtml = '';
+            if (data.items && data.items.length > 0) {
+                data.items.forEach(item => {
+                    const subt = parseFloat(item.precio_unitario) * parseInt(item.cantidad);
+                    itemsHtml += `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>${item.nombre_commercial || 'Producto'} x${item.cantidad} (${item.nombre_empaque || 'Caja'})</span>
+                        <span>C$ ${subt.toFixed(2)}</span>
+                    </div>
+                    `;
+                });
+            } else {
+                itemsHtml = '<div class="text-muted text-center py-2">Sin detalles registrados</div>';
+            }
+
+            const win = window.open('', '_blank', 'width=600,height=700');
+            if (!win) {
+                alert('Por favor habilita las ventanas emergentes (popups) en tu navegador para imprimir.');
+                return;
+            }
+            win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Factura Ticket - ${codigoTicket}</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body { font-family: monospace; font-size: 12px; margin: 0 auto; padding: 15px; max-width: 80mm; }
+                    hr { border-top: 1px dashed #000; }
+                    @media print {
+                        body { max-width: 80mm; padding: 0; }
+                        button { display: none !important; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="text-center mb-2">
+                    <h5 class="m-0 fw-bold">SISTEMA SIF - FARMACIA</h5>
+                    <p class="text-muted m-0" style="font-size: 10px;">REIMPRESIÓN / PRE-VENTA</p>
+                    <h4 class="m-0 fw-bold mt-1">${codigoTicket}</h4>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                    <span>Fecha:</span> <span>${fechaTicket}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                    <span>Vendedor:</span> <span>${vendedorTicket}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
+                    <span>Cliente:</span> <span>${clienteTicket}</span>
+                </div>
+                <hr>
+                <div style="font-size: 11px;">
+                    ${itemsHtml}
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between fw-bold fs-6">
+                    <span>TOTAL:</span> <span>${totalTicket}</span>
+                </div>
+                <hr class="my-3">
+                <div class="text-center py-2" style="font-size: 10px; border: 1px dashed #333; border-radius: 4px;">
+                    <p class="mb-3 text-muted">SELLO / FIRMA DE CAJA</p>
+                    <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
+                    <p class="m-0 mt-1 text-dark fw-bold" style="font-size: 9px;">CAJERO AUTORIZADO</p>
+                </div>
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        setTimeout(function(){ window.close(); }, 500);
+                    };
+                <\/script>
+            </body>
+            </html>
+            `);
+            win.document.close();
+        }
+
+        window.reimprimirTicketDirecto = function(codigo) {
+            fetch(`../../controllers/vendedor/VentaController.php?action=ver_ticket&codigo=${codigo}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.status === 'success') {
+                        ejecutarImpresionTicket(response.data);
+                    } else {
+                        alert('Error al obtener datos del ticket: ' + response.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al reimprimir ticket:", err);
+                    alert("Error al intentar reimprimir el ticket.");
+                });
+        };
+
         if (btnPrintModalResumen) {
             btnPrintModalResumen.addEventListener('click', function() {
-                if (!ticketActualDatos) return;
-
-                const tipoImpresora = document.getElementById('select-impresora-resumen').value;
-                const codigoTicket = ticketActualDatos.codigo_ticket;
-                const fechaTicket = new Date(ticketActualDatos.fecha_creacion).toLocaleString();
-                const totalTicket = 'C$ ' + parseFloat(ticketActualDatos.total).toFixed(2);
-                const vendedorTicket = ticketActualDatos.nombre_vendedor || 'Vendedor';
-                const clienteTicket = ticketActualDatos.nombre_cliente ? ticketActualDatos.nombre_cliente : 'Cliente Final';
-                const itemsHtml = document.getElementById('ticket-resumen-items-list').innerHTML;
-
-                let widthCss = '80mm';
-                if (tipoImpresora === 'pos58') widthCss = '58mm';
-                if (tipoImpresora === 'laser') widthCss = '100%';
-
-                const win = window.open('', '_blank', 'width=600,height=700');
-                win.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Factura Ticket - ${codigoTicket}</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                    <style>
-                        body { font-family: monospace; font-size: 12px; margin: 0 auto; padding: 15px; max-width: ${widthCss}; }
-                        hr { border-top: 1px dashed #000; }
-                        @media print {
-                            body { max-width: ${widthCss}; padding: 0; }
-                            button { display: none !important; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="text-center mb-2">
-                        <h5 class="m-0 fw-bold">SISTEMA SIF - FARMACIA</h5>
-                        <p class="text-muted m-0" style="font-size: 10px;">PRE-VENTA / FACTURA</p>
-                        <h4 class="m-0 fw-bold mt-1">${codigoTicket}</h4>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                        <span>Fecha:</span> <span>${fechaTicket}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                        <span>Vendedor:</span> <span>${vendedorTicket}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                        <span>Cliente:</span> <span>${clienteTicket}</span>
-                    </div>
-                    <hr>
-                    <div style="font-size: 11px;">
-                        ${itemsHtml}
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between fw-bold fs-6">
-                        <span>TOTAL:</span> <span>${totalTicket}</span>
-                    </div>
-                    <hr class="my-3">
-                    <div class="text-center py-2" style="font-size: 10px; border: 1px dashed #333; border-radius: 4px;">
-                        <p class="mb-3 text-muted">SELLO / FIRMA DE CAJA</p>
-                        <div style="border-top: 1px solid #aaa; width: 60%; margin: 0 auto;"></div>
-                        <p class="m-0 mt-1 text-dark fw-bold" style="font-size: 9px;">CAJERO AUTORIZADO</p>
-                    </div>
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            setTimeout(function(){ window.close(); }, 500);
-                        };
-                    </` + `script>
-                </body>
-                </html>
-            `);
-                win.document.close();
+                if (!ticketActualDatos) {
+                    alert('No hay información del ticket cargada.');
+                    return;
+                }
+                ejecutarImpresionTicket(ticketActualDatos);
             });
         }
 
